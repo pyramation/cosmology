@@ -26,7 +26,6 @@ const Commands = {};
 ${paths
   .map((a) => {
     return `Commands['${a.param}'] = _${a.safe};`;
-    // return `module.exports['${a.safe}'] = _${a.safe};`;
   })
   .join('\n')}
 
@@ -35,24 +34,3 @@ ${paths
   `;
 
 fs.writeFileSync(`${__dirname}/../src/cmds.js`, out);
-
-// ALIASES
-
-// const aliases = paths
-//   .map((f) => {
-//     return [`import { aliases as _${f.safe} } from '${f.path}';`];
-//   })
-//   .join('\n');
-
-// const aliasOut = `
-//   ${aliases}
-
-//   ${paths
-//     .map((a) => {
-//       return `module.exports['${a.safe}'] = _${a.safe};`;
-//     })
-//     .join('\n')}
-
-//   `;
-
-// fs.writeFileSync(`${__dirname}/../src/aliases.js`, aliasOut);

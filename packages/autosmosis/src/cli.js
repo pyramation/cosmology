@@ -1,30 +1,13 @@
-import { filter } from 'fuzzy';
-import { prompt } from 'inquirerer';
+import { prompt } from './utils';
 import { Commands as commands } from './cmds';
-
-const keys = Object.keys(commands);
-
-export const search = (answers, input) => {
-  input = input || '';
-  return new Promise(function (resolve) {
-    setTimeout(function () {
-      var fuzzyResult = filter(input, keys);
-      resolve(
-        fuzzyResult.map(function (el) {
-          return el.original;
-        })
-      );
-    }, 25);
-  });
-};
 
 const question = [
   {
     _: true,
-    type: 'autocomplete',
+    type: 'fuzzy',
     name: 'cmd',
     message: 'what do you want to do?',
-    source: search
+    choices: Object.keys(commands)
   }
 ];
 
