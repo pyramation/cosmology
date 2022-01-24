@@ -33,6 +33,7 @@
     "lint": "eslint src --fix",
     "dev": "cross-env NODE_ENV=development babel-node src/autosmosis",
     "watch": "cross-env NODE_ENV=development babel-watch src/autosmosis",
+    "file": "cross-env NODE_ENV=development babel-watch src/file",
     "make:commands": "cross-env NODE_ENV=development node ./bin/build.js",
     "test": "jest",
     "test:watch": "jest --watch",
