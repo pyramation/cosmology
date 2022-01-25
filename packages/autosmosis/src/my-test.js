@@ -9,22 +9,33 @@ import { Secp256k1HdWallet, SigningCosmosClient } from '@cosmjs/launchpad';
 import { AminoTypes, SigningStargateClient, StargateClient } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
+import { osmosis } from './proto/generated/codecimpl';
+import axios from 'axios';
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 const mnemonic =
   'mammal wrestle hybrid cart choose flee transfer filter fly object swamp rookie';
-const go = async () => {
+export const go = async () => {
   const wallet = await Secp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: 'osmo'
   });
-  const [{ address }] = await wallet.getAccounts();
+  const accounts = await wallet.getAccounts();
+  console.log({ accounts, wallet });
+  const [{ address }] = accounts
+  console.log({ address });
   const rpcEndpoint = 'http://143.244.147.126:26657';
   const registry = new Registry();
+
+
+  const lcdResponse = await axios.get(`http://143.244.147.126:1317/auth/accounts/${address}`);
+  console.log({ lcdResponse: lcdResponse.data.result.value })
 
   const aminoTypes = new AminoTypes({
     additions: {
       '/osmosis.gamm.v1beta1.MsgSwapExactAmountIn': {
         aminoType: 'osmosis/gamm/swap-exact-amount-in',
         toAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => {
+          console.log("toAmino:", { sender, routes, tokenIn, tokenOutMinAmount });
           return {
             sender,
             routes,
@@ -33,6 +44,7 @@ const go = async () => {
           }
         },
         fromAmino: ({ sender, routes, token_in, token_out_min_amount }) => {
+          console.log("fromAmino:", { sender, routes, token_in, token_out_min_amount });
           return {
             sender,
             routes,
@@ -42,13 +54,13 @@ const go = async () => {
         }
       }
     }
-  })
+  });
 
-  registry.register('/osmosis.gamm.v1beta1.MsgSwapExactAmountIn', MsgSend);
-  registry.register('/osmosis/gamm/swap-exact-amount-in', MsgSend);
-  registry.register('osmosis/gamm/swap-exact-amount-in', MsgSend);
-  registry.register('osmosis.gamm.swap-exact-amount-in', MsgSend);
-  registry.register('/osmosis.gamm.swap-exact-amount-in', MsgSend);
+  registry.register('/osmosis.gamm.v1beta1.MsgSwapExactAmountIn', osmosis.gamm.v1beta1.MsgSwapExactAmountIn);
+  // registry.register('/osmosis/gamm/swap-exact-amount-in', MsgSend);
+  // registry.register('osmosis/gamm/swap-exact-amount-in', MsgSend);
+  // registry.register('osmosis.gamm.swap-exact-amount-in', MsgSend);
+  // registry.register('/osmosis.gamm.swap-exact-amount-in', MsgSend);
 
 
   // console.log("type",registry.lookupType('/osmosis.gamm.v1beta1.MsgSwapExactAmountIn').)
@@ -82,9 +94,23 @@ const go = async () => {
       tokenOutMinAmount: '733197'
     }
   };
-  const signed = await client.sign(address, [msg], fee, 'mymemo');
+  // const signed = await client.sign(address, [msg], fee, 'mymemo');
+  // console.log(signed);
 
-  console.log(signed);
+  // const res = await client.signAndBroadcast(address, [msg], fee, "yo memo");
+
+  const txRaw = await client.sign(address, [msg], fee, 'mymemo', {
+    'accountNumber': 101402,
+    'sequence': 0,
+    'chainId': 'osmosis-testnet-0'
+  });
+  const txBytes = TxRaw.encode(txRaw).finish();
+  console.log({ txRaw, txBytes })
+  const res = client.broadcastTx(txBytes, 100000, 1000);
+
+  console.log(res);
+
+  // await client.broadcastTx(signed.signatures)
   // maybe we need to update registry
 
   //   const client = new OsmosisClient({
