@@ -6,8 +6,7 @@ const config = {
 };
 
 /**
- * @typedef {Object.<
- * ('cosmos'|
+ * @typedef {('cosmos'|
  * 'osmosis'|
  * 'ion'|
  * 'akash-network'|
@@ -29,18 +28,44 @@ const config = {
  * 'medibloc'|
  * 'comdex'|
  * 'cheqd-network'|
- * 'vidulum'),
- * {usd: string}
- * >} TokenPricesUSDResponse
+ * 'vidulum')} CoinGeckoToken
+ *
+ * @typedef {Object.<string, {usd: number}>} TokenPricesUSDResponse
+ *
  */
+
+export const CoinGeckoToken = {
+  // Enum
+  cosmos: 'cosmos',
+  osmosis: 'osmosis',
+  ion: 'ion',
+  'akash-network': 'akash-network',
+  sentinel: 'sentinel',
+  'iris-network': 'iris-network',
+  'crypto-com-chain': 'crypto-com-chain',
+  persistence: 'persistence',
+  regen: 'regen',
+  starname: 'starname',
+  'e-money': 'e-money',
+  'e-money-eur': 'e-money-eur',
+  'juno-network': 'juno-network',
+  likecoin: 'likecoin',
+  terrausd: 'terrausd',
+  'terra-luna': 'terra-luna',
+  bitcanna: 'bitcanna',
+  'terra-krw': 'terra-krw',
+  secret: 'secret',
+  medibloc: 'medibloc',
+  comdex: 'comdex',
+  'cheqd-network': 'cheqd-network',
+  vidulum: 'vidulum'
+};
 
 /**
  *
- * @param {string[]} pair
- *
- * @returns
+ * @returns {Promise<TokenPricesUSDResponse>}
  */
-export async function getPrice(pair) {
+export async function getPrice() {
   try {
     const response = await axios.get(config.fetchUrl);
 
@@ -53,3 +78,7 @@ export async function getPrice(pair) {
     return null;
   }
 }
+
+(async () => {
+  const promise = await getPrice();
+})();
