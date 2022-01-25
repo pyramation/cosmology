@@ -36,7 +36,7 @@ import { coins } from '@cosmjs/launchpad';
 //   }
 
 export const swapExactAmountIn = ({
-  osmosisAddress,
+  sender,
   routes,
   tokenIn,
   tokenOutMinAmount
@@ -48,7 +48,7 @@ export const swapExactAmountIn = ({
   const msg = {
     type: 'osmosis/gamm/swap-exact-amount-in',
     value: {
-      sender: osmosisAddress,
+      sender: sender,
       routes,
       tokenIn,
       tokenOutMinAmount

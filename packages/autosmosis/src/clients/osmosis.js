@@ -1,10 +1,56 @@
 import bent from 'bent';
+import {
+  assertIsBroadcastTxSuccess,
+  SigningStargateClient,
+  StargateClient
+} from '@cosmjs/stargate';
+import { Registry } from '@cosmjs/proto-signing';
 
 import * as messages from './messages';
 
 export class OsmosisClient {
-  constructor(url = 'https://lcd-osmosis.keplr.app/') {
+  constructor({ url = 'https://lcd-osmosis.keplr.app/', rpcEndpoint, wallet }) {
     this.url = url;
+    this.rpcEndpoint = rpcEndpoint;
+    this.wallet = wallet;
+  }
+  async init() {
+    const [{ address }] = await this.wallet.getAccounts();
+    const registry = new Registry();
+    this.client = await SigningStargateClient.connectWithSigner(
+      this.rpcEndpoint,
+      this.wallet,
+      { registry: registry }
+    );
+  }
+
+  async swapExactAmountIn({ sender, routes, tokenIn, tokenOutMinAmount }) {
+    const payload = messages.swapExactAmountIn({
+      sender,
+      routes,
+      tokenIn,
+      tokenOutMinAmount
+    });
+    return payload;
+    // return await this.sign(payload);
+  }
+
+  async sign(payload) {
+    const signed = await this.client.sign(payload.msgs, payload.fee);
+    return signed;
+  }
+
+  async broadcast(signed) {
+    // We can broadcast it manually later on
+    const result = await this.client.broadcastTx(signed);
+    console.log('Broadcasting result:', result);
+  }
+}
+
+export class OsmosisApiClient {
+  constructor({ url = 'https://lcd-osmosis.keplr.app/', rpcEndpoint, wallet }) {
+    this.url = url;
+    this.wallet = wallet;
   }
 
   async getBalances(address) {
@@ -15,22 +61,6 @@ export class OsmosisClient {
   async getPools() {
     const endpoint = `osmosis/gamm/v1beta1/pools?pagination.limit=750`;
     return await this.request(endpoint);
-  }
-
-  async swapExactAmountIn({
-    osmosisAddress,
-    routes,
-    tokenIn,
-    tokenOutMinAmount
-  }) {
-    const payload = messages.swapExactAmountIn({
-      osmosisAddress,
-      routes,
-      tokenIn,
-      tokenOutMinAmount
-    });
-
-    await this.client.signAndBroadcast(payload.msgs, payload.fee);
   }
 
   get() {

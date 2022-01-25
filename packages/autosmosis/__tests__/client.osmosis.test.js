@@ -1,4 +1,4 @@
-import { OsmosisClient } from '../src/clients/osmosis';
+import { OsmosisClient, OsmosisApiClient } from '../src/clients/osmosis';
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
 import { Secp256k1HdWallet, SigningCosmosClient } from '@cosmjs/launchpad';
@@ -6,19 +6,27 @@ import { Secp256k1HdWallet, SigningCosmosClient } from '@cosmjs/launchpad';
 const TEST_ADDR1 = 'osmo18scnpvh8vkdwhura6r8372v9halwmy34evxr2e';
 // const client = new OsmosisClient('http://10.0.0.15:1317');
 
-const client = new OsmosisClient();
-
+let client;
 describe('can fetch', () => {
-  xit('balances', async () => {
-    const balances = await client.getBalances(TEST_ADDR1);
-    console.log(balances);
+  beforeAll(async () => {
+    const wallet = await Secp256k1HdWallet.generate(12, { prefix: 'osmo' });
+    const [{ address }] = await wallet.getAccounts();
+    console.log('Address:', address);
+    client = new OsmosisClient({
+      wallet
+    });
+    await client.init();
   });
-  xit('getPools', async () => {
-    const pools = await client.getPools();
-    console.log(pools);
-  });
+  //   xit('balances', async () => {
+  //     const balances = await api.getBalances(TEST_ADDR1);
+  //     console.log(balances);
+  //   });
+  //   xit('getPools', async () => {
+  //     const pools = await api.getPools();
+  //     console.log(pools);
+  //   });
   it('swapExactAmountIn', async () => {
-    const pools = await client.swapExactAmountIn({
+    const obj = await client.swapExactAmountIn({
       osmosisAddress: TEST_ADDR1,
       routes: [
         {
@@ -34,6 +42,9 @@ describe('can fetch', () => {
       },
       tokenOutMinAmount: '733197'
     });
-    console.log(pools);
+
+    const signed = await client.sign(obj);
+
+    console.log('obj transaction:', signed);
   });
 });
