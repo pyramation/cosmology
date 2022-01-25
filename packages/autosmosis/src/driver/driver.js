@@ -8,25 +8,20 @@ import { Token } from '../model/Token'
  * @returns a list of swaps
  */
 export function getAllSwaps(allocationsAndWeights) {
-  var swaps = {}
+  var swaps = []
 
-  var walletBalances = [ // TODO test data
-    { "coin": "LUNA", "amount": 13 }, { "coin": "OSMO", "amount": 50 }, { "coin": "STARS", "amount": 2000 }
-  ]
+  var walletBalances = { "LUNA": 13, "OSMO": 50, "STARS": 2000 }
   // 1. get my wallet balances
   // var walletBalances = client.getWalletBalances()
 
-  var prices = { // TODO test data
-    "LUNA": 999.9, "OSMO": 5.31, "STARS": 0.5321, "ATOM": 30.31
-  }
+  var prices = { "LUNA": 999.9, "OSMO": 5.31, "STARS": 0.5321, "ATOM": 30.31 }
   // 2. grab the price of all my wallet's tokens and desired tokens in UST
   // var prices = {}
-
-  walletBalances.forEach(balance => {
+  for (const [coin, amount] of Object.entries(walletBalances)) {
     // prices[balance.coin] = client.getPrice(balance.coin)
-  })
+  }
 
-  allocationsAndWeights.array.forEach(allocation => {
+  allocationsAndWeights.forEach(allocation => {
     if (allocation.type === "coin") {
       // prices[allocation.coin] = client.getPrice(allocation.coin)
     }
@@ -39,24 +34,26 @@ export function getAllSwaps(allocationsAndWeights) {
 
   // 3. calculate my wallet's total balance
   var totalBalance = 0
-  walletBalances.forEach(balance => {
-    totalBalance += balance.amount * prices[balance.coin]
-  })
+  for (const [coin, amount] of Object.entries(walletBalances)) {
+    totalBalance += prices[coin] * amount
+  }
 
   // 4. swap everything for UST
-  walletBalances.forEach(balance => {
-    if (balance.coin != "UST") {
-      swaps.push({"inputCoin": balance.coin, "targetCoin": "UST", "amount": balance.amount})
+  for (const [coin, amount] of Object.entries(walletBalances)) {
+    if ("UST" !== coin) {
+      swaps.push({ "inputCoin": coin, "targetCoin": "UST", "amount": amount })
+    } else {
+      throw Error(coin)
     }
-  })
+  }
 
   // 5. calculate final amounts of needed coins
   // var neededCoins = {"LUNA": 40, "ATOM": 13, "STARS": 0, "UST": 1300.123}
   var neededCoins = {}
-  allocationsAndWeights.array.forEach(allocation => {
+  allocationsAndWeights.forEach(allocation => {
     if (allocation.type === "pool") {
       // coin1 in the pool
-      var amountForAllocation = totalBalance * allocation.weight * allocation.pool.balance
+      var amountForAllocation = Math.floor(totalBalance * allocation.weight * allocation.pool.balance * 100) / 100
       if (neededCoins[allocation.coin1]) {
         neededCoins[allocation.pool.coin1] += amountForAllocation
       } else {
@@ -64,7 +61,7 @@ export function getAllSwaps(allocationsAndWeights) {
       }
 
       // coin2 in the pool
-      amountForAllocation = totalBalance * allocation.weight * 1 - allocation.pool.balance
+      amountForAllocation = Math.floor(totalBalance * allocation.weight * 1 - allocation.pool.balance * 100) / 100
       if (neededCoins[allocation.coin2]) {
         neededCoins[allocation.pool.coin2] += amountForAllocation
       } else {
@@ -82,9 +79,11 @@ export function getAllSwaps(allocationsAndWeights) {
   })
 
   // 6. swap to needed coins
-  neededCoins.array.forEach((coin, amount) => {
-    swaps.push({"inputCoin": "UST", "targetCoin": coin, amount})
-  });
+  for (const [coin, amount] of Object.entries(neededCoins)) {
+    if ("UST" !== coin) {
+      swaps.push({ "inputCoin": "UST", "targetCoin": coin, amount })
+    }
+  }
 
   return swaps
 }
