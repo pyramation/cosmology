@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1em" height="1em" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
-    <title>pane</title>
-    <desc>Created with Sketch.</desc>
-    <g id="pane" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <path d="M0,0 L18,0 L18,18 L0,18 L0,0 Z M7,2 C7.27614237,2 7.5,1.77614237 7.5,1.5 C7.5,1.22385763 7.27614237,1 7,1 C6.72385763,1 6.5,1.22385763 6.5,1.5 C6.5,1.77614237 6.72385763,2 7,2 Z M9,2 C9.27614237,2 9.5,1.77614237 9.5,1.5 C9.5,1.22385763 9.27614237,1 9,1 C8.72385763,1 8.5,1.22385763 8.5,1.5 C8.5,1.77614237 8.72385763,2 9,2 Z M11,2 C11.2761424,2 11.5,1.77614237 11.5,1.5 C11.5,1.22385763 11.2761424,1 11,1 C10.7238576,1 10.5,1.22385763 10.5,1.5 C10.5,1.77614237 10.7238576,2 11,2 Z M1,3 L1,17 L17,17 L17,3 L1,3 Z" id="Shape" fill="currentColor" fill-rule="nonzero"></path>
-    </g>
-</svg>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1em" height="1em" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
-    <title>union</title>
-    <desc>Created with Sketch.</desc>
-    <g id="union" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <path d="M5.14285714,5.14285714 L5.14285714,0.111150742 C5.14285714,0.0497638821 5.18941263,0 5.25400788,0 L17.8888493,0 C17.9502361,0 18,0.046555485 18,0.111150742 L18,12.7459921 C18,12.807379 17.9534445,12.8571429 17.8888493,12.8571429 L12.8571429,12.8571429 L12.8571429,17.8888493 C12.8571429,17.9502361 12.8105874,18 12.7459921,18 L0.111150742,18 C0.0497638821,18 0,17.9534445 0,17.8888493 L0,5.25400788 C0,5.19262102 0.046555485,5.14285714 0.111150742,5.14285714 L5.14285714,5.14285714 Z" id="Shape" fill="currentColor" fill-rule="nonzero"></path>
-    </g>
-</svg>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1em" height="1em" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
-    <title>bevel-corner</title>
-    <desc>Created with Sketch.</desc>
-    <g id="bevel-corner" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <path d="M6.375,0 C6.44403559,0 6.5,0.0559644063 6.5,0.125 L6.5,11.875 C6.5,11.9440356 6.55596441,12 6.625,12 L17.875,12 C17.9440356,12 18,12.0559644 18,12.125 L18,17.875 C18,17.9440356 17.9440356,18 17.875,18 L6.54887298,18 C6.51744923,18 6.48717825,17.9881645 6.46408797,17.9668504 L0.0402149872,12.0371215 C0.0145797115,12.0134582 8.8817842e-16,11.9801584 1.77635684e-15,11.9452711 L0,0.125 C0,0.0559644063 0.0559644063,0 0.125,0 L6.375,0 Z" id="Shape" fill="currentColor" fill-rule="nonzero"></path>
-    </g>
-</svg>
