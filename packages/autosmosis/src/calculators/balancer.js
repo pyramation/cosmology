@@ -86,7 +86,7 @@ export function getAllSwaps(allocationsAndWeights) {
     swaps.push({"inputCoin": "UST", "targetCoin": coin, amount})
   });
 
-  return swaps // TODO return swaps
+  return swaps
 }
 
 /**
@@ -113,14 +113,3 @@ export function executeSwapsAndAllocate(allocationsAndWeights, swaps) {
   })
   return true
 }
-
-// TODO should the pool's balance info be taken from front end, or the osmos api client?
-var _allocationsAndWeights = [ // TODO test data
-  { "type": "coin", "coin": "UST", "weight": 0.3 },
-  { "type": "pool", "pool": { "coin1": "LUNA", "coin2": "UST", "id": 562, "balance": 0.5 }, "weight": 0.3 },
-  { "type": "pool", "pool": { "coin1": "ATOM", "coin2": "STARS", "id": 611, "balance": 0.7 }, "weight": 0.4 }
-]
-var _swaps = [ // TODO test data
-  { "inputCoin": "OSMO", "targetCoin": "UST", "amount": "50" }
-]
-// console.log(getAllSwaps(_allocationsAndWeights) === _swaps)
