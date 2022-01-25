@@ -1,3 +1,3 @@
 export default {
-    autosmosis: true
+  autosmosis: true
 };
