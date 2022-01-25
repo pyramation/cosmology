@@ -1,0 +1,14 @@
+{
+  "presets": ["@babel/preset-env", "@babel/preset-react"],
+  "plugins": [
+    ["@babel/transform-runtime", { "useESModules": true }],
+    "@babel/plugin-proposal-optional-chaining",
+    "@babel/plugin-proposal-nullish-coalescing-operator",
+    "@babel/proposal-object-rest-spread",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/proposal-export-default-from",
+    "babel-plugin-styled-components",
+    "inline-react-svg",
+    "macros"
+  ]
+}

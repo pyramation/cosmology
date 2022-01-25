@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1em" height="1em" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>constrain</title>
+    <desc>Created with Sketch.</desc>
+    <g id="constrain" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M11,11 L11,18 L10.125,18 L10.125,10.125 L18,10.125 L18,11 L11,11 Z M18,7.875 L10.125,7.875 L10.125,0 L11,0 L11,7 L18,7 L18,7.875 Z M7,11 L0,11 L0,10.125 L7.875,10.125 L7.875,18 L7,18 L7,11 Z M7.875,0 L7.875,7.875 L0,7.875 L0,7 L7,7 L7,0 L7.875,0 Z" id="Shape" fill="currentColor" fill-rule="nonzero"></path>
+    </g>
+</svg>
