@@ -1,7 +1,6 @@
 import prices from '../__fixtures__/coingecko/api/v3/simple/price/data.json';
 import { getSwapsForRebalance } from '../src/calculators/balancer';
 import { Token } from '../src/model/Token';
-import exampleCommand from '../src/commands/example-command';
 
 describe('rebalance', () => {
   it('can rebalance', async () => {
