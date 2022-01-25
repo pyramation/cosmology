@@ -1,119 +1,126 @@
-// target 50/50 70/30
-// weights per pol (30% on LP1)
-// isolate for current LP
-// then work on other LP
-
-import { CoinGeckoToken, getPrice } from '../clients/coingecko';
-import { Token } from '../model/Token';
+import { CoinGeckoToken, getPrice } from '../clients/coingecko'
+import { Token } from '../model/Token'
 
 /**
- *
- * @param {object} param0
- * @param {Token} param0.sourceToken
- * @param {Token} param0.targetToken
- * @param {number} param0.sourcePrice
- * @param {number} param0.targetPrice
- * @param {number} param0.targetAlloc
- * @param {number} param0.assignedPoolPurchaseAmount
- *
- * @return {import('../types').Swap}
+ * getAllSwaps returns a list of swaps to achieve the desired allocations
+ * sum of all weights must === 1
+ * @param {*} allocationsAndWeights is a list of desired final pools/coins and their weights
+ * @returns a list of swaps
  */
-function constructSwap({
-  sourceToken,
-  targetToken,
-  sourcePrice,
-  targetPrice,
-  targetAlloc,
-  assignedPoolPurchaseAmount
-}) {
-  //   const priceRatio = targetPrice / sourcePrice; //TODO: check order
+export function getAllSwaps(allocationsAndWeights) {
+  var swaps = {}
 
-  // we want the amount of source token to ape in here:
-  // targetAlloc * assignedPoolPurchaseAmount is the amount of target token we will end up with
-  // targetAlloc * assignedPoolPurchaseAmount / priceRatio is just giving us the target token in terms of our source (think I want to  end up with 3 OSMO worth of LUNA - where LUNA is the target)
-  //   const inAmount = (targetAlloc * assignedPoolPurchaseAmount) / priceRatio;
+  var walletBalances = [ // TODO test data
+    { "coin": "LUNA", "amount": 13 }, { "coin": "OSMO", "amount": 50 }, { "coin": "STARS", "amount": 2000 }
+  ]
+  // 1. get my wallet balances
+  // var walletBalances = client.getWalletBalances()
 
-  // no longer using priceRatio if consolidating into one coin (targetWeight% == sourceWeight%)
-  const inAmount = targetAlloc * assignedPoolPurchaseAmount;
+  var prices = { // TODO test data
+    "LUNA": 999.9, "OSMO": 5.31, "STARS": 0.5321, "ATOM": 30.31
+  }
+  // 2. grab the price of all my wallet's tokens and desired tokens in UST
+  // var prices = {}
 
-  return {
-    inToken: sourceToken,
-    outToken: targetToken,
-    inAmount
-  };
+  walletBalances.forEach(balance => {
+    // prices[balance.coin] = client.getPrice(balance.coin)
+  })
+
+  allocationsAndWeights.array.forEach(allocation => {
+    if (allocation.type === "coin") {
+      // prices[allocation.coin] = client.getPrice(allocation.coin)
+    }
+    if (allocation.type === "pool") {
+      // prices[allocation.pool.coin1] = client.getPrice(allocation.pool.coin1)
+      // prices[allocation.pool.coin2] = client.getPrice(allocation.pool.coin2)
+    }
+    // prices[allocation.coin] = client.getPrice(balance.coin)
+  })
+
+  // 3. calculate my wallet's total balance
+  var totalBalance = 0
+  walletBalances.forEach(balance => {
+    totalBalance += balance.amount * prices[balance.coin]
+  })
+
+  // 4. swap everything for UST
+  walletBalances.forEach(balance => {
+    if (balance.coin != "UST") {
+      swaps.push({"inputCoin": balance.coin, "targetCoin": "UST", "amount": balance.amount})
+    }
+  })
+
+  // 5. calculate final amounts of needed coins
+  // var neededCoins = {"LUNA": 40, "ATOM": 13, "STARS": 0, "UST": 1300.123}
+  var neededCoins = {}
+  allocationsAndWeights.array.forEach(allocation => {
+    if (allocation.type === "pool") {
+      // coin1 in the pool
+      var amountForAllocation = totalBalance * allocation.weight * allocation.pool.balance
+      if (neededCoins[allocation.coin1]) {
+        neededCoins[allocation.pool.coin1] += amountForAllocation
+      } else {
+        neededCoins[allocation.pool.coin1] = amountForAllocation
+      }
+
+      // coin2 in the pool
+      amountForAllocation = totalBalance * allocation.weight * 1 - allocation.pool.balance
+      if (neededCoins[allocation.coin2]) {
+        neededCoins[allocation.pool.coin2] += amountForAllocation
+      } else {
+        neededCoins[allocation.pool.coin2] = amountForAllocation
+      }
+    }
+
+    if (allocation.type === "coin") {
+      if (neededCoins[allocation.coin]) {
+        neededCoins[allocation.coin] += totalBalance * allocation.weight
+      } else {
+        neededCoins[allocation.coin] = totalBalance * allocation.weight
+      }
+    }
+  })
+
+  // 6. swap to needed coins
+  neededCoins.array.forEach((coin, amount) => {
+    swaps.push({"inputCoin": "UST", "targetCoin": coin, amount})
+  });
+
+  return swaps // TODO return swaps
 }
 
 /**
- *
- * @param {object} param0
- * @param {Token[]} param0.poolPair pool to rebalance for
- * @param {number[]} param0.poolAlloc the pool allocation (50/50, 70/30, etc)
- * @param {number} param0.assignedPoolPurchaseWeight e.g. I want to allocate 0.3 (30%) of my rewards to this
- * @param {Token} param0.rewardToken e.g. I want to allocate 30% of my rewards to this
- * @param {number} param0.currentBalance the balance of rewardToken
- * @param {number} param0.prices the prices of all osmosis tokens via coinngecko.getPrice
- *
- * @returns {Promise<import('../types').Swap[]>}
+ * @param {*} allocationsAndWeights
+ * @param {*} swaps
+ * @returns true on success, else false
+ * TODO return error message
  */
-export async function getSwapsForRebalance({
-  poolPair,
-  poolAlloc,
-  assignedPoolPurchaseWeight,
-  rewardToken,
-  currentBalance,
-  prices
-}) {
-  if (rewardToken.isEqual(poolPair[1])) {
-    // operate on the tokens in order
-    poolPair = poolPair.reverse();
-  }
+export function executeSwapsAndAllocate(allocationsAndWeights, swaps) {
+  // 1. do the swaps
+  swaps.array.forEach(swap => {
+    // client.swap(swap.inputCoin, swap.targetCoin, swap.amount)
+  })
 
-  const [poolPrice1, poolPrice2] = poolPair.map(
-    (token) => prices[token.geckoName]
-  );
-
-  /** @type {import('../types').Swap[]} */
-  const swaps = [];
-
-  if (rewardToken === poolPair[0]) {
-    //just  swap for the opposite pair
-
-    swaps.push(
-      constructSwap({
-        sourceToken: rewardToken,
-        targetToken: poolPair[1],
-        sourcePrice: prices[rewardToken.geckoName].usd,
-        targetPrice: poolPrice2.usd,
-        // we want to buy targetAlloc % of target token
-        targetAlloc: poolAlloc[1],
-        assignedPoolPurchaseAmount: assignedPoolPurchaseWeight * currentBalance
-      })
-    );
-  } else {
-    // same as above, just do it twice
-
-    swaps.push(
-      constructSwap({
-        sourceToken: rewardToken,
-        targetToken: poolPair[0],
-        sourcePrice: prices[rewardToken.geckoName].usd,
-        targetPrice: poolPrice1.usd,
-        targetAlloc: poolAlloc[0],
-        assignedPoolPurchaseAmount: assignedPoolPurchaseWeight * currentBalance
-      })
-    );
-
-    swaps.push(
-      constructSwap({
-        sourceToken: rewardToken,
-        targetToken: poolPair[1],
-        sourcePrice: prices[rewardToken.geckoName].usd,
-        targetPrice: poolPrice2.usd,
-        targetAlloc: poolAlloc[1],
-        assignedPoolPurchaseAmount: assignedPoolPurchaseWeight * currentBalance
-      })
-    );
-  }
-
-  return swaps;
+  // 2. deposit into the LP and bond
+  allocationsAndWeights.array.forEach(allocation => {
+    if (allocation.type === "coin") {
+      // do nothing
+    }
+    if (allocation.type === "pool") {
+      // client.deposit(allocation.pool.id, totalBalance * allocation.weight * allocation.pool.balance)
+      // client.bond(allocation.pool.id)
+    }
+  })
+  return true
 }
+
+// TODO should the pool's balance info be taken from front end, or the osmos api client?
+var _allocationsAndWeights = [ // TODO test data
+  { "type": "coin", "coin": "UST", "weight": 0.3 },
+  { "type": "pool", "pool": { "coin1": "LUNA", "coin2": "UST", "id": 562, "balance": 0.5 }, "weight": 0.3 },
+  { "type": "pool", "pool": { "coin1": "ATOM", "coin2": "STARS", "id": 611, "balance": 0.7 }, "weight": 0.4 }
+]
+var _swaps = [ // TODO test data
+  { "inputCoin": "OSMO", "targetCoin": "UST", "amount": "50" }
+]
+// console.log(getAllSwaps(_allocationsAndWeights) === _swaps)
