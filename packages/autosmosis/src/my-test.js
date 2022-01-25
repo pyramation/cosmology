@@ -6,7 +6,7 @@ import {
 } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
 
 import { Secp256k1HdWallet, SigningCosmosClient } from '@cosmjs/launchpad';
-import { SigningStargateClient, StargateClient } from '@cosmjs/stargate';
+import { AminoTypes, SigningStargateClient, StargateClient } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 
@@ -20,20 +20,51 @@ const go = async () => {
   const rpcEndpoint = 'http://143.244.147.126:26657';
   const registry = new Registry();
 
+  const aminoTypes = new AminoTypes({
+    additions: {
+      '/osmosis.gamm.v1beta1.MsgSwapExactAmountIn': {
+        aminoType: 'osmosis/gamm/swap-exact-amount-in',
+        toAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => {
+          return {
+            sender,
+            routes,
+            token_in: tokenIn,
+            token_out_min_amount: tokenOutMinAmount
+          }
+        },
+        fromAmino: ({ sender, routes, token_in, token_out_min_amount }) => {
+          return {
+            sender,
+            routes,
+            tokenIn: token_in,
+            tokenOutMinAmount: token_out_min_amount
+          }
+        }
+      }
+    }
+  })
+
   registry.register('/osmosis.gamm.v1beta1.MsgSwapExactAmountIn', MsgSend);
+  registry.register('/osmosis/gamm/swap-exact-amount-in', MsgSend);
+  registry.register('osmosis/gamm/swap-exact-amount-in', MsgSend);
+  registry.register('osmosis.gamm.swap-exact-amount-in', MsgSend);
+  registry.register('/osmosis.gamm.swap-exact-amount-in', MsgSend);
+
+
+  // console.log("type",registry.lookupType('/osmosis.gamm.v1beta1.MsgSwapExactAmountIn').)
 
   const client = await SigningStargateClient.connectWithSigner(
     rpcEndpoint,
     wallet,
-    { registry: registry }
+    { registry: registry, aminoTypes: aminoTypes }
   );
-  console.log(client);
+
   const fee = {
     amount: coins(0, 'uosmo'),
     gas: '250000'
   };
   const msg = {
-    type: 'osmosis/gamm/swap-exact-amount-in',
+    typeUrl: '/osmosis.gamm.v1beta1.MsgSwapExactAmountIn',
     value: {
       sender: address,
       routes: [
@@ -52,6 +83,7 @@ const go = async () => {
     }
   };
   const signed = await client.sign(address, [msg], fee, 'mymemo');
+
   console.log(signed);
   // maybe we need to update registry
 
