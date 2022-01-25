@@ -1,6 +1,8 @@
 import { getPrice } from '../src/clients/coingecko';
+
 describe('can fetch', () => {
   it('prices', async () => {
-    console.log('prices');
+    const prices = await getPrice();
+    console.log(prices);
   });
 });
