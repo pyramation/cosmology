@@ -249,3 +249,52 @@ button {
 .percentage-input:hover {
   border: 1px solid #212838
 }
+
+.pool-adder__root {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.pool-adder__input-bar {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.pool-adder__input {
+  border-radius: 50px;
+  background: #212838;
+  height: 28px;
+  border: none;
+  padding-left: 32px;
+  color: #fff;
+}
+
+.pool-adder__icon {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+}
+
+.pool-adder__table__container {
+  height: 120px;
+  border: 1px solid #212838;
+  border-radius: 8px;
+  overflow: scroll;
+  margin-bottom: 8px;
+  position: relative;
+  align-self: stretch;
+}
+
+.pool-adder__table__toolbar {
+  border-radius: 8px 8px 0px 0px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 26px;
+  background-color: #212838;
+}

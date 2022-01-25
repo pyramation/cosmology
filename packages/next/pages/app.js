@@ -2,8 +2,10 @@ import React, { Component, useState } from 'react';
 import axios from 'axios';
 import fontawesome from '@fortawesome/fontawesome'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faPlus } from '@fortawesome/fontawesome-free-solid'
+import { faTimes, faPlus, faSearch } from '@fortawesome/fontawesome-free-solid'
 import ReactSlider from 'react-slider'
+import autosmosis from 'autosmosis';
+import PoolAdder from '../src/components/PoolAdder';
 
 const styles = {
     fontFamily: 'sans-serif',
@@ -24,6 +26,7 @@ const defaultPools = [
 const App = (props) => {
 
     const [pools, setPools] = useState(defaultPools);
+    const [showPoolAdder, setShowPoolAdder] = useState(true);
 
     function handleRewardAllocChange(pidx, newValue) {
         setPools(pools.map((p, i) => {
@@ -62,7 +65,11 @@ const App = (props) => {
                                 <p className='detail-text' style={{ marginLeft: 0 }}>%</p>
                             </div>
                         })}
-                        <button className='secondary-button' style={{ marginBottom: 8, alignSelf: 'center' }}><FontAwesomeIcon icon='plus' size="xs" style={{ marginRight: 8 }} />Add Pool</button>
+                        {showPoolAdder ?
+                            <PoolAdder />
+                            :
+                            <button onClick={() => setShowPoolAdder(true)} className='secondary-button' style={{ marginBottom: 8, alignSelf: 'center', fontSize: 14 }}><FontAwesomeIcon icon='plus' style={{ marginRight: 8 }} />Add Pool</button>
+                        }
                     </div>
                 </div>
                 <div className='grid-item' style={{ display: 'flex', flex: 1 }}>
@@ -70,7 +77,7 @@ const App = (props) => {
 
                 </div>
             </div>
-            <i className="detail-text" style={{ fontSize: 12 }}>Want this to run automatically every day? Use our <a href="#" style={{ color: "#0089FF" }}><b>NPM module</b></a></i>
+            <p className="detail-text" style={{ fontSize: 12 }}>Want this to run automatically every day? Use our <a href="#" style={{ color: "#0089FF" }}><b>NPM module</b></a></p>
         </div>
     </div>
 }
