@@ -14,7 +14,7 @@ import axios from 'axios';
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 const mnemonic =
-  'mammal wrestle hybrid cart choose flee transfer filter fly object swamp rookie';
+  'health nest provide snow total tissue intact loyal cargo must credit wrist';
 export const go = async () => {
   const wallet = await Secp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: 'osmo'
@@ -23,11 +23,11 @@ export const go = async () => {
   console.log({ accounts, wallet });
   const [{ address }] = accounts
   console.log({ address });
-  const rpcEndpoint = 'http://143.244.147.126:26657';
+  const rpcEndpoint = 'http://10.0.0.15:26657'; // 'http://143.244.147.126:26657';
   const registry = new Registry();
 
 
-  const lcdResponse = await axios.get(`http://143.244.147.126:1317/auth/accounts/${address}`);
+  const lcdResponse = await axios.get(`http://10.0.0.15:1317/auth/accounts/${address}`);//`http://143.244.147.126:1317/auth/accounts/${address}`);
   console.log({ lcdResponse: lcdResponse.data.result.value })
 
   const aminoTypes = new AminoTypes({
@@ -38,7 +38,12 @@ export const go = async () => {
           console.log("toAmino:", { sender, routes, tokenIn, tokenOutMinAmount });
           return {
             sender,
-            routes,
+            routes: routes.map(r => {
+              return {
+                pool_id: r.poolId,
+                token_out_denom: r.tokenOutDenom
+              }
+            }),
             token_in: tokenIn,
             token_out_min_amount: tokenOutMinAmount
           }
@@ -47,7 +52,12 @@ export const go = async () => {
           console.log("fromAmino:", { sender, routes, token_in, token_out_min_amount });
           return {
             sender,
-            routes,
+            routes: routes.map(r => {
+              return {
+                poolId: r.pool_id,
+                tokenOutDenom: r.token_out_denom
+              }
+            }),
             tokenIn: token_in,
             tokenOutMinAmount: token_out_min_amount
           }
@@ -98,14 +108,17 @@ export const go = async () => {
   // console.log(signed);
 
   // const res = await client.signAndBroadcast(address, [msg], fee, "yo memo");
+  
 
+  const { accountNumber, sequence }  = await client.getSequence(address);
+  console.log({accountNumber, sequence});
   const txRaw = await client.sign(address, [msg], fee, 'mymemo', {
-    'accountNumber': 101402,
-    'sequence': 0,
-    'chainId': 'osmosis-testnet-0'
+    'accountNumber': accountNumber,
+    'sequence': sequence,
+    'chainId': 'localnet-1'
   });
   const txBytes = TxRaw.encode(txRaw).finish();
-  console.log({ txRaw, txBytes })
+  console.log({ txRawSig: txRaw.signatures, txBytes })
   const res = client.broadcastTx(txBytes, 100000, 1000);
 
   console.log(res);
