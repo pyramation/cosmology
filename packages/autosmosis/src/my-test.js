@@ -7,13 +7,13 @@ import {
 
 import { Secp256k1HdWallet, SigningCosmosClient } from '@cosmjs/launchpad';
 import { AminoTypes, SigningStargateClient, StargateClient } from '@cosmjs/stargate';
-import { Registry } from '@cosmjs/proto-signing';
+import { decodeTxRaw, Registry } from '@cosmjs/proto-signing';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 import { osmosis } from './proto/generated/codecimpl';
 import axios from 'axios';
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
-const NET = "NOT_LOCAL"
+const NET = process.env.local ? "LOCAL" : "NOT_LOCAL";
 
 // localnet
 // const mnemonic =
@@ -26,14 +26,12 @@ export const go = async () => {
     prefix: 'osmo'
   });
   const accounts = await wallet.getAccounts();
-  console.log({ accounts, wallet });
   const [{ address }] = accounts
-  console.log({ address });
-  const rpcEndpoint =  NET === 'LOCAL' ? 'http://10.0.0.15:26657': 'http://143.244.147.126:26657'; // 'http://143.244.147.126:26657';
+  const rpcEndpoint = NET === 'LOCAL' ? 'http://10.0.0.15:26657' : 'http://143.244.147.126:26657'; // 'http://143.244.147.126:26657';
   const registry = new Registry();
 
 
-  const lcdResponse = await axios.get(NET === 'LOCAL' ? `http://10.0.0.15:1317/auth/accounts/${address}`: `http://143.244.147.126:1317/auth/accounts/${address}`);//`http://143.244.147.126:1317/auth/accounts/${address}`);
+  const lcdResponse = await axios.get(NET === 'LOCAL' ? `http://10.0.0.15:1317/auth/accounts/${address}` : `http://143.244.147.126:1317/auth/accounts/${address}`);//`http://143.244.147.126:1317/auth/accounts/${address}`);
   console.log({ lcdResponse: lcdResponse.data.result.value })
 
   const aminoTypes = new AminoTypes({
@@ -117,15 +115,23 @@ export const go = async () => {
 
 
   const { accountNumber, sequence } = await client.getSequence(address);
-  console.log({ accountNumber, sequence });
+
   const txRaw = await client.sign(address, [msg], fee, 'mymemo', {
     'accountNumber': accountNumber,
     'sequence': sequence,
-    'chainId': NET === 'LOCAL' ? 'localnet-1' : 'osmosis-testnet-='
+    'chainId': NET === 'LOCAL' ? 'localnet-1' : 'osmosis-testnet-0'
   });
   const txBytes = TxRaw.encode(txRaw).finish();
-  console.log({ txRawSig: txRaw.signatures, txBytes })
+  
+  const decoded = {
+    authInfo:decodeTxRaw(txBytes).authInfo,
+    body:decodeTxRaw(txBytes).body
+  }
+  console.log(JSON.stringify(decoded, null, 2));
+
+  // console.log({ txRawSig: txRaw.signatures, txBytes })
   const res = await client.broadcastTx(txBytes, 100000, 1000);
+
 
   console.log(res);
 
