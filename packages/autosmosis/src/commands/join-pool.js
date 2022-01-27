@@ -5,8 +5,18 @@ import { coin } from '@cosmjs/amino';
 
 export default async (argv) => {
   argv.chainToken = 'OSMO';
-  const osmosTestnetRests = ['http://143.244.147.126:1317'];
-  const osmosTestnetRpcs = ['http://143.244.147.126:26657'];
+  const osmosTestnetRests = ['http://143.244.147.126:1317'].map(value => {
+    return {
+      name: `${value} (testnet)`,
+      value
+    }
+  });
+  const osmosTestnetRpcs = ['http://143.244.147.126:26657'].map(value => {
+    return {
+      name: `${value} (testnet)`,
+      value
+    }
+  });
 
   const chain = await promptChain(argv);
   const wallet = await promptOsmoWallet(argv);
@@ -14,7 +24,12 @@ export default async (argv) => {
 
   try {
     // const rest = chain.apis.rest.map(({ address }) => address);
-    const rpc = chain.apis.rpc.map(({ address }) => address);
+    const rpc = chain.apis.rpc.map(({ address }) => address).map(value => {
+      return {
+        name: `${value} (mainnet)`,
+        value
+      }
+    });
     const questions = [
       {
         type: 'list',
