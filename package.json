@@ -37,6 +37,10 @@
     "url": "https://github.com/pyramation/autosmosis"
   },
   "dependencies": {
-    "@jest/transform": "27.4.6"
+    "@jest/transform": "27.4.6",
+    "@keplr-wallet/cosmos": "^0.9.11-rc.3",
+    "@keplr-wallet/stores": "^0.9.11",
+    "@keplr-wallet/types": "^0.9.10",
+    "@keplr-wallet/wc-client": "^0.9.10"
   }
 }

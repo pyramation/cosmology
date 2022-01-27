@@ -6,21 +6,21 @@ import { osmosis } from './proto/generated/codecimpl';
 import axios from 'axios';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
-const NET = process.env.local ? 'LOCAL' : 'TESTNET';
+export const NET = 'NOT_LOCAL';
 
-const mnemonic =
+export const mnemonic =
   NET === 'LOCAL'
     ? 'health nest provide snow total tissue intact loyal cargo must credit wrist'
     : 'mammal wrestle hybrid cart choose flee transfer filter fly object swamp rookie';
 
-const chainId = NET === 'LOCAL' ? 'localnet-1' : 'osmosis-testnet-0';
+export const chainId = NET === 'LOCAL' ? 'localnet-1' : 'osmosis-testnet-0';
 
 // rpc
-const rpcEndpoint =
+export const rpcEndpoint =
   NET === 'LOCAL' ? 'http://10.0.0.15:26657' : 'http://143.244.147.126:26657';
 
 // lcd
-const lcdEndpoint =
+export const lcdEndpoint =
   NET === 'LOCAL' ? 'http://10.0.0.15:1317' : 'http://143.244.147.126:1317';
 
 export const main = async () => {
@@ -52,25 +52,25 @@ export const main = async () => {
             sender,
             routes: routes.map((r) => {
               return {
-                pool_id: r.poolId,
-                token_out_denom: r.tokenOutDenom
+                poolId: r.poolId,
+                tokenOutDenom: r.tokenOutDenom
               };
             }),
-            token_in: tokenIn,
-            token_out_min_amount: tokenOutMinAmount
+            tokenIn: tokenIn,
+            tokenOutMinAmount: tokenOutMinAmount
           };
         },
-        fromAmino: ({ sender, routes, token_in, token_out_min_amount }) => {
+        fromAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => {
           return {
             sender,
             routes: routes.map((r) => {
               return {
-                poolId: r.pool_id,
-                tokenOutDenom: r.token_out_denom
+                poolId: r.poolId,
+                tokenOutDenom: r.tokenOutDenom
               };
             }),
-            tokenIn: token_in,
-            tokenOutMinAmount: token_out_min_amount
+            tokenIn: tokenIn,
+            tokenOutMinAmount
           };
         }
       }
@@ -132,7 +132,7 @@ export const main = async () => {
 
   const res = await client.broadcastTx(txBytes, 100000, 1000);
 
-  console.log(res);
+  console.log({res});
 };
 
 main();

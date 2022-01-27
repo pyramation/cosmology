@@ -2,12 +2,71 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import axios from 'axios';
+import { chainId, lcdEndpoint, NET, rpcEndpoint } from 'autosmosis/src';
+import { keplerMain } from 'autosmosis/src/keplr-test';
 
 export default function Home() {
 
-  function handleTest() {
-    axios.get('/api/go')
+  async function addChain() {
+    try {
+
+      // DO THIS ONCE FOR TESTNET I GUESS
+      const result = await window.keplr.experimentalSuggestChain({
+        chainId: chainId,
+        chainName: NET === 'LOCAL' ? "Osmosis Localnet":"Osmosis Testnet",
+        rpc: rpcEndpoint,
+        rest: lcdEndpoint,
+        stakeCurrency: {
+          coinDenom: "OSMO",
+          coinMinimalDenom: "uosmo",
+          coinDecimals: 6,
+        },
+        bip44: {
+          coinType: 118,
+        },
+        bech32Config: {
+          bech32PrefixAccAddr: "osmo",
+          bech32PrefixAccPub: "osmopub",
+          bech32PrefixValAddr: "osmovaloper",
+          bech32PrefixValPub: "osmovaloperpub",
+          bech32PrefixConsAddr: "osmovalcons",
+          bech32PrefixConsPub: "osmovalconspub"
+        },
+        currencies: [{
+          coinDenom: "ATOM",
+          coinMinimalDenom: "uatom",
+          coinDecimals: 6,
+        },
+        {
+          coinDenom: "OSMO",
+          coinMinimalDenom: "uosmo",
+          coinDecimals: 6,
+        }
+        ],
+        feeCurrencies: [{
+          coinDenom: "OSMO",
+          coinMinimalDenom: "uosmo",
+          coinDecimals: 6,
+        }],
+        coinType: 118,
+        gasPriceStep: {
+          low: 0.01,
+          average: 0.025,
+          high: 0.04
+        }
+      });
+
+      console.log(result);
+    } catch {
+      alert("Failed to suggest the chain");
+    }
   }
+
+  async function handleTest() {
+    await addChain();
+    await keplerMain()
+  }
+
 
   return (
     <div className={styles.container}>
@@ -18,7 +77,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <button onClick={() =>handleTest()}>click me</button>
+        <button onClick={() => handleTest()}>click me</button>
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
