@@ -1,5 +1,6 @@
 import { AminoTypes, SigningStargateClient } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
+import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
 import { aminos } from './types';
 import { msgs } from './msgs';
@@ -35,4 +36,21 @@ export const getClient = async ({ rpcEndpoint, wallet }) => {
   );
 
   return client;
+};
+
+export const signAndBroadcast = async ({
+  client,
+  chainId,
+  address,
+  msg,
+  fee
+}) => {
+  const { accountNumber, sequence } = await client.getSequence(address);
+  const txRaw = await client.sign(address, [msg], fee, 'yolo-our-memo', {
+    accountNumber: accountNumber,
+    sequence: sequence,
+    chainId
+  });
+  const txBytes = TxRaw.encode(txRaw).finish();
+  return await client.broadcastTx(txBytes);
 };

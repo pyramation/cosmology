@@ -1,14 +1,7 @@
-import { coins, coin } from '@cosmjs/launchpad';
+import { coins } from '@cosmjs/launchpad';
 import { Secp256k1HdWallet } from '@cosmjs/launchpad';
-import { AminoTypes, SigningStargateClient } from '@cosmjs/stargate';
-import { decodeTxRaw, Registry } from '@cosmjs/proto-signing';
-import { osmosis } from './proto/generated/codecimpl';
 import axios from 'axios';
-import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-
-import { msgs } from './messages/msgs';
-import { aminos } from './messages/types';
-import { getClient } from './messages';
+import { getClient, signAndBroadcast } from './messages';
 
 const NET = process.env.local ? 'LOCAL' : 'TESTNET';
 
@@ -70,17 +63,7 @@ export const main = async () => {
     }
   };
 
-  const { accountNumber, sequence } = await client.getSequence(address);
-
-  console.log({ accountNumber, sequence });
-
-  const txRaw = await client.sign(address, [msg], fee, 'mymemo', {
-    accountNumber: accountNumber,
-    sequence: sequence,
-    chainId
-  });
-  const txBytes = TxRaw.encode(txRaw).finish();
-  const res = await client.broadcastTx(txBytes);
+  const res = await signAndBroadcast({ client, chainId, address, msg, fee });
 
   console.log(res);
 };
