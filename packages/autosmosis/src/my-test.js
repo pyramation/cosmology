@@ -1,4 +1,3 @@
-import { coins } from '@cosmjs/launchpad';
 import { Secp256k1HdWallet } from '@cosmjs/launchpad';
 import axios from 'axios';
 import { generateOsmoMessage, getClient, signAndBroadcast } from './messages';
