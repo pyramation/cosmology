@@ -8,6 +8,7 @@ import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
 import { msgs } from './messages/msgs';
 import { aminos } from './messages/types';
+import { getClient } from './messages';
 
 const NET = process.env.local ? 'LOCAL' : 'TESTNET';
 
@@ -42,34 +43,7 @@ export const main = async () => {
 
   console.log({ authAccountInfo: authAccountInfo.data.result.value });
 
-  // registry
-  const registry = new Registry();
-
-  // aminotypes
-  const aminoTypes = new AminoTypes({
-    additions: Object.keys(aminos).reduce((m, key) => {
-      const meta = msgs[key];
-      const { toAmino, fromAmino } = aminos[key];
-      m[meta.amino] = {
-        aminoType: meta.type,
-        toAmino,
-        fromAmino
-      };
-      return m;
-    }, {})
-  });
-
-  // register
-  Object.keys(aminos).forEach((key) => {
-    const meta = msgs[key];
-    registry.register(meta.amino, meta.osmosis);
-  });
-
-  const client = await SigningStargateClient.connectWithSigner(
-    rpcEndpoint,
-    wallet,
-    { registry: registry, aminoTypes: aminoTypes }
-  );
+  const client = await getClient({ rpcEndpoint, wallet });
 
   const fee = {
     amount: coins(0, 'uosmo'),
@@ -106,14 +80,7 @@ export const main = async () => {
     chainId
   });
   const txBytes = TxRaw.encode(txRaw).finish();
-
-  const decoded = {
-    authInfo: decodeTxRaw(txBytes).authInfo,
-    body: decodeTxRaw(txBytes).body
-  };
-  //   console.log(JSON.stringify(decoded, null, 2));
-
-  const res = await client.broadcastTx(txBytes, 100000, 1000);
+  const res = await client.broadcastTx(txBytes);
 
   console.log(res);
 };
