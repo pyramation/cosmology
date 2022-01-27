@@ -4,7 +4,7 @@ import fontawesome from '@fortawesome/fontawesome'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimes, faPlus, faSearch } from '@fortawesome/fontawesome-free-solid'
 import ReactSlider from 'react-slider'
-import autosmosis from 'autosmosis';
+import { assets } from 'autosmosis';
 import PoolAdder from '../src/components/PoolAdder';
 
 const styles = {
@@ -74,7 +74,6 @@ const App = (props) => {
                 </div>
                 <div className='grid-item' style={{ display: 'flex', flex: 1 }}>
                     <button className='action-button' style={{ flex: 1, height: 60 }}>Preview swaps &amp; fees</button>
-
                 </div>
             </div>
             <p className="detail-text" style={{ fontSize: 12 }}>Want this to run automatically every day? Use our <a href="#" style={{ color: "#0089FF" }}><b>NPM module</b></a></p>
