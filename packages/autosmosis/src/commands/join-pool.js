@@ -8,7 +8,6 @@ export default async (argv) => {
 
   try {
 
-
     const address = account.address;
     const { msg, fee } = messages.joinPool({
       poolId: '606',

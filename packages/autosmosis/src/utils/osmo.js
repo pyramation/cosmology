@@ -29,6 +29,13 @@ export const osmoRpcClient = async (argv) => {
         value
       }
     });
+    if (process.env.CHAIN_ID) {
+        argv.chainId = process.env.CHAIN_ID;
+    }
+    if (process.env.RPC_ENDPOINT) {
+        argv.rpcEndpoint = process.env.RPC_ENDPOINT;
+    }
+    
     const questions = [
       {
         type: 'list',
@@ -38,28 +45,28 @@ export const osmoRpcClient = async (argv) => {
       },
       {
         type: 'list',
-        name: 'rpcUrl',
-        message: 'RpcUrl',
+        name: 'rpcEndpoint',
+        message: 'rpcEndpoint',
         choices: [...rpc, ...osmosTestnetRpcs]
       }
       //   {
       //     type: 'list',
-      //     name: 'restUrl',
-      //     message: 'restUrl',
+      //     name: 'restEndpoint',
+      //     message: 'restEndpoint',
       //     choices: [...rest, ...osmosTestnetRests]
       //   }
     ];
-    const { rpcUrl, chainId } = await prompt(questions, argv);
-    // if (osmosTestnetRests.includes(restUrl)) {
+    const { rpcEndpoint, chainId } = await prompt(questions, argv);
+    // if (osmosTestnetRests.includes(restEndpoint)) {
     //   console.log('WARN: using TESTNET');
     // }
 
-    const client = await getClient({ rpcEndpoint: rpcUrl, wallet });
+    const client = await getClient({ rpcEndpoint: rpcEndpoint, wallet });
     // const address = account.address;
 
     argv.chainId = chainId;
-    argv.rpcUrl = rpcUrl;
-    // argv.restUrl = restUrl;
+    argv.rpcEndpoint = rpcEndpoint;
+    // argv.restEndpoint = restEndpoint;
     return {client, wallet};
 
 } catch (e) {
