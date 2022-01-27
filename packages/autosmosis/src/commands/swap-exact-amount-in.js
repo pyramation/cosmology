@@ -34,7 +34,7 @@ export default async (argv) => {
         type: 'list',
         name: 'chainId',
         message: 'chainId',
-        choices: ['localnet-1', 'osmosis-testnet-0']
+        choices: ['localnet-1', 'osmosis-testnet-0', 'osmosis-1']
       },
       {
         type: 'list',

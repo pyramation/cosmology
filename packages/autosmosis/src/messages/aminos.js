@@ -53,14 +53,14 @@ export const aminos = {
   },
   lockTokens: {
     toAmino: ({ owner, duration, coins }) => ({
-      owner,
+      coins,
       duration,
-      coins
+      owner
     }),
     fromAmino: ({ owner, duration, coins }) => ({
-      owner,
+      coins,
       duration,
-      coins
+      owner
     })
   },
   beginUnlocking: {
