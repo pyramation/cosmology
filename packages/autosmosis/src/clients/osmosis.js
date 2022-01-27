@@ -1,5 +1,12 @@
 import bent from 'bent';
 import { getClient } from '../messages/utils';
+import { assets } from '../assets';
+
+const assetHashMap = assets.reduce((m, asset) => {
+  m[asset.base] = asset;
+  return m;
+}, {});
+
 // import { messages } from '../messages/create';
 export class OsmosisClient {
   constructor({ url = 'https://lcd-osmosis.keplr.app/', rpcEndpoint, wallet }) {
@@ -28,6 +35,32 @@ export class OsmosisApiClient {
   async getPools() {
     const endpoint = `osmosis/gamm/v1beta1/pools?pagination.limit=750`;
     return await this.request(endpoint);
+  }
+
+  async getPoolsPretty({ includeDetails = false } = {}) {
+    const { pools } = await this.getPools();
+
+    const prettyPools = pools.map((pool) => {
+      const totalWeight = Number(pool.totalWeight);
+      const tokens = pool.poolAssets.map(({ token, weight }) => {
+        const asset = assetHashMap?.[token.denom];
+        const symbol = asset?.symbol ?? token.denom;
+        const ratio = Number(weight) / totalWeight;
+        const obj = {
+          symbol,
+          amount: token.amount,
+          ratio
+        };
+        if (includeDetails) {
+          obj.info = asset;
+        }
+        return obj;
+      });
+
+      return tokens;
+    });
+
+    return prettyPools;
   }
 
   get() {

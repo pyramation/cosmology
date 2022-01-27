@@ -35,3 +35,13 @@ if you need to edit `autosmosis` and view changes in next
 cd ./packages/autosmosis
 MODULE=true yarn build
 ```
+
+## CLI
+
+if you need to edit the CLI
+
+```sh
+cd ./packages/autosmosis
+export MNEMONIC="mammal wrestle hybrid cart choose flee transfer filter fly object swamp rookie"
+yarn run dev
+```
