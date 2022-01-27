@@ -1,6 +1,6 @@
 import { Secp256k1HdWallet } from '@cosmjs/launchpad';
 import axios from 'axios';
-import { generateOsmoMessage, getClient, signAndBroadcast } from './messages';
+import { getClient, signAndBroadcast } from './messages';
 import { messages } from './messages/create';
 
 const NET = process.env.local ? 'LOCAL' : 'TESTNET';
