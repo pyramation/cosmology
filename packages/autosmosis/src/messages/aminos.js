@@ -1,3 +1,5 @@
+import Long from 'long';
+
 const parseRoutes = (routes) =>
   routes.map((r) => {
     return {
@@ -52,16 +54,31 @@ export const aminos = {
     fromAmino: () => {}
   },
   lockTokens: {
-    toAmino: ({ owner, duration, coins }) => ({
-      coins,
-      duration,
-      owner
-    }),
-    fromAmino: ({ owner, duration, coins }) => ({
-      coins,
-      duration,
-      owner
-    })
+    toAmino: (args) => {
+      const { owner, duration, coins } = args;
+      console.log(args);
+
+      return {
+        owner, 
+        coins,
+        duration: (duration * 1_000_000_000).toString(),
+      }
+
+    },
+    fromAmino: (args) => {
+      const { owner, duration, coins } = args;
+      console.log(args);
+
+      return {
+        owner, 
+        coins,
+        // duration: Number(duration) / 1_000_000_000,
+        duration: {
+          seconds: Long.fromNumber(Math.floor(parseInt(duration) / 1_000_000_000)),
+          nanos: parseInt(duration) % 1_000_000_000,
+        }
+      }
+    }
   },
   beginUnlocking: {
     toAmino: () => {},

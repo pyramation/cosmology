@@ -8,10 +8,19 @@ export default async (argv) => {
 
   // TODO add to Osmo Client
   // https://lcd-osmosis.keplr.app/osmosis/pool-incentives/v1beta1/lockable_durations
+
+  // {
+  //   "lockable_durations": [
+  //     "86400s",
+  //     "604800s",
+  //     "1209600s"
+  //   ]
+  // }
+
   const durations = [
-    { name: '1 Day', value: "86400000000000" },
-    { name: '7 Days', value: "604800000000000" },
-    { name: '14 Days', value: "1209600000000000" },
+    { name: '1 Day', value: "86400" },
+    { name: '7 Days', value: "604800" },
+    { name: '14 Days', value: "1209600" },
   ];
 
   try {
@@ -23,7 +32,8 @@ export default async (argv) => {
         choices: durations
       }
     ];
-    const { duration } = await prompt(questions, argv);
+    let { duration } = await prompt(questions, argv);
+    duration = Number(duration);
     const address = account.address;
     const { msg, fee } = messages.lockTokens({
       owner: address,
