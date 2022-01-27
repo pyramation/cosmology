@@ -49,7 +49,7 @@ export function getAllSwaps (allocationsAndWeights) {
     }
   })
 
-  // 3. get prices of all my wallet's tokens and finalNeededCoins
+  // 3. get prices of finalNeededCoins and all my wallet's tokens 
   var neededPrices = []
   for (const [coin, _] of Object.entries(walletBalances)) {
     neededPrices.push(coin)
@@ -106,7 +106,7 @@ export function getAllSwaps (allocationsAndWeights) {
 export function executeSwapsAndAllocate (allocationsAndWeights, swaps) {
   // 1. do the swaps
   swaps.array.forEach(swap => {
-    // DriverClient.swap(swap.inputCoin, swap.targetCoin, swap.amount)
+    DriverClient.swap(swap.inputCoin, swap.targetCoin, swap.amount)
   })
 
   // 2. deposit into the LP and bond
@@ -127,7 +127,7 @@ class DriverClient {
     return { LUNA: 13, OSMO: 50, STARS: 2000 }
   }
 
-  static swap() {
+  static swap(inputCoin, targetCoin, amount) {
 
   }
 
