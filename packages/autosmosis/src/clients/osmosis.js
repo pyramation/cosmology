@@ -1,5 +1,4 @@
 import bent from 'bent';
-import { getClient } from '../messages/utils';
 import { assets } from '../assets';
 
 const assetHashMap = assets.reduce((m, asset) => {
@@ -7,19 +6,53 @@ const assetHashMap = assets.reduce((m, asset) => {
   return m;
 }, {});
 
-// import { messages } from '../messages/create';
-// export class OsmosisClient {
-//   constructor({ rpcEndpoint, wallet }) {
-//     this.rpcEndpoint = rpcEndpoint;
-//     this.wallet = wallet;
-//   }
-//   async init() {
-//     this.client = getClient({
-//       rpcEndpoint: this.rpcEndpoint,
-//       wallet: this.wallet
-//     });
-//   }
-// }
+export class CosmosApiClient {
+  constructor({ url }) {
+    this.url = url.endsWith('/') ? url : `${url}/`;
+  }
+
+  async getBalances(address) {
+    const endpoint = `bank/balances/${address}`;
+    return await this.request(endpoint);
+  }
+  
+  async authInfo(address) {
+    const endpoint = `auth/accounts/${address}`;
+    return await this.request(endpoint);
+  }
+
+  async getUnbondingDelegations(address) {
+    const endpoint = `staking/delegators/${address}/unbonding_delegations`;
+    return await this.request(endpoint);
+  }
+
+  async getDelegations(address) {
+    const endpoint = `staking/delegators/${address}/delegations`;
+    return await this.request(endpoint);
+  }
+
+  get() {
+    return bent(this.url, 'GET', 'json', 200);
+  }
+
+  async request(endpoint) {
+    try {
+      const body = {};
+      const headers = {};
+      const result = await this.get()(endpoint, body, headers);
+      if (result.response) {
+        return result.response;
+      }
+      return result;
+    } catch (e) {
+      console.error(
+        'Cosmos API response error:',
+        e.response ? e.response.data : e
+      );
+      return null;
+    }
+  }
+}
 
 export class OsmosisApiClient {
   constructor({ url = 'https://lcd-osmosis.keplr.app/' } = {}) {
@@ -36,8 +69,63 @@ export class OsmosisApiClient {
     return await this.request(endpoint);
   }
 
+  async getPool(poolId) {
+    const endpoint = `osmosis/gamm/v1beta1/pools/${poolId}`;
+    return await this.request(endpoint);
+  }
+
+  async getIncentivizedPools() {
+    const endpoint = `osmosis/pool-incentives/v1beta1/incentivized_pools`;
+    return await this.request(endpoint);
+  }
+
   async authInfo(address) {
     const endpoint = `auth/accounts/${address}`;
+    return await this.request(endpoint);
+  }
+
+  async getAccountLockedLongerDuration(address) {
+    const endpoint = `osmosis/lockup/v1beta1/account_locked_longer_duration/${address}`;
+    return await this.request(endpoint);
+  }
+
+  async getAccountLockedCoins(address) {
+    const endpoint = `osmosis/lockup/v1beta1/account_locked_coins/${address}`;
+    return await this.request(endpoint);
+  }
+
+  async getEpochProvision() {
+    const endpoint = `osmosis/mint/v1beta1/epoch_provisions`;
+    return await this.request(endpoint);
+  }
+
+  async getEpochs() {
+    const endpoint = `osmosis/epochs/v1beta1/epochs`;
+    return await this.request(endpoint);
+  }
+
+  async getDistrInfo() {
+    const endpoint = `osmosis/pool-incentives/v1beta1/distr_info`;
+    return await this.request(endpoint);
+  }
+
+  async getParams() {
+    const endpoint = `osmosis/mint/v1beta1/params`;
+    return await this.request(endpoint);
+  }
+
+  async getLockableDuration() {
+    const endpoint = `osmosis/pool-incentives/v1beta1/lockable_durations`;
+    return await this.request(endpoint);
+  }
+
+  async getUnbondingDelegations(address) {
+    const endpoint = `staking/delegators/${address}/unbonding_delegations`;
+    return await this.request(endpoint);
+  }
+
+  async getDelegations(address) {
+    const endpoint = `staking/delegators/${address}/delegations`;
     return await this.request(endpoint);
   }
 
@@ -101,6 +189,39 @@ export class OsmosisApiClient {
     } catch (e) {
       console.error(
         'Osmosis API response error:',
+        e.response ? e.response.data : e
+      );
+      return null;
+    }
+  }
+}
+
+export class OsmosisValidatorClient {
+  constructor({ url = 'https://api-osmosis.imperator.co/' } = {}) {
+    this.url = url.endsWith('/') ? url : `${url}/`;
+  }
+
+  async getPools() {
+    const endpoint = `search/v1/pools`;
+    return await this.request(endpoint);
+  }
+
+  get() {
+    return bent(this.url, 'GET', 'json', 200);
+  }
+
+  async request(endpoint) {
+    try {
+      const body = {};
+      const headers = {};
+      const result = await this.get()(endpoint, body, headers);
+      if (result.response) {
+        return result.response;
+      }
+      return result;
+    } catch (e) {
+      console.error(
+        'Osmosis Validator response error:',
         e.response ? e.response.data : e
       );
       return null;
