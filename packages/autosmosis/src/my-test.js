@@ -52,25 +52,25 @@ export const main = async () => {
             sender,
             routes: routes.map((r) => {
               return {
-                pool_id: r.poolId,
-                token_out_denom: r.tokenOutDenom
+                poolId: r.poolId,
+                tokenOutDenom: r.tokenOutDenom
               };
             }),
-            token_in: tokenIn,
-            token_out_min_amount: tokenOutMinAmount
+            tokenIn,
+            tokenOutMinAmount
           };
         },
-        fromAmino: ({ sender, routes, token_in, token_out_min_amount }) => {
+        fromAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => {
           return {
             sender,
             routes: routes.map((r) => {
               return {
-                poolId: r.pool_id,
-                tokenOutDenom: r.token_out_denom
+                poolId: r.poolId,
+                tokenOutDenom: r.tokenOutDenom
               };
             }),
-            tokenIn: token_in,
-            tokenOutMinAmount: token_out_min_amount
+            tokenIn,
+            tokenOutMinAmount
           };
         }
       }
