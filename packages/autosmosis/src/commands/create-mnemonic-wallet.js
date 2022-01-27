@@ -2,9 +2,16 @@ import { Secp256k1HdWallet } from '@cosmjs/amino';
 import { prompt } from '../utils';
 
 export default async (argv) => {
-
   const { length } = await prompt(
-    [{ _: true, type: 'number', name: 'length', message: 'length', default: 12 }],
+    [
+      {
+        _: true,
+        type: 'number',
+        name: 'length',
+        message: 'length',
+        default: 12
+      }
+    ],
     argv
   );
 
