@@ -44,7 +44,7 @@ export class OsmosisApiClient {
   async getPoolsPretty({ includeDetails = false } = {}) {
     const { pools } = await this.getPools();
 
-    const prettyPools = pools.map((pool) => {
+    const prettyPools = pools.map((pool,i) => {
       const totalWeight = Number(pool.totalWeight);
       const tokens = pool.poolAssets.map(({ token, weight }) => {
         const asset = assetHashMap?.[token.denom];
@@ -60,8 +60,26 @@ export class OsmosisApiClient {
         }
         return obj;
       });
-
-      return tokens;
+      if (!i) console.log(pool);
+      const value = {
+        nickname: tokens.map(t=>t.symbol).join('/'),
+      };
+      if (includeDetails) {
+        value.images = tokens.map(t=>{
+          const imgs = t?.info?.logo_URIs;
+          if (imgs) {
+            return {
+              token: t.symbol,
+              images: imgs
+            };
+          }
+        }).filter(Boolean)
+      }
+      return {
+        ...value,
+        ...pool,
+        poolAssetsPretty: tokens
+      };
     });
 
     return prettyPools;
