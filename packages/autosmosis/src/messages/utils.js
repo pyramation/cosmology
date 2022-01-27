@@ -1,6 +1,7 @@
 import { AminoTypes, SigningStargateClient } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { coins } from '@cosmjs/launchpad';
 
 import { aminos } from './types';
 import { msgs } from './msgs';
@@ -53,4 +54,21 @@ export const signAndBroadcast = async ({
   });
   const txBytes = TxRaw.encode(txRaw).finish();
   return await client.broadcastTx(txBytes);
+};
+
+export const generateMessage = (name, msg) => {
+  if (!msgs[name]) throw new Error('missing message.');
+  const gas = msgs[name].gas + ''; // TEST if needs string or if number is ok
+  const fee = {
+    amount: coins(0, 'uosmo'),
+    gas
+  };
+
+  return {
+    fee,
+    msg: {
+      typeUrl: msgs[name].amino,
+      value: msg
+    }
+  };
 };

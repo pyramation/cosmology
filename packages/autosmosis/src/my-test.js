@@ -1,7 +1,7 @@
 import { coins } from '@cosmjs/launchpad';
 import { Secp256k1HdWallet } from '@cosmjs/launchpad';
 import axios from 'axios';
-import { getClient, signAndBroadcast } from './messages';
+import { generateMessage, getClient, signAndBroadcast } from './messages';
 
 const NET = process.env.local ? 'LOCAL' : 'TESTNET';
 
@@ -38,30 +38,22 @@ export const main = async () => {
 
   const client = await getClient({ rpcEndpoint, wallet });
 
-  const fee = {
-    amount: coins(0, 'uosmo'),
-    gas: '250000'
-  };
-
-  const msg = {
-    typeUrl: '/osmosis.gamm.v1beta1.MsgSwapExactAmountIn',
-    value: {
-      sender: address,
-      routes: [
-        {
-          poolId: '606',
-          tokenOutDenom:
-            'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2'
-        }
-      ],
-      tokenIn: {
-        denom:
-          'ibc/B9E0A1A524E98BB407D3CED8720EFEFD186002F90C1B1B7964811DD0CCC12228',
-        amount: '4091500000'
-      },
-      tokenOutMinAmount: '733197'
-    }
-  };
+  const { msg, fee } = generateMessage('swapExactAmountIn', {
+    sender: address,
+    routes: [
+      {
+        poolId: '606',
+        tokenOutDenom:
+          'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2'
+      }
+    ],
+    tokenIn: {
+      denom:
+        'ibc/B9E0A1A524E98BB407D3CED8720EFEFD186002F90C1B1B7964811DD0CCC12228',
+      amount: '4091500000'
+    },
+    tokenOutMinAmount: '733197'
+  });
 
   const res = await signAndBroadcast({ client, chainId, address, msg, fee });
 
