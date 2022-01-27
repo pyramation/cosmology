@@ -6,6 +6,9 @@ import { osmosis } from './proto/generated/codecimpl';
 import axios from 'axios';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
+import { msgs } from './aminos/msgs';
+import { aminos } from './aminos/types';
+
 const NET = process.env.local ? 'LOCAL' : 'TESTNET';
 
 const mnemonic =
@@ -44,43 +47,23 @@ export const main = async () => {
 
   // aminotypes
   const aminoTypes = new AminoTypes({
-    additions: {
-      '/osmosis.gamm.v1beta1.MsgSwapExactAmountIn': {
-        aminoType: 'osmosis/gamm/swap-exact-amount-in',
-        toAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => {
-          return {
-            sender,
-            routes: routes.map((r) => {
-              return {
-                poolId: r.poolId,
-                tokenOutDenom: r.tokenOutDenom
-              };
-            }),
-            tokenIn,
-            tokenOutMinAmount
-          };
-        },
-        fromAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => {
-          return {
-            sender,
-            routes: routes.map((r) => {
-              return {
-                poolId: r.poolId,
-                tokenOutDenom: r.tokenOutDenom
-              };
-            }),
-            tokenIn,
-            tokenOutMinAmount
-          };
-        }
-      }
-    }
+    additions: Object.keys(aminos).reduce((m, key) => {
+      const meta = msgs[key];
+      const { toAmino, fromAmino } = aminos[key];
+      m[meta.amino] = {
+        aminoType: meta.type,
+        toAmino,
+        fromAmino
+      };
+      return m;
+    }, {})
   });
 
-  registry.register(
-    '/osmosis.gamm.v1beta1.MsgSwapExactAmountIn',
-    osmosis.gamm.v1beta1.MsgSwapExactAmountIn
-  );
+  // register
+  Object.keys(aminos).forEach((key) => {
+    const meta = msgs[key];
+    registry.register(meta.amino, meta.osmosis);
+  });
 
   const client = await SigningStargateClient.connectWithSigner(
     rpcEndpoint,
