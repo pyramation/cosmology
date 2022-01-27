@@ -1,7 +1,7 @@
 import { coins } from '@cosmjs/launchpad';
 import { Secp256k1HdWallet } from '@cosmjs/launchpad';
 import axios from 'axios';
-import { generateMessage, getClient, signAndBroadcast } from './messages';
+import { generateOsmoMessage, getClient, signAndBroadcast } from './messages';
 
 const NET = process.env.local ? 'LOCAL' : 'TESTNET';
 
@@ -38,7 +38,7 @@ export const main = async () => {
 
   const client = await getClient({ rpcEndpoint, wallet });
 
-  const { msg, fee } = generateMessage('swapExactAmountIn', {
+  const { msg, fee } = generateOsmoMessage('swapExactAmountIn', {
     sender: address,
     routes: [
       {

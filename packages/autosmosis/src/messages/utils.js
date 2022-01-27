@@ -44,10 +44,11 @@ export const signAndBroadcast = async ({
   chainId,
   address,
   msg,
-  fee
+  fee,
+  memo = 'super-cosmonauts'
 }) => {
   const { accountNumber, sequence } = await client.getSequence(address);
-  const txRaw = await client.sign(address, [msg], fee, 'yolo-our-memo', {
+  const txRaw = await client.sign(address, [msg], fee, memo, {
     accountNumber: accountNumber,
     sequence: sequence,
     chainId
@@ -56,7 +57,7 @@ export const signAndBroadcast = async ({
   return await client.broadcastTx(txBytes);
 };
 
-export const generateMessage = (name, msg) => {
+export const generateOsmoMessage = (name, msg) => {
   if (!msgs[name]) throw new Error('missing message.');
   const gas = msgs[name].gas + ''; // TEST if needs string or if number is ok
   const fee = {
