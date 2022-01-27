@@ -1,4 +1,4 @@
-import bent from 'bent';
+import { RestClient } from './rest';
 import { assets } from '../assets';
 
 const assetHashMap = assets.reduce((m, asset) => {
@@ -6,9 +6,10 @@ const assetHashMap = assets.reduce((m, asset) => {
   return m;
 }, {});
 
-export class CosmosApiClient {
+export class CosmosApiClient extends RestClient{
   constructor({ url }) {
-    this.url = url.endsWith('/') ? url : `${url}/`;
+    super({url});
+    this._clientType = 'Cosmos API';
   }
 
   async getBalances(address) {
@@ -30,38 +31,12 @@ export class CosmosApiClient {
     const endpoint = `staking/delegators/${address}/delegations`;
     return await this.request(endpoint);
   }
-
-  get() {
-    return bent(this.url, 'GET', 'json', 200);
-  }
-
-  async request(endpoint) {
-    try {
-      const body = {};
-      const headers = {};
-      const result = await this.get()(endpoint, body, headers);
-      if (result.response) {
-        return result.response;
-      }
-      return result;
-    } catch (e) {
-      console.error(
-        'Cosmos API response error:',
-        e.response ? e.response.data : e
-      );
-      return null;
-    }
-  }
 }
 
-export class OsmosisApiClient {
+export class OsmosisApiClient extends CosmosApiClient {
   constructor({ url = 'https://lcd-osmosis.keplr.app/' } = {}) {
-    this.url = url.endsWith('/') ? url : `${url}/`;
-  }
-
-  async getBalances(address) {
-    const endpoint = `bank/balances/${address}`;
-    return await this.request(endpoint);
+    super({url})
+    this._clientType = 'Osmosis API';
   }
 
   async getPools() {
@@ -76,11 +51,6 @@ export class OsmosisApiClient {
 
   async getIncentivizedPools() {
     const endpoint = `osmosis/pool-incentives/v1beta1/incentivized_pools`;
-    return await this.request(endpoint);
-  }
-
-  async authInfo(address) {
-    const endpoint = `auth/accounts/${address}`;
     return await this.request(endpoint);
   }
 
@@ -116,16 +86,6 @@ export class OsmosisApiClient {
 
   async getLockableDuration() {
     const endpoint = `osmosis/pool-incentives/v1beta1/lockable_durations`;
-    return await this.request(endpoint);
-  }
-
-  async getUnbondingDelegations(address) {
-    const endpoint = `staking/delegators/${address}/unbonding_delegations`;
-    return await this.request(endpoint);
-  }
-
-  async getDelegations(address) {
-    const endpoint = `staking/delegators/${address}/delegations`;
     return await this.request(endpoint);
   }
 
@@ -172,59 +132,17 @@ export class OsmosisApiClient {
 
     return prettyPools;
   }
-
-  get() {
-    return bent(this.url, 'GET', 'json', 200);
-  }
-
-  async request(endpoint) {
-    try {
-      const body = {};
-      const headers = {};
-      const result = await this.get()(endpoint, body, headers);
-      if (result.response) {
-        return result.response;
-      }
-      return result;
-    } catch (e) {
-      console.error(
-        'Osmosis API response error:',
-        e.response ? e.response.data : e
-      );
-      return null;
-    }
-  }
+  
 }
 
-export class OsmosisValidatorClient {
+export class OsmosisValidatorClient extends RestClient {
   constructor({ url = 'https://api-osmosis.imperator.co/' } = {}) {
-    this.url = url.endsWith('/') ? url : `${url}/`;
+    super({url});
+    this._clientType = 'Osmosis Validator';
   }
 
   async getPools() {
     const endpoint = `search/v1/pools`;
     return await this.request(endpoint);
-  }
-
-  get() {
-    return bent(this.url, 'GET', 'json', 200);
-  }
-
-  async request(endpoint) {
-    try {
-      const body = {};
-      const headers = {};
-      const result = await this.get()(endpoint, body, headers);
-      if (result.response) {
-        return result.response;
-      }
-      return result;
-    } catch (e) {
-      console.error(
-        'Osmosis Validator response error:',
-        e.response ? e.response.data : e
-      );
-      return null;
-    }
   }
 }
