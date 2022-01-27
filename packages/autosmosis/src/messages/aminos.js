@@ -12,17 +12,15 @@ export const aminos = {
     fromAmino: () => {}
   },
   joinPool: {
-    toAmino: ({ sender, poolId, tokenIn, shareOutAmount, tokenInMaxs }) => ({
+    toAmino: ({ sender, poolId, shareOutAmount, tokenInMaxs }) => ({
       sender,
       poolId,
-      tokenIn,
       shareOutAmount,
       tokenInMaxs
     }),
-    fromAmino: ({ sender, poolId, tokenIn, shareOutAmount, tokenInMaxs }) => ({
+    fromAmino: ({ sender, poolId, shareOutAmount, tokenInMaxs }) => ({
       sender,
       poolId,
-      tokenIn,
       shareOutAmount,
       tokenInMaxs
     })

@@ -46,14 +46,14 @@ export default async (argv) => {
       poolId: '606',
       sender: address,
       shareOutAmount: '101010101',
-      tokenIn: coin(0, 'uosmo'),
       tokenInMaxs: [
-        coin(10, 'uatom'),
-        coin(20, 'uosmo')
+        coin(10248, 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2'),
+        coin(64837969, 'ibc/B9E0A1A524E98BB407D3CED8720EFEFD186002F90C1B1B7964811DD0CCC12228')
       ]
     });
 
     console.log({ chainId, address, msg, fee });
+    console.log(JSON.stringify({ msg }, null, 2));
     const res = await signAndBroadcast({ client, chainId, address, msg, fee });
 
     console.log(res);
