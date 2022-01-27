@@ -8,19 +8,18 @@ const assetHashMap = assets.reduce((m, asset) => {
 }, {});
 
 // import { messages } from '../messages/create';
-export class OsmosisClient {
-  constructor({ url = 'https://lcd-osmosis.keplr.app/', rpcEndpoint, wallet }) {
-    this.url = url.endsWith('/') ? url : `${url}/`;
-    this.rpcEndpoint = rpcEndpoint;
-    this.wallet = wallet;
-  }
-  async init() {
-    this.client = getClient({
-      rpcEndpoint: this.rpcEndpoint,
-      wallet: this.wallet
-    });
-  }
-}
+// export class OsmosisClient {
+//   constructor({ rpcEndpoint, wallet }) {
+//     this.rpcEndpoint = rpcEndpoint;
+//     this.wallet = wallet;
+//   }
+//   async init() {
+//     this.client = getClient({
+//       rpcEndpoint: this.rpcEndpoint,
+//       wallet: this.wallet
+//     });
+//   }
+// }
 
 export class OsmosisApiClient {
   constructor({ url = 'https://lcd-osmosis.keplr.app/' } = {}) {
