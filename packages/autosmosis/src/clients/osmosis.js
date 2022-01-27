@@ -36,6 +36,11 @@ export class OsmosisApiClient {
     return await this.request(endpoint);
   }
 
+  async authInfo(address) {
+    const endpoint = `auth/accounts/${address}`;
+    return await this.request(endpoint);
+  }
+
   async getPoolsPretty({ includeDetails = false } = {}) {
     const { pools } = await this.getPools();
 

@@ -3,7 +3,7 @@ import { promptChain, promptMnemonic } from '../utils';
 
 import { OsmosisApiClient } from '../clients/osmosis';
 export default async (argv) => {
-  argv.token = 'OSMO';
+  argv.chainToken = 'OSMO';
   const osmosTestnetRests = ['http://143.244.147.126:1317'];
 
   const chain = await promptChain(argv);

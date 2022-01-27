@@ -1,10 +1,9 @@
-import { prompt, promptOsmoWallet, promptWalletOfToken } from '../utils';
-import { promptChain, promptMnemonic } from '../utils';
+import { prompt, promptOsmoWallet } from '../utils';
+import { promptChain  } from '../utils';
 import { getClient, signAndBroadcast, messages } from '../messages';
-import { OsmosisClient } from '../clients/osmosis';
 
 export default async (argv) => {
-  argv.token = 'OSMO';
+  argv.chainToken = 'OSMO';
   const osmosTestnetRests = ['http://143.244.147.126:1317'];
   const osmosTestnetRpcs = ['http://143.244.147.126:26657'];
 

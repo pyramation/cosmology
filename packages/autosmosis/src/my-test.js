@@ -1,5 +1,4 @@
 import { Secp256k1HdWallet } from '@cosmjs/amino';
-import axios from 'axios';
 import { getClient, signAndBroadcast } from './messages';
 import { messages } from './messages/create';
 
@@ -29,12 +28,6 @@ export const main = async () => {
   const accounts = await wallet.getAccounts();
   const [{ address }] = accounts;
   // lcd for account info
-
-  const authAccountInfo = await axios.get(
-    `${lcdEndpoint}/auth/accounts/${address}`
-  );
-
-  console.log({ authAccountInfo: authAccountInfo.data.result.value });
 
   const client = await getClient({ rpcEndpoint, wallet });
 
