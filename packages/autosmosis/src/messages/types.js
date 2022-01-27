@@ -1,11 +1,31 @@
+const parseRoutes = (routes) =>
+  routes.map((r) => {
+    return {
+      poolId: r.poolId,
+      tokenOutDenom: r.tokenOutDenom
+    };
+  });
+
 export const aminos = {
   createPool: {
     toAmino: () => {},
     fromAmino: () => {}
   },
   joinPool: {
-    toAmino: () => {},
-    fromAmino: () => {}
+    toAmino: ({ sender, poolId, tokenIn, shareOutAmount, tokenInMaxs }) => ({
+      sender,
+      poolId,
+      tokenIn,
+      shareOutAmount,
+      tokenInMaxs
+    }),
+    fromAmino: ({ sender, poolId, tokenIn, shareOutAmount, tokenInMaxs }) => ({
+      sender,
+      poolId,
+      tokenIn,
+      shareOutAmount,
+      tokenInMaxs
+    })
   },
   joinSwapExternAmountIn: {
     toAmino: () => {},
@@ -16,40 +36,34 @@ export const aminos = {
     fromAmino: () => {}
   },
   swapExactAmountIn: {
-    toAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => {
-      return {
-        sender,
-        routes: routes.map((r) => {
-          return {
-            poolId: r.poolId,
-            tokenOutDenom: r.tokenOutDenom
-          };
-        }),
-        tokenIn: tokenIn,
-        tokenOutMinAmount
-      };
-    },
-    fromAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => {
-      return {
-        sender,
-        routes: routes.map((r) => {
-          return {
-            poolId: r.poolId,
-            tokenOutDenom: r.tokenOutDenom
-          };
-        }),
-        tokenIn,
-        tokenOutMinAmount
-      };
-    }
+    toAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => ({
+      sender,
+      routes: parseRoutes(routes),
+      tokenIn,
+      tokenOutMinAmount
+    }),
+    fromAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => ({
+      sender,
+      routes: parseRoutes(routes),
+      tokenIn,
+      tokenOutMinAmount
+    })
   },
   swapExactAmountOut: {
     toAmino: () => {},
     fromAmino: () => {}
   },
   lockTokens: {
-    toAmino: () => {},
-    fromAmino: () => {}
+    toAmino: ({ owner, duration, coins }) => ({
+      owner,
+      duration,
+      coins
+    }),
+    fromAmino: ({ owner, duration, coins }) => ({
+      owner,
+      duration,
+      coins
+    })
   },
   beginUnlocking: {
     toAmino: () => {},

@@ -1,6 +1,6 @@
 import { osmosis } from '../proto/generated/codecimpl';
 
-export const msgs = {
+export const meta = {
   createPool: {
     osmosis: osmosis.gamm.v1beta1.MsgCreatePool,
     amino: '/osmosis.gamm.v1beta1.MsgCreatePool',

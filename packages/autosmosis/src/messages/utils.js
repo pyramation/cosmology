@@ -4,7 +4,7 @@ import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { coins } from '@cosmjs/launchpad';
 
 import { aminos } from './types';
-import { msgs } from './msgs';
+import { meta as metaInfo } from './meta';
 
 export const getClient = async ({ rpcEndpoint, wallet }) => {
   // registry
@@ -13,7 +13,7 @@ export const getClient = async ({ rpcEndpoint, wallet }) => {
   // aminotypes
   const aminoTypes = new AminoTypes({
     additions: Object.keys(aminos).reduce((m, key) => {
-      const meta = msgs[key];
+      const meta = metaInfo[key];
       const { toAmino, fromAmino } = aminos[key];
       m[meta.amino] = {
         aminoType: meta.type,
@@ -26,7 +26,7 @@ export const getClient = async ({ rpcEndpoint, wallet }) => {
 
   // register the goods
   Object.keys(aminos).forEach((key) => {
-    const meta = msgs[key];
+    const meta = metaInfo[key];
     registry.register(meta.amino, meta.osmosis);
   });
 
@@ -58,8 +58,8 @@ export const signAndBroadcast = async ({
 };
 
 export const generateOsmoMessage = (name, msg) => {
-  if (!msgs[name]) throw new Error('missing message.');
-  const gas = msgs[name].gas + ''; // TEST if needs string or if number is ok
+  if (!metaInfo[name]) throw new Error('missing message.');
+  const gas = metaInfo[name].gas + ''; // TEST if needs string or if number is ok
   const fee = {
     amount: coins(0, 'uosmo'),
     gas
@@ -68,7 +68,7 @@ export const generateOsmoMessage = (name, msg) => {
   return {
     fee,
     msg: {
-      typeUrl: msgs[name].amino,
+      typeUrl: metaInfo[name].amino,
       value: msg
     }
   };
