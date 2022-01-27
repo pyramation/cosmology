@@ -1,6 +1,6 @@
 import { Secp256k1HdWallet } from '@cosmjs/amino';
 import { getClient, signAndBroadcast } from './messages';
-import { messages } from './messages/create';
+import { messages } from './messages/messages';
 
 const NET = process.env.local ? 'LOCAL' : 'TESTNET';
 
