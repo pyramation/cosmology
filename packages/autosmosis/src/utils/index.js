@@ -2,4 +2,4 @@ export * from './chain';
 export * from './prompt';
 export * from './helpers';
 export * from './wallet';
-export * from './osmo';
+export * from './prompts/osmo';

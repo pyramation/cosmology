@@ -1,7 +1,7 @@
-import { prompt, promptOsmoWallet } from '../utils';
-import { promptChain  } from '../utils';
-import { getClient } from '../messages';
-import { OsmosisApiClient } from '../clients/osmosis';
+import { prompt, promptOsmoWallet } from '..';
+import { promptChain  } from '..';
+import { getClient } from '../../messages';
+import { OsmosisApiClient } from '../../clients/osmosis';
 
 const osmosTestnetRests = ['http://143.244.147.126:1317'].map(value => {
   return {
