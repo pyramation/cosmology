@@ -6,8 +6,8 @@ import { osmosis } from './proto/generated/codecimpl';
 import axios from 'axios';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
-import { msgs } from './aminos/msgs';
-import { aminos } from './aminos/types';
+import { msgs } from './messages/msgs';
+import { aminos } from './messages/types';
 
 const NET = process.env.local ? 'LOCAL' : 'TESTNET';
 
