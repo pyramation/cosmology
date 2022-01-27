@@ -116,8 +116,8 @@ export function executeSwapsAndAllocate (allocationsAndWeights, swaps) {
       // do nothing
     }
     if (allocation.type === 'pool') {
-      DriverClient.deposit(allocation.pool.id, totalBalance * allocation.weight * allocation.pool.balance)
-      DriverClient.bond(allocation.pool.id)
+      DriverClient.joinPool(allocation.pool.id, totalBalance * allocation.weight * allocation.pool.balance)
+      DriverClient.lockTokens(allocation.pool.id)
     }
   })
   return true
