@@ -3,7 +3,7 @@ import { Registry } from '@cosmjs/proto-signing';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { coins } from '@cosmjs/launchpad';
 
-import { aminos } from './types';
+import { aminos } from './aminos';
 import { meta as metaInfo } from './meta';
 
 export const getClient = async ({ rpcEndpoint, wallet }) => {
