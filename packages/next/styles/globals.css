@@ -42,7 +42,7 @@ input:focus {
 }
 
 button {
-  font-family: 'Plus Jakarta Sans';
+  font-family: 'Plus Jakarta Text';
 }
 
 .main-text {
@@ -140,6 +140,10 @@ button {
 
 .container {
   margin: 0 16px;
+}
+
+.animate-resize {
+  transition: all 0.2s ease-in-out;
 }
 
 .maxwidth-sm {
@@ -333,7 +337,7 @@ button {
 }
 
 .pool-adder__table__toolbar p {
-  font-family: 'Plus Jakarta Sans';
+  font-family: 'Plus Jakarta Text';
   color: #9BA3B0;
   text-transform: uppercase;
   font-weight: 500;
@@ -393,4 +397,10 @@ button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.swap-container {
+  border: 1px solid #212838;
+  border-radius: 20px;
+  margin-bottom: 8px;
 }
