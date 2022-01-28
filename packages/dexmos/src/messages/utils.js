@@ -2,13 +2,14 @@ import { AminoTypes, SigningStargateClient } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { coins } from '@cosmjs/amino';
+import { defaultRegistryTypes } from '@cosmjs/stargate';
 
 import { aminos } from './aminos';
 import { meta as metaInfo } from './meta';
 
 export const getClient = async ({ rpcEndpoint, wallet }) => {
   // registry
-  const registry = new Registry();
+  const registry = new Registry(defaultRegistryTypes);
 
   // aminotypes
   const aminoTypes = new AminoTypes({
