@@ -10,9 +10,12 @@ import { fetchListOfPools } from '../src/clients/autosmosis';
 import PoolPairImage from '../src/components/subComponents/PoolPairImage';
 import PoolAllocSummary from '../src/components/PoolAllocSummary';
 import Nav from '../src/components/Nav';
+import Job from '../src/components/subComponents/Job';
 
+const SYMBOLCOINHASH = {};
 const COINHASH = assets.reduce((m, asset) => {
     m[asset.base] = asset;
+    SYMBOLCOINHASH[asset.symbol] = asset;
     return m;
 }, {});
 console.log(COINHASH);
@@ -54,7 +57,7 @@ const App = ({ pools }) => {
     const [showPoolAdder, setShowPoolAdder] = useState(false);
     const [queuedPools, setQueuedPools] = useState([]);
     const [showPreview, setShowPreview] = useState(false);
-    const [swaps, setSwaps] = useState([]);
+    const [jobs, setJobs] = useState([]);
 
     function savePoolSettings() {
         console.log("Savinng", ourPools);
@@ -137,7 +140,7 @@ const App = ({ pools }) => {
 
         const swaps = await getAllSwaps(poolObjectsMapped);
         setShowPreview(true);
-        setSwaps(swaps);
+        setJobs(swaps);
     }
 
     console.log(ourPools)
@@ -148,13 +151,12 @@ const App = ({ pools }) => {
             <div className='grid-container light-border column animate-resize' style={{ borderRadius: 32, alignItems: 'stretch' }}>
                 {showPreview ?
                     <div >
-                        {swaps.map(swap => {
-                            return <div key={swap.inputCoin + "->" + swap.outputCoin + ":" + swap.amount} className='swap-container'>
-
-                            </div>
+                        {jobs.map(job => {
+                            const jobDetails = job.job;
+                            return <Job job={job}/>
                         })}
                         <pre>
-                            {JSON.stringify(swaps, null, 2)}
+                            {JSON.stringify(jobs, null, 2)}
                         </pre>
                     </div>
                     :
