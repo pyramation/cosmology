@@ -5,12 +5,7 @@ import axios from 'axios'
 
 export class Driver {
   constructor () {
-    this.promises = []
-    this.txnMap = {}
     this.txnStatus = {}
-    this.lastPromise = null
-
-    return null
   }
 
   getStatus (txnId) {
