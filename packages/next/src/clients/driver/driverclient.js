@@ -1,8 +1,9 @@
-import { CoinGeckoToken, getPrices } from "dexmos";
-import { assets } from "../assets";
+import { CoinGeckoToken, getPrices, assets } from "dexmos";
+import {getBalance} from "../cosmo"
 
 export class DriverClient {
-  static getWalletBalances() {
+  static async getWalletBalances() {
+
     return { LUNA: 13, OSMO: 50, STARS: 2000 };
   }
 
@@ -29,7 +30,7 @@ export class DriverClient {
       return geckoAsset.coingecko_id;
     });
 
-    const pricesInGeckoFormat = await getPrices(["osmosis", "cosmos"]);
+    const pricesInGeckoFormat = await getPrices(coinsInGeckoFormat);
 
     var prices = {};
     Object.keys(pricesInGeckoFormat).map((geckoId) => {
