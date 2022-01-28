@@ -28,6 +28,7 @@ export const messages = {
             gas: "130000"
         };
 
+        // https://github.com/cosmos/cosmjs/blob/main/packages/stargate/src/aminotypes.ts#L464
         return {
             fee,
             msg: {

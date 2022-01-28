@@ -5,7 +5,7 @@ import { messages } from '../messages/native';
 export default async (argv) => {
     const { client, wallet } = await osmoRpcClient(argv);
     const [account] = await wallet.getAccounts();
-
+    // https://github.com/cosmos/cosmjs/blob/main/packages/stargate/src/aminotypes.ts#L464
     const { receiver } = await prompt([
         {
             type: 'string',
