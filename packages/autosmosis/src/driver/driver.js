@@ -20,13 +20,6 @@ export class Driver {
   async executejobs (jobs) {
     let shouldExit = false
 
-    //assign IDs
-    jobs.forEach(job => {
-      const txnId = Math.floor(Math.random() * 100000000) // random txn id (for internal use)
-      job.txnId = txnId
-      this.txnStatus[txnId] = 'queued'
-    })
-
     const promises = asyncPool(1, jobs, async job => {
       if (shouldExit) {
         console.log('skipping txn')
@@ -103,7 +96,17 @@ export class Driver {
     // 6. swap everything for UST
     for (const [coin, amount] of Object.entries(walletBalances)) {
       if ('UST' !== coin) {
-        jobs.push({ inputCoin: coin, targetCoin: 'UST', amount: amount })
+        const txnId = Math.floor(Math.random() * 100000000) // random txn id (for internal use)
+        this.txnStatus[txnId] = 'queued'
+        jobs.push({
+          type: 'swap',
+          txnId,
+          job: {
+            inputCoin: coin,
+            targetCoin: 'UST',
+            amount: amount
+          }
+        })
       } else {
         throw Error(coin)
       }
@@ -112,8 +115,11 @@ export class Driver {
     // 7. swap to needed coins
     for (const [coin, amount] of Object.entries(finalNeededCoinAmounts)) {
       if ('UST' !== coin) {
+        const txnId = Math.floor(Math.random() * 100000000) // random txn id (for internal use)
+        this.txnStatus[txnId] = 'queued'
         jobs.push({
           type: 'swap',
+          txnId,
           job: {
             inputCoin: 'UST',
             targetCoin: coin,
@@ -126,8 +132,11 @@ export class Driver {
     // 8. join all pools
     allocationsAndWeights.forEach(allocation => {
       if (allocation.type === 'pool') {
+        const txnId = Math.floor(Math.random() * 100000000) // random txn id (for internal use)
+        this.txnStatus[txnId] = 'queued'
         jobs.push(allocation, {
           type: 'joinPool',
+          txnId,
           job: {
             poolId: allocation.pool.id,
             amount: totalBalance * allocation.weight * allocation.pool.balance
@@ -139,8 +148,11 @@ export class Driver {
     // 9. lock tokens
     allocationsAndWeights.forEach(allocation => {
       if (allocation.type === 'pool') {
+        const txnId = Math.floor(Math.random() * 100000000) // random txn id (for internal use)
+        this.txnStatus[txnId] = 'queued'
         jobs.push(allocation, {
           type: 'lockTokens',
+          txnId,
           job: {
             poolId: allocation.pool.id
           }

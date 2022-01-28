@@ -12,9 +12,9 @@ describe('testGetAllJobs', () => {
     ])
     expect(jobs.length).toEqual(14)
 
-    expect(jobs[0].inputCoin).toEqual("LUNA")
-    expect(jobs[0].targetCoin).toEqual("UST")
-    expect(jobs[0].amount).toBeGreaterThan(0)
+    expect(jobs[0].job.inputCoin).toEqual("LUNA")
+    expect(jobs[0].job.targetCoin).toEqual("UST")
+    expect(jobs[0].job.amount).toBeGreaterThan(0)
 
     expect(jobs[5].job.inputCoin).toEqual("UST")
     expect(jobs[5].job.targetCoin).toEqual("STARS")
