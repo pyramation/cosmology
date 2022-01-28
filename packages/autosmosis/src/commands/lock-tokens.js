@@ -38,7 +38,7 @@ export default async (argv) => {
     const { msg, fee } = messages.lockTokens({
       owner: address,
       coins: [
-        coin('1000000000000000000', 'gamm/pool/606'),
+        coin('1096260487950196000000', 'gamm/pool/606'),
       ],
       duration
     });

@@ -54,10 +54,7 @@ export const aminos = {
     fromAmino: () => {}
   },
   lockTokens: {
-    toAmino: (args) => {
-      const { owner, duration, coins } = args;
-      console.log(args);
-
+    toAmino: ({ owner, duration, coins }) => {
       return {
         owner, 
         coins,
@@ -65,14 +62,10 @@ export const aminos = {
       }
 
     },
-    fromAmino: (args) => {
-      const { owner, duration, coins } = args;
-      console.log(args);
-
+    fromAmino: ({ owner, duration, coins }) => {
       return {
         owner, 
         coins,
-        // duration: Number(duration) / 1_000_000_000,
         duration: {
           seconds: Long.fromNumber(Math.floor(parseInt(duration) / 1_000_000_000)),
           nanos: parseInt(duration) % 1_000_000_000,
