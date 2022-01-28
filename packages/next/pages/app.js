@@ -1,15 +1,15 @@
-import React, { Component, useEffect, useState } from 'react';
-import axios from 'axios';
-import fontawesome from '@fortawesome/fontawesome'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faPlus, faSearch } from '@fortawesome/fontawesome-free-solid'
-import ReactSlider from 'react-slider'
-import { getAllSwaps, assets } from 'autosmosis';
-import PoolAdder from '../src/components/PoolAdder';
-import { fetchListOfPools } from '../src/clients/autosmosis';
-import PoolPairImage from '../src/components/subComponents/PoolPairImage';
-import PoolAllocSummary from '../src/components/PoolAllocSummary';
-import Nav from '../src/components/Nav';
+import React, { Component, useEffect, useState } from "react";
+import axios from "axios";
+import fontawesome from "@fortawesome/fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes, faPlus, faSearch } from "@fortawesome/fontawesome-free-solid";
+import ReactSlider from "react-slider";
+import { getAllSwaps, assets, OsmosisApiClient } from "autosmosis";
+import PoolAdder from "../src/components/PoolAdder";
+import { fetchListOfPools } from "../src/clients/autosmosis";
+import PoolPairImage from "../src/components/subComponents/PoolPairImage";
+import PoolAllocSummary from "../src/components/PoolAllocSummary";
+import Nav from "../src/components/Nav";
 import Job from '../src/components/subComponents/Job';
 
 const SYMBOLCOINHASH = {};
@@ -21,8 +21,8 @@ const COINHASH = assets.reduce((m, asset) => {
 console.log(COINHASH);
 
 const styles = {
-    fontFamily: 'sans-serif',
-    textAlign: 'center',
+    fontFamily: "sans-serif",
+    textAlign: "center",
 };
 
 fontawesome.library.add(faTimes);
@@ -33,49 +33,51 @@ export async function getServerSideProps(ctx) {
 
     return {
         props: {
-            pools
-        }
-    }
+            pools,
+        },
+    };
 }
 
 const defaultPools = [
     {
         id: 0,
-        icon: '/terra.png',
-        nickname: 'UST',
-        symbol: 'UST',
+        icon: "/terra.png",
+        nickname: "UST",
+        symbol: "UST",
         rewardAlloc: 100,
-        isSingle: true
+        isSingle: true,
     },
 ];
 
 let saverTimeout = null;
 
 const App = ({ pools }) => {
-
     const [ourPools, setOurPools] = useState(null);
     const [showPoolAdder, setShowPoolAdder] = useState(false);
     const [queuedPools, setQueuedPools] = useState([]);
+    const [accounts, setAccounts] = useState([]);
     const [showPreview, setShowPreview] = useState(false);
+    const [swaps, setSwaps] = useState([]);
     const [jobs, setJobs] = useState([]);
 
-    function savePoolSettings() {
-        console.log("Savinng", ourPools);
-        window.localStorage.setItem('poolsConfig', JSON.stringify(ourPools))
-    }
 
-    function resetPoolSettingsSaver() {
-        if (saverTimeout) clearTimeout(saverTimeout);
-        saverTimeout = setTimeout(() => {
-            savePoolSettings();
-            saverTimeout = null;
-        }, 30)
-    }
+    useEffect(() => {
+        (async () => {
+            if (accounts.length === 0) {
+                return
+            }
+            const client = new OsmosisApiClient();
+            const balances = await client.getBalances(accounts[0].address);
+            console.log(balances);
+        })()
+    }, [accounts]);
 
     useEffect(() => {
         if (!ourPools) {
-            const savedPoolSettings = window.localStorage.getItem('poolsConfig');
-            setOurPools(savedPoolSettings ? JSON.parse(savedPoolSettings) : defaultPools);
+            const savedPoolSettings = window.localStorage.getItem("poolsConfig");
+            setOurPools(
+                savedPoolSettings ? JSON.parse(savedPoolSettings) : defaultPools
+            );
         }
         if (queuedPools.length) {
             const poolsToAdd = [];
@@ -90,7 +92,7 @@ const App = ({ pools }) => {
                     }
                 }
                 if (shouldAdd) {
-                    poolsToAdd.push(queuedPool)
+                    poolsToAdd.push(queuedPool);
                 }
             }
             const newPools = [...ourPools, ...poolsToAdd];
@@ -100,12 +102,30 @@ const App = ({ pools }) => {
         }
     }, [queuedPools]);
 
+
+    function savePoolSettings() {
+        console.log("Savinng", ourPools);
+        window.localStorage.setItem('poolsConfig', JSON.stringify(ourPools))
+    }
+
+    function resetPoolSettingsSaver() {
+        if (saverTimeout) clearTimeout(saverTimeout);
+        saverTimeout = setTimeout(() => {
+            savePoolSettings();
+            saverTimeout = null;
+        }, 30)
+    }
+
     function handleRewardAllocChange(pidx, newValue) {
         // console.log("handleRewardAllocChange")
-        setOurPools(ourPools ? ourPools.map((p, i) => {
-            if (i === pidx) p.rewardAlloc = newValue
-            return p;
-        }) : null);
+        setOurPools(
+            ourPools
+                ? ourPools.map((p, i) => {
+                    if (i === pidx) p.rewardAlloc = newValue;
+                    return p;
+                })
+                : null
+        );
         resetPoolSettingsSaver();
     }
 
@@ -146,14 +166,14 @@ const App = ({ pools }) => {
     console.log(ourPools)
 
     return <div>
-        <Nav />
+        <Nav accounts={accounts} setAccounts={setAccounts}/>
         <div className='container maxwidth-xs' data-aos='fade-in' style={{ marginTop: 120, textAlign: 'center' }}>
             <div className='grid-container light-border column animate-resize' style={{ borderRadius: 32, alignItems: 'stretch' }}>
                 {showPreview ?
                     <div >
                         {jobs.map(job => {
                             const jobDetails = job.job;
-                            return <Job job={job}/>
+                            return <Job job={job} />
                         })}
                         <pre>
                             {JSON.stringify(jobs, null, 2)}
@@ -205,16 +225,26 @@ const App = ({ pools }) => {
                         </div> */}
                             </div>
                         </div>
-                        <div className='grid-item' style={{ display: 'flex', flex: 1 }}>
-                            <button className='action-button' style={{ flex: 1, height: 60 }} onClick={() => triggerSwapsPreview()}>Preview swaps &amp; fees</button>
-                        </div>
                     </>
                 }
-
+                <div className="grid-item" style={{ display: "flex", flex: 1 }}>
+                    <button
+                        className="action-button"
+                        style={{ flex: 1, height: 60 }}
+                        onClick={() => triggerSwapsPreview()}
+                    >
+                        Preview swaps &amp; fees
+                    </button>
+                </div>
             </div>
-            <p className="detail-text" style={{ fontSize: 12 }}>Want this to run automatically every day? Use our <a href="#" style={{ color: "#0089FF" }}><b>NPM module</b></a></p>
-        </div>
-    </div>
+            <p className="detail-text" style={{ fontSize: 12 }}>
+                Want this to run automatically every day? Use our{" "}
+                <a href="#" style={{ color: "#0089FF" }}>
+                    <b>NPM module</b>
+                </a>
+            </p>
+        </div >
+    </div >;
 }
 
-export default App
+export default App;
