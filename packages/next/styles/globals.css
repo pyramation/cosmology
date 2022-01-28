@@ -87,6 +87,7 @@ button {
 .action-button:hover {
   cursor: pointer;
   background-color: transparent;
+  border-color: #415082;
   color: var(--alt-bg-color);
 }
 
@@ -305,7 +306,7 @@ button {
 }
 
 .pool-adder__table__container {
-  height: 199px;
+  height: 201px;
   border: 1px solid #212838;
   border-radius: 8px;
   overflow: scroll;
