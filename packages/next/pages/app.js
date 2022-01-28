@@ -4,11 +4,18 @@ import fontawesome from '@fortawesome/fontawesome'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimes, faPlus, faSearch } from '@fortawesome/fontawesome-free-solid'
 import ReactSlider from 'react-slider'
-import { assets } from 'autosmosis';
+import { getAllSwaps, assets } from 'autosmosis';
 import PoolAdder from '../src/components/PoolAdder';
 import { fetchListOfPools } from '../src/clients/autosmosis';
 import PoolPairImage from '../src/components/subComponents/PoolPairImage';
 import PoolAllocSummary from '../src/components/PoolAllocSummary';
+import Nav from '../src/components/Nav';
+
+const COINHASH = assets.reduce((m, asset) => {
+    m[asset.base] = asset.symbol;
+    return m;
+}, {});
+console.log(COINHASH);
 
 const styles = {
     fontFamily: 'sans-serif',
@@ -33,6 +40,7 @@ const defaultPools = [
         id: 0,
         icon: '/terra.png',
         nickname: 'UST',
+        symbol: 'UST',
         rewardAlloc: 100,
         isSingle: true
     },
@@ -106,21 +114,33 @@ const App = ({ pools }) => {
         resetPoolSettingsSaver();
     }
 
-    function triggerSwapsPreview() {
+    const totalAlloc = ourPools ? ourPools.reduce((total, p) => total + p.rewardAlloc, 0.0000001) : 100
 
-    /**
-     * getAllSwaps returns a list of swaps to achieve the desired allocations
-     * sum of all weights must === 1
-     * @param {*} allocationsAndWeights is a list of desired final pools/coins and their weights
-     * @returns a list of swaps
-     */
-    export function getAllSwaps (allocationsAndWeights) {
+    async function triggerSwapsPreview() {
+        if (totalAlloc === 0.0000001) return alert("You must allocate your rewards into at least one pool.");
+
+        const poolObjectsMapped = ourPools.map(pool => {
+            return {
+                type: pool.isSingle ? "coin" : "pool",
+                coin: pool.isSingle ? pool.symbol : null,
+                pool: pool.isSingle ? null : {
+                    coin1: pool.poolAssetsPretty?.[0]?.symbol,
+                    coin2: pool.poolAssetsPretty?.[1]?.symbol,
+                    id: pool.id,
+                    balance: pool.poolAssetsPretty?.[0]?.ratio
+                },
+                weight: pool.rewardAlloc / totalAlloc
+            }
+        });
+
+        const yo = await getAllSwaps(poolObjectsMapped);
+        console.log({ YO: yo })
     }
 
-    // console.log(ourPools)
+    console.log(ourPools)
 
-    const totalAlloc = ourPools ? ourPools.reduce((total, p) => total + p.rewardAlloc, 0.0000001) : 100
     return <div>
+        <Nav />
         <div className='container maxwidth-xs' style={{ marginTop: 120, textAlign: 'center' }}>
             <div className='grid-container light-border column' style={{ borderRadius: 32, alignItems: 'stretch' }}>
                 <div className='grid-item' style={{ textAlign: 'center' }}>
@@ -168,7 +188,7 @@ const App = ({ pools }) => {
                     </div>
                 </div>
                 <div className='grid-item' style={{ display: 'flex', flex: 1 }}>
-                    <button className='action-button' style={{ flex: 1, height: 60 }}>Preview swaps &amp; fees</button>
+                    <button className='action-button' style={{ flex: 1, height: 60 }} onClick={() => triggerSwapsPreview()}>Preview swaps &amp; fees</button>
                 </div>
             </div>
             <p className="detail-text" style={{ fontSize: 12 }}>Want this to run automatically every day? Use our <a href="#" style={{ color: "#0089FF" }}><b>NPM module</b></a></p>

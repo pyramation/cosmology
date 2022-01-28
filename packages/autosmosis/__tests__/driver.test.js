@@ -6,7 +6,16 @@ describe('testGetAllSwaps', () => {
   it('can calculate all necessary swaps', async () => {
     const swaps = await getAllSwaps([
       { "type": "coin", "coin": "UST", "weight": 0.3 },
-      { "type": "pool", "pool": { "coin1": "LUNA", "coin2": "UST", "id": 562, "balance": 0.5 }, "weight": 0.3 },
+      {
+        "type": "pool",
+        "pool": {
+          "coin1": "LUNA",
+          "coin2": "UST",
+          "id": 562,
+          "balance": 0.5
+        },
+        "weight": 0.3
+      },
       { "type": "pool", "pool": { "coin1": "ATOM", "coin2": "STARS", "id": 611, "balance": 0.7 }, "weight": 0.4 }
     ])
 
