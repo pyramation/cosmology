@@ -1,15 +1,15 @@
-import React, { Component, useEffect, useState } from 'react';
-import axios from 'axios';
-import fontawesome from '@fortawesome/fontawesome'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faPlus, faSearch } from '@fortawesome/fontawesome-free-solid'
-import ReactSlider from 'react-slider'
-import { getAllSwaps, assets } from 'autosmosis';
-import PoolAdder from '../src/components/PoolAdder';
-import { fetchListOfPools } from '../src/clients/autosmosis';
-import PoolPairImage from '../src/components/subComponents/PoolPairImage';
-import PoolAllocSummary from '../src/components/PoolAllocSummary';
-import Nav from '../src/components/Nav';
+import React, { Component, useEffect, useState } from "react";
+import axios from "axios";
+import fontawesome from "@fortawesome/fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes, faPlus, faSearch } from "@fortawesome/fontawesome-free-solid";
+import ReactSlider from "react-slider";
+import { getAllSwaps, assets, OsmosisApiClient } from "autosmosis";
+import PoolAdder from "../src/components/PoolAdder";
+import { fetchListOfPools } from "../src/clients/autosmosis";
+import PoolPairImage from "../src/components/subComponents/PoolPairImage";
+import PoolAllocSummary from "../src/components/PoolAllocSummary";
+import Nav from "../src/components/Nav";
 
 const COINHASH = assets.reduce((m, asset) => {
     m[asset.base] = asset;
@@ -18,103 +18,116 @@ const COINHASH = assets.reduce((m, asset) => {
 console.log(COINHASH);
 
 const styles = {
-    fontFamily: 'sans-serif',
-    textAlign: 'center',
+  fontFamily: "sans-serif",
+  textAlign: "center",
 };
 
 fontawesome.library.add(faTimes);
 
 export async function getServerSideProps(ctx) {
-    // we could do this in frontend, but i didn't want to create a spinner
-    const pools = await fetchListOfPools();
+  // we could do this in frontend, but i didn't want to create a spinner
+  const pools = await fetchListOfPools();
 
-    return {
-        props: {
-            pools
-        }
-    }
+  return {
+    props: {
+      pools,
+    },
+  };
 }
 
 const defaultPools = [
-    {
-        id: 0,
-        icon: '/terra.png',
-        nickname: 'UST',
-        symbol: 'UST',
-        rewardAlloc: 100,
-        isSingle: true
-    },
+  {
+    id: 0,
+    icon: "/terra.png",
+    nickname: "UST",
+    symbol: "UST",
+    rewardAlloc: 100,
+    isSingle: true,
+  },
 ];
 
 let saverTimeout = null;
 
 const App = ({ pools }) => {
+  const [ourPools, setOurPools] = useState(null);
+  const [showPoolAdder, setShowPoolAdder] = useState(false);
+  const [queuedPools, setQueuedPools] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [ourPools, setOurPools] = useState(null);
+  const [showPoolAdder, setShowPoolAdder] = useState(false);
+  const [queuedPools, setQueuedPools] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [swaps, setSwaps] = useState([]);
 
-    const [ourPools, setOurPools] = useState(null);
-    const [showPoolAdder, setShowPoolAdder] = useState(false);
-    const [queuedPools, setQueuedPools] = useState([]);
-    const [showPreview, setShowPreview] = useState(false);
-    const [swaps, setSwaps] = useState([]);
+  function resetPoolSettingsSaver() {
+    if (saverTimeout) clearTimeout(saverTimeout);
+    saverTimeout = setTimeout(() => {
+      savePoolSettings();
+      saverTimeout = null;
+    }, 30);
+  }
 
-    function savePoolSettings() {
-        console.log("Savinng", ourPools);
-        window.localStorage.setItem('poolsConfig', JSON.stringify(ourPools))
+  useEffect(async () => {
+      if (accounts.length === 0) {
+          return
+      }
+    const client = new OsmosisApiClient();
+    const balances = await client.getBalances(accounts[0].address);
+    console.log(balances);
+  }, [accounts]);
+
+  useEffect(() => {
+    if (!ourPools) {
+      const savedPoolSettings = window.localStorage.getItem("poolsConfig");
+      setOurPools(
+        savedPoolSettings ? JSON.parse(savedPoolSettings) : defaultPools
+      );
     }
-
-    function resetPoolSettingsSaver() {
-        if (saverTimeout) clearTimeout(saverTimeout);
-        saverTimeout = setTimeout(() => {
-            savePoolSettings();
-            saverTimeout = null;
-        }, 30)
+    if (queuedPools.length) {
+      const poolsToAdd = [];
+      for (let queuedPool of queuedPools) {
+        let shouldAdd = true;
+        for (let ourPool of ourPools) {
+          // don't add if we have it
+          // @ts-ignore
+          if (ourPool.id === queuedPools.id) {
+            shouldAdd = false;
+            break;
+          }
+        }
+        if (shouldAdd) {
+          poolsToAdd.push(queuedPool);
+        }
+      }
+      const newPools = [...ourPools, ...poolsToAdd];
+      setOurPools(newPools);
+      setQueuedPools([]);
+      resetPoolSettingsSaver();
     }
+  }, [queuedPools]);
 
-    useEffect(() => {
-        if (!ourPools) {
-            const savedPoolSettings = window.localStorage.getItem('poolsConfig');
-            setOurPools(savedPoolSettings ? JSON.parse(savedPoolSettings) : defaultPools);
-        }
-        if (queuedPools.length) {
-            const poolsToAdd = [];
-            for (let queuedPool of queuedPools) {
-                let shouldAdd = true;
-                for (let ourPool of ourPools) {
-                    // don't add if we have it
-                    // @ts-ignore
-                    if (ourPool.id === queuedPools.id) {
-                        shouldAdd = false;
-                        break;
-                    }
-                }
-                if (shouldAdd) {
-                    poolsToAdd.push(queuedPool)
-                }
-            }
-            const newPools = [...ourPools, ...poolsToAdd];
-            setOurPools(newPools);
-            setQueuedPools([]);
-            resetPoolSettingsSaver();
-        }
-    }, [queuedPools]);
-
-    function handleRewardAllocChange(pidx, newValue) {
-        // console.log("handleRewardAllocChange")
-        setOurPools(ourPools ? ourPools.map((p, i) => {
-            if (i === pidx) p.rewardAlloc = newValue
+  function handleRewardAllocChange(pidx, newValue) {
+    // console.log("handleRewardAllocChange")
+    setOurPools(
+      ourPools
+        ? ourPools.map((p, i) => {
+            if (i === pidx) p.rewardAlloc = newValue;
             return p;
-        }) : null);
-        resetPoolSettingsSaver();
-    }
+          })
+        : null
+    );
+    resetPoolSettingsSaver();
+  }
 
-    function addPool(pool) {
-        // console.log("addPool", ourPools);
-        setQueuedPools([pool]);
-    }
+  function addPool(pool) {
+    // console.log("addPool", ourPools);
+    setQueuedPools([pool]);
+  }
 
-    function deletePool(iToDelete) {
-        setOurPools(ourPools.filter((p, pi) => pi !== iToDelete));
-        resetPoolSettingsSaver();
-    }
+  function deletePool(iToDelete) {
+    setOurPools(ourPools.filter((p, pi) => pi !== iToDelete));
+    resetPoolSettingsSaver();
+  }
 
     const totalAlloc = ourPools ? ourPools.reduce((total, p) => total + p.rewardAlloc, 0.0000001) : 100
 
@@ -208,11 +221,27 @@ const App = ({ pools }) => {
                         </div>
                     </>
                 }
-
             </div>
-            <p className="detail-text" style={{ fontSize: 12 }}>Want this to run automatically every day? Use our <a href="#" style={{ color: "#0089FF" }}><b>NPM module</b></a></p>
+          </div>
+          <div className="grid-item" style={{ display: "flex", flex: 1 }}>
+            <button
+              className="action-button"
+              style={{ flex: 1, height: 60 }}
+              onClick={() => triggerSwapsPreview()}
+            >
+              Preview swaps &amp; fees
+            </button>
+          </div>
         </div>
+        <p className="detail-text" style={{ fontSize: 12 }}>
+          Want this to run automatically every day? Use our{" "}
+          <a href="#" style={{ color: "#0089FF" }}>
+            <b>NPM module</b>
+          </a>
+        </p>
+      </div>
     </div>
-}
+  );
+};
 
-export default App
+export default App;
