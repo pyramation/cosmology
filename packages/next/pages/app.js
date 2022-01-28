@@ -158,15 +158,15 @@ const App = ({ pools }) => {
             }
         });
 
-        const swaps = await getAllSwaps(poolObjectsMapped);
+        const jobs = await getAllJobs(poolObjectsMapped);
         setShowPreview(true);
-        setJobs(swaps);
+        setJobs(jobs);
     }
 
     console.log(ourPools)
 
     return <div>
-        <Nav accounts={accounts} setAccounts={setAccounts}/>
+        <Nav accounts={accounts} setAccounts={setAccounts} />
         <div className='container maxwidth-xs' data-aos='fade-in' style={{ marginTop: 120, textAlign: 'center' }}>
             <div className='grid-container light-border column animate-resize' style={{ borderRadius: 32, alignItems: 'stretch' }}>
                 {showPreview ?
@@ -175,9 +175,16 @@ const App = ({ pools }) => {
                             const jobDetails = job.job;
                             return <Job job={job} />
                         })}
-                        <pre>
-                            {JSON.stringify(jobs, null, 2)}
-                        </pre>
+
+                        <div className="grid-item" style={{ display: "flex", flex: 1 }}>
+                            <button
+                                className="action-button"
+                                style={{ flex: 1, height: 60 }}
+                                onClick={() => triggerSwapsPreview()}
+                            >
+                                Run Rebalancer
+                            </button>
+                        </div>
                     </div>
                     :
                     <>
