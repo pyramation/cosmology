@@ -12,9 +12,9 @@ export class RestClient {
 
   async request(endpoint) {
     try {
-      const body = {};
+      // const body = {};
       const headers = {};
-      const result = await this.get()(endpoint, body, headers);
+      const result = await this.get()(endpoint);
       if (result.response) {
         return result.response;
       }
