@@ -2,13 +2,13 @@ import React, { Component, useState, useEffect } from 'react';
 import axios from 'axios';
 
 
-const Jobs = (job) => {
+const Jobs = ({driver, job}) => {
 
     const [status, setStatus] = useState('queued');
 
     useEffect(() => {
         const interval = setInterval(() => {
-            const newStatus = getStatus(job.txnId);
+            const newStatus = driver.getStatus(job.txnId);
             setStatus(newStatus);
         }, 1500);
         return () => clearInterval(interval);
@@ -35,7 +35,7 @@ const Jobs = (job) => {
                     job.type === 'lockTokens' ?
                         "Lock LP for pool #" + job.job.poolId : "UNKNOWN JOB TYPE - this is not expected"}
         </p>
-        <p className='main-text' style={{ opacity: 0.5, textTransform: 'uppercase' }}>{job.type}</p>
+        <p className='main-text' style={{ fontSize: 12, opacity: 0.5, textTransform: 'uppercase', marginLeft: 'auto' }}>{job.type}</p>
     </div>
 }
 

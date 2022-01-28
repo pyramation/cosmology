@@ -220,6 +220,11 @@ button {
   flex: 0;
 }
 
+.horiz {
+  display: flex;
+  align-items: center;
+}
+
 .horizontal-slider {
   width: 100%;
   height: 50px;
@@ -405,10 +410,12 @@ button {
   margin-bottom: 8px;
   display: flex;
   align-items: center;
+  padding: 8px 16px;
 }
 
 .job-status-indicator {
   width: 12px;
   height: 12px;
   border-radius: 6px;
+  margin-right: 8px;
 }

@@ -4,7 +4,7 @@ import fontawesome from "@fortawesome/fontawesome";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faPlus, faSearch } from "@fortawesome/fontawesome-free-solid";
 import ReactSlider from "react-slider";
-import { getAllSwaps, assets, OsmosisApiClient } from "autosmosis";
+import { Driver, assets, OsmosisApiClient } from "autosmosis";
 import PoolAdder from "../src/components/PoolAdder";
 import { fetchListOfPools } from "../src/clients/autosmosis";
 import PoolPairImage from "../src/components/subComponents/PoolPairImage";
@@ -59,10 +59,13 @@ const App = ({ pools }) => {
     const [showPreview, setShowPreview] = useState(false);
     const [swaps, setSwaps] = useState([]);
     const [jobs, setJobs] = useState([]);
-
+    const [driver, setDriver] = useState(null);
 
     useEffect(() => {
         (async () => {
+            if (!driver) {
+                setDriver(new Driver());
+            }
             if (accounts.length === 0) {
                 return
             }
@@ -158,33 +161,47 @@ const App = ({ pools }) => {
             }
         });
 
-        const jobs = await getAllJobs(poolObjectsMapped);
+        const jobs = await driver.getAllJobs(poolObjectsMapped);
         setShowPreview(true);
         setJobs(jobs);
     }
 
     console.log(ourPools)
 
-    return <div>
+    function handleRun() {
+        driver.executejobs(jobs);
+    }
+
+    return <div style={{ marginBottom: 32 }}>
         <Nav accounts={accounts} setAccounts={setAccounts} />
         <div className='container maxwidth-xs' data-aos='fade-in' style={{ marginTop: 120, textAlign: 'center' }}>
             <div className='grid-container light-border column animate-resize' style={{ borderRadius: 32, alignItems: 'stretch' }}>
                 {showPreview ?
                     <div >
+                        <div className="horiz" style={{ marginBottom: 16 }}>
+                            <h3 className='main-text'>Pending Jobs</h3>
+                            <button
+                                className="action-button"
+                                onClick={handleRun}
+                                style={{ flex: 0, marginLeft: 'auto', height: 26, padding: '2px 16px', fontSize: 14 }}
+                            >
+                                Run
+                            </button>
+                        </div>
                         {jobs.map(job => {
                             const jobDetails = job.job;
-                            return <Job job={job} />
+                            return <Job driver={driver} job={job} />
                         })}
 
-                        <div className="grid-item" style={{ display: "flex", flex: 1 }}>
+                        {/* <div className="grid-item" style={{ display: "flex", flex: 1 }}>
                             <button
                                 className="action-button"
                                 style={{ flex: 1, height: 60 }}
                                 onClick={() => triggerSwapsPreview()}
                             >
-                                Run Rebalancer
+                                Run
                             </button>
-                        </div>
+                        </div> */}
                     </div>
                     :
                     <>
@@ -232,17 +249,18 @@ const App = ({ pools }) => {
                         </div> */}
                             </div>
                         </div>
+                        <div className="grid-item" style={{ display: "flex", flex: 1 }}>
+                            <button
+                                className="action-button"
+                                style={{ flex: 1, height: 60 }}
+                                onClick={() => triggerSwapsPreview()}
+                            >
+                                Preview swaps &amp; fees
+                            </button>
+                        </div>
                     </>
                 }
-                <div className="grid-item" style={{ display: "flex", flex: 1 }}>
-                    <button
-                        className="action-button"
-                        style={{ flex: 1, height: 60 }}
-                        onClick={() => triggerSwapsPreview()}
-                    >
-                        Preview swaps &amp; fees
-                    </button>
-                </div>
+
             </div>
             <p className="detail-text" style={{ fontSize: 12 }}>
                 Want this to run automatically every day? Use our{" "}
