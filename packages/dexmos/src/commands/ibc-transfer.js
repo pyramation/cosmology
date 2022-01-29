@@ -52,6 +52,20 @@ export default async (argv) => {
     
     console.log({msgte});
 
+
+    // const sendUintArray = await signAndBroadcast({ 
+    //     client,
+    //     chainId: argv.chainId,
+    //     address,
+    //     msg: msgte,
+    //     fee: {
+    //         amount: coins(0, 'uosmo'),
+    //         gas: "130000"
+    //     }
+    // });
+
+    // console.log(sendUintArray);
+
     // https://github.com/cosmos/cosmjs/blob/main/packages/stargate/src/aminotypes.ts#L464
     const message = {
         fee: {
@@ -78,25 +92,25 @@ export default async (argv) => {
         }
     };
 
-    const res = await client.sendIbcTokens(
-        address,
-        receiver,
-        coin(
-            "500000",
-            "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
-        ),
-        'transfer',
-        'channel-0',
-        undefined,
-        Math.floor(Date.now()/1000 + 15*60), 
-        {
-            amount: coins(0, 'uosmo'),
-            gas: "130000"
-        },
-        ""
-    );
+    // const res = await client.sendIbcTokens(
+    //     address,
+    //     receiver,
+    //     coin(
+    //         "500000",
+    //         "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+    //     ),
+    //     'transfer',
+    //     'channel-0',
+    //     undefined,
+    //     Math.floor(Date.now()/1000 + 15*60), 
+    //     {
+    //         amount: coins(0, 'uosmo'),
+    //         gas: "130000"
+    //     },
+    //     ""
+    // );
 
-    console.log(res);
+    // console.log(res);
 
     // const res2 = await signAndBroadcast({ 
     //     client,
@@ -107,6 +121,7 @@ export default async (argv) => {
     // });
 
     // console.log(res2);
+
     // const { transactionHash } = res2;
     // console.log({transactionHash});
 
@@ -119,18 +134,18 @@ export default async (argv) => {
     //     timeoutHeight
     // } = msgt;
 
-    // const { msg, fee } = messages.transfer({
-    //     sender: address,
-    //     receiver,
-    //     token: coin("500000", "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"),
-    //     sourcePort: "transfer",
-    //     sourceChannel: "channel-0",
-    //     timeoutHeight: {
-    //         revisionNumber: Long.fromString("1"),
-    //         revisionHeight: Long.fromString("1653666")
-    //     },
-    //     timeoutTimestamp: Long.fromString(Date.now() + '')
-    // });
+    const { msg, fee } = messages.transfer({
+        sender: address,
+        receiver,
+        token: coin("500000", "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"),
+        sourcePort: "transfer",
+        sourceChannel: "channel-0",
+        timeoutHeight: {
+            revisionNumber: Long.fromString("1"),
+            revisionHeight: Long.fromString("1653666")
+        },
+        timeoutTimestamp: Long.fromString(Date.now() + '')
+    });
 
     // const { msg, fee } = messages.transfer({
     //     sender: address,
@@ -144,10 +159,10 @@ export default async (argv) => {
     //     }
     // });
 
-    // console.log({ chainId: argv.chainId, address, msg, fee });
-    // const res = await signAndBroadcast({ client, chainId: argv.chainId, address, msg, fee });
+    console.log({ chainId: argv.chainId, address, msg, fee });
+    const res = await signAndBroadcast({ client, chainId: argv.chainId, address, msg, fee });
 
-    // console.log(res);
+    console.log(res);
     // } catch (e) {
     // console.log('error ' + e);
     // }
