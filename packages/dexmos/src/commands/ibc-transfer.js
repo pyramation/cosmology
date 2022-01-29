@@ -25,9 +25,9 @@ export default async (argv) => {
     const msgt = MsgTransfer.fromJSON({
         sender: address,
         receiver,
-        token: coin("500000", "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"),
+        token: coin("500000", "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"),
         sourcePort: "transfer",
-        sourceChannel: "channel-42",
+        sourceChannel: "channel-0",
         timeoutHeight: {
             revisionNumber: "1",
             revisionHeight: "1653666"
@@ -39,10 +39,10 @@ export default async (argv) => {
         receiver,
         token: coin(
             "500000",
-            "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
+            "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
         ),
         sourcePort: "transfer",
-        sourceChannel: "channel-42",
+        sourceChannel: "channel-0",
         timeoutHeight: {
             revisionNumber: Long.fromString("1"),
             revisionHeight: Long.fromString("1653666")
@@ -65,10 +65,10 @@ export default async (argv) => {
                 receiver,
                 token: coin(
                     "500000",
-                    "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
+                    "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
                 ),
                 sourcePort: "transfer",
-                sourceChannel: "channel-42",
+                sourceChannel: "channel-0",
                 timeoutHeight: {
                     revisionNumber: Long.fromString("1"),
                     revisionHeight: Long.fromString("1653666")
@@ -83,10 +83,10 @@ export default async (argv) => {
         receiver,
         coin(
             "500000",
-            "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
+            "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
         ),
         'transfer',
-        'channel-42',
+        'channel-0',
         undefined,
         Math.floor(Date.now()/1000 + 15*60), 
         {
@@ -122,9 +122,9 @@ export default async (argv) => {
     // const { msg, fee } = messages.transfer({
     //     sender: address,
     //     receiver,
-    //     token: coin("500000", "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"),
+    //     token: coin("500000", "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"),
     //     sourcePort: "transfer",
-    //     sourceChannel: "channel-42",
+    //     sourceChannel: "channel-0",
     //     timeoutHeight: {
     //         revisionNumber: Long.fromString("1"),
     //         revisionHeight: Long.fromString("1653666")
@@ -135,9 +135,9 @@ export default async (argv) => {
     // const { msg, fee } = messages.transfer({
     //     sender: address,
     //     receiver,
-    //     token: coin("500000", "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"),
+    //     token: coin("500000", "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"),
     //     sourcePort: "transfer",
-    //     sourceChannel: "channel-42",
+    //     sourceChannel: "channel-0",
     //     timeoutHeight: {
     //         revisionNumber: Long.fromString("1"),
     //         revisionHeight: Long.fromString("1653666")
