@@ -46,7 +46,7 @@ export const signAndBroadcast = async ({
   address,
   msg,
   fee,
-  memo = 'super-cosmonauts'
+  memo = 'dexmos.finance'
 }) => {
   const { accountNumber, sequence } = await client.getSequence(address);
   const txRaw = await client.sign(address, [msg], fee, memo, {

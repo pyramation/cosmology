@@ -1,12 +1,29 @@
 import { assets, chains } from '@pyramation/cosmos-registry';
 import { assets as osmosisAssets } from '../assets/index';
-
+import { coins } from '@cosmjs/amino';
 import { prompt } from './prompt';
+import { gas } from '../messages/gas';
 
 const assetList = assets.reduce(
   (m, { assets }) => [...m, ...assets.map(({ symbol }) => symbol)],
   []
-);
+).sort();
+
+export const getFeeForChainAndMsg =  (chainId, message) => {
+  const chain = getChainByChainId(chainId);
+  const denom = chain.fees.fee_tokens[0].denom;
+  if (!gas?.[message]?.[denom]) {
+    console.log(`WARNING: need fee information for ${chainId} : ${message} : ${denom}`)
+    return {
+      amount: coins(0 + '', denom),
+      gas: "2000" // MUST BE STRING
+    };
+  }
+  return {
+    amount: coins(gas[message][denom].amount + '', denom),
+    gas: gas[message][denom].gas + '' // MUST BE STRING
+  }; 
+}
 
 export const getCosmosAssetInfo = (symbol) => 
   assets.find(a=>!!a.assets.find(i=>i.symbol === symbol));
@@ -27,6 +44,11 @@ export const getOsmosisAssetDenom = (symbol) => {
 export const getNameOfChain = (chain_id) => {
   const chain = chains.find(c=>c.chain_id===chain_id);
   return chain?.chain_name;
+};
+
+export const getChainByChainId = (chain_id) => {
+  const chain = chains.find(c=>c.chain_id===chain_id);
+  return chain;
 };
 
 export const getBaseAndDisplayUnits = (symbol) => {
@@ -87,4 +109,20 @@ export const promptChain = async (argv) => {
   );
   argv.chainToken = chainToken;
   return await getChain({ token: chainToken });
+};
+
+export const promptChainIdAndChain = async (argv) => {
+  const { chainId } = await prompt(
+    [
+      {
+        type: 'fuzzy',
+        name: 'chainId',
+        message: 'chainId',
+        choices: chains.map(c=>c.chain_id).sort()
+      }
+    ],
+    argv
+  );
+  argv.chainId = chainId;
+  return await getChainByChainId( chainId );
 };

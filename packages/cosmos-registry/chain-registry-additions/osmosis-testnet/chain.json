@@ -2,7 +2,7 @@
     "$schema": "../chain.schema.json",
     "chain_name": "osmosis-testnet",
     "status": "live",
-    "network_type": "mainnet",
+    "network_type": "testnet",
     "pretty_name": "Osmosis",
     "chain_id": "osmosis-testnet-0",
     "origin_chain_id": "osmosis-1",

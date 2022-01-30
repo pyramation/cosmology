@@ -1,4 +1,5 @@
 import { coins } from '@cosmjs/amino';
+import { getFeeForChainAndMsg } from '../utils';
 
 /**
  * @typedef {{
@@ -16,6 +17,7 @@ import { coins } from '@cosmjs/amino';
 export const messages = {
     /**
      * @param {object} param0
+     * @param {string} param0.chainId
      * @param {string} param0.sourcePort
      * @param {string} param0.sourceChannel
      * @param {Coin} param0.token
@@ -28,6 +30,8 @@ export const messages = {
      * @param {Long} param0.timeoutTimestamp
      */
     transfer: ({
+        chainId,
+        //
         sourcePort,
         sourceChannel,
         token,
@@ -36,10 +40,7 @@ export const messages = {
         timeoutHeight,
         timeoutTimestamp
      }) => {
-        const fee = {
-            amount: coins(0, 'uosmo'),
-            gas: "130000"
-        };
+        const fee = getFeeForChainAndMsg(chainId, 'MsgTransfer');
 
         // https://github.com/cosmos/cosmjs/blob/main/packages/stargate/src/aminotypes.ts#L464
         // MsgTransfer defines a msg to transfer fungible tokens (i.e Coins) between ICS20 enabled chains. See ICS Spec here: https://github.com/cosmos/ics/tree/master/spec/ics-020-fungible-token-transfer#data-structures
@@ -69,23 +70,21 @@ export const messages = {
     
     /**
      * @param {object} param0
+     * @param {string} param0.chainId
      * @param {string} param0.toAddress
      * @param {string} param0.fromAddress
      * @param {Coin[]} param0.amount
      */
     send: ({
+        chainId,
+        //
         toAddress,
         fromAddress,
         amount
     }) => {
-        // TODO dynamically look up fee! don't assume OSMOSIS
-        
-        const fee = {
-            amount: coins(0, 'uosmo'),
-            gas: "130000"
-        };
+        const fee = getFeeForChainAndMsg(chainId, 'MsgSend');
 
-        return {
+        const pkt = {
             fee,
             msg: {
                 typeUrl: '/cosmos.bank.v1beta1.MsgSend',
@@ -96,5 +95,9 @@ export const messages = {
                 }
             }
         };
+
+        console.log(JSON.stringify(pkt, null, 2));
+
+        return pkt;
     }
 };
