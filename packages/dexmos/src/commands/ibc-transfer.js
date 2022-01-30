@@ -38,7 +38,7 @@ export default async (argv) => {
 
     const shouldBeOsmo = getNameOfChain(fromChain);
     if (shouldBeOsmo !== 'osmosis') {
-        throw new Error('only tranfer out of osmo for now...');
+        throw new Error('we only support transfers out of osmosis currently.');
     }
 
     const sendAmount = displayUnitsToDenomUnits(symbol, amount);
