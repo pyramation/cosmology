@@ -65,5 +65,36 @@ export const messages = {
                 }
             }
         };
+    },
+    
+    /**
+     * @param {object} param0
+     * @param {string} param0.toAddress
+     * @param {string} param0.fromAddress
+     * @param {Coin[]} param0.amount
+     */
+    send: ({
+        toAddress,
+        fromAddress,
+        amount
+    }) => {
+        // TODO dynamically look up fee! don't assume OSMOSIS
+        
+        const fee = {
+            amount: coins(0, 'uosmo'),
+            gas: "130000"
+        };
+
+        return {
+            fee,
+            msg: {
+                typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+                value: {
+                    toAddress,
+                    fromAddress,
+                    amount
+                }
+            }
+        };
     }
 };
