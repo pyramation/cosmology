@@ -9,31 +9,24 @@ import { assets as osmosisAssets } from '../src/assets';
 import cases from 'jest-in-case';
 import { displayUnitsToDenomUnits, baseUnitsToDisplayUnits, getOsmosisSymbolIbcName } from '../src/utils';
 import Long from 'long';
- import {
+import {
     getCoinGeckoIdForSymbol,
     getSymbolForCoinGeckoId,
     osmoDenomToSymbol,
     symbolToOsmoDenom,
-    OsmosisToken, 
+    OsmosisToken,
     convertCoinToDisplayValues,
     convertCoinsToDisplayValues,
-    calculateCurrentPorfolioBalance,
+    calculateCoinsBalance,
     convertPricesToDenomPriceHash,
     getPoolByGammName,
     getUserPools,
     convertPoolToDisplayValues,
     convertPoolsToDisplayValues,
-    getFilteredPoolsWithValues
- } from '../src/utils/osmo';
-/*
-    - [ ] give how much of each coin you're willing to sell
-    - [ ] list of coins you want (via weights)
-    - [ ] list of pools you want (via weights)
-    - [ ] calculate routes for swaps
-
-    - [x] calculate value of LP pool
-    - [x] filter pools that have LOW value or are NOT calculable...
-    */
+    getFilteredPoolsWithValues,
+    symbolsAndDisplayValuesToCoinsArray,
+    getTradesRequiredToGetBalances
+} from '../src/utils/osmo';
 
 cases('getCoinGeckoIdForSymbol', opts => {
     expect(getCoinGeckoIdForSymbol(opts.name)).toBe(opts.geckoId);
@@ -104,27 +97,27 @@ cases('getPoolByGammName', opts => {
 ]);
 
 describe('basic portfolio', () => {
-    const coins = [
-        {
-            symbol: 'ATOM',
-            amount: 10
-        },
-        {
-            symbol: 'AKT',
-            amount: 1000
-        },
-        {
-            symbol: 'OSMO',
-            amount: 100
-        }
-    ].map(({ symbol, amount }) => {
-        return (new OsmosisToken({ symbol, amount })).toJSON();
-    });
+    const coins = symbolsAndDisplayValuesToCoinsArray(
+        [
+            {
+                symbol: 'ATOM',
+                amount: 10
+            },
+            {
+                symbol: 'AKT',
+                amount: 1000
+            },
+            {
+                symbol: 'OSMO',
+                amount: 100
+            }
+        ]
+    );
 
     const prices = convertPricesToDenomPriceHash(pricesFixture)
 
     it('calculate portfolio value (balances)', () => {
-        const value = calculateCurrentPorfolioBalance({ prices, coins });
+        const value = calculateCoinsBalance({ prices, coins });
         expect(value).toBe(3086.3);
     });
 
@@ -142,6 +135,152 @@ describe('basic portfolio', () => {
     });
 });
 
+/*
+ - [ ] give how much of each coin you're willing to sell
+ - [ ] list of coins you want (via weights)
+ - [ ] list of pools you want (via weights)
+ - [ ] calculate coins needed for pools
+ - [ ] calculate routes for swaps
+ - [ ] convert dollar amount to coin amount
+ */
+
+describe('user actions', () => {
+    const balances = symbolsAndDisplayValuesToCoinsArray(
+        [
+            {
+                symbol: 'ATOM',
+                amount: 10
+            },
+            {
+                symbol: 'AKT',
+                amount: 1000
+            },
+            {
+                symbol: 'OSMO',
+                amount: 100
+            }
+        ]
+    );
+
+    const prices = convertPricesToDenomPriceHash(pricesFixture)
+
+    it('cannot desire more value than current', async () => {
+        const desired = symbolsAndDisplayValuesToCoinsArray(
+            [
+                {
+                    symbol: 'ATOM',
+                    amount: 100000
+                }
+            ]
+        );
+        let failed = false;
+        try {
+            getTradesRequiredToGetBalances({ prices, balances, desired })
+        } catch (e) {
+            failed = true;
+        }
+        expect(failed).toBe(true);
+    });
+
+    it('no trades required', async () => {
+        const desired = symbolsAndDisplayValuesToCoinsArray(
+            [
+                {
+                    symbol: 'ATOM',
+                    amount: 10
+                },
+                {
+                    symbol: 'OSMO',
+                    amount: 10
+                }
+            ]
+        );
+        const trades = getTradesRequiredToGetBalances({ prices, balances, desired })
+        expect(trades.length).toBe(0);
+    });
+
+    it('trades required', async () => {
+        const desired = symbolsAndDisplayValuesToCoinsArray(
+            [
+                {
+                    symbol: 'AKT',
+                    amount: 1050
+                },
+                {
+                    symbol: 'OSMO',
+                    amount: 100
+                }
+            ]
+        );
+        const trades = getTradesRequiredToGetBalances({ prices, balances, desired })
+        console.log(JSON.stringify(trades, null, 2));
+    });
+});
+
+cases('trades', opts => {
+    const prices = convertPricesToDenomPriceHash(pricesFixture);
+    const balances = symbolsAndDisplayValuesToCoinsArray(
+        opts.balances
+    );
+    const desired = symbolsAndDisplayValuesToCoinsArray(
+        opts.desired
+    );
+    const trades = getTradesRequiredToGetBalances({ prices, balances, desired })
+    expect(trades).toMatchSnapshot();
+}, [
+    {
+        balances: [
+            {
+                symbol: 'ATOM',
+                amount: 10
+            },
+            {
+                symbol: 'AKT',
+                amount: 1000
+            },
+            {
+                symbol: 'OSMO',
+                amount: 100
+            }
+        ],
+        desired: [
+            {
+                symbol: 'AKT',
+                amount: 1050
+            },
+            {
+                symbol: 'OSMO',
+                amount: 100
+            }
+        ]
+     },
+    {
+        balances: [
+            {
+                symbol: 'ATOM',
+                amount: 10
+            },
+            {
+                symbol: 'AKT',
+                amount: 1000
+            },
+            {
+                symbol: 'OSMO',
+                amount: 100
+            }
+        ],
+        desired: [
+            {
+                symbol: 'AKT',
+                amount: 1050
+            },
+            {
+                symbol: 'OSMO',
+                amount: 100
+            }
+        ]
+     }
+]);
 
 
 it('calcs', async () => {

@@ -97,12 +97,12 @@ export const getOsmosisSymbolIbcName = (symbol) => {
 
 export const displayUnitsToDenomUnits = (symbol, amount) => {
   const { display } = getBaseAndDisplayUnits(symbol);
-  return amount * Math.pow(10, display.exponent); 
+  return Number(amount) * Math.pow(10, display.exponent); 
 }
 
 export const baseUnitsToDisplayUnits = (symbol, amount) => {
   const { display } = getBaseAndDisplayUnits(symbol);
-  return amount / Math.pow(10, display.exponent); 
+  return Number(amount) / Math.pow(10, display.exponent); 
 }
 
 export const getChain = async ({ token }) => {

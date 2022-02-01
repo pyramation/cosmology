@@ -18,14 +18,45 @@ import Long from 'long';
  * totalValue: number;
  * totalWeight: number;
  * }} Pool
+ * 
+ * @typedef {{
+ * amount:string;
+ * denom:CoinDenom;
+ * }} LockedPool
+ * 
+ * @typedef {{
+ * amount:string;
+ * denom:CoinDenom;
+ * value:number;
+ * allocation:number;
+ * poolId:string;
+ * }} LockedPoolDisplay
  *
  * @typedef {{
  * amount:string;
- * denom:string;
+ * denom:CoinDenom;
  * }} Coin
  * 
- * @typedef {Object.<string, number>} PriceHash
- *
+ * @typedef {{
+ * amount:string;
+ * denom:CoinDenom;
+ * displayAmount: number;
+ * value: number;
+ * symbol: CoinSymbol;
+ * }} CoinValue
+ * 
+ * @typedef {{
+ * amount:string;
+ * symbol:CoinSymbol;
+ * }} DisplayCoin
+ *  
+ * @typedef {{
+ * sell:CoinValue
+ * buy:CoinValue;
+ * beliefValue:string;
+ * }} Trade
+ * 
+ * 
  */
 
 /**
@@ -82,7 +113,8 @@ import Long from 'long';
  * 'cheqd-network'|
  * 'vidulum')} CoinGeckoToken
  *
- * 
+ * @typedef {Object.<CoinDenom, number>} PriceHash
+ *
  * @typedef {Object.<CoinGeckoToken, {usd: number}>} CoinGeckoUSDResponse
  * 
  */
@@ -146,14 +178,14 @@ export const symbolToOsmoDenom = (token) => {
  * @type {object}
  * @property {CoinSymbol} symbol - the human readable all-caps version, e.g. ATOM, OSMO, etc.
  * @property {CoinDenom} denom - denomination, e.g. uosmo, or ibc/143....
- * @property {number} amount - the amount of the token
+ * @property {string} amount - the amount of the token
  */
 
 export class OsmosisToken {
     /**
      * @param {object} param0
-     * @param {CoinSymbol} param0.symbol - the human readable all-caps version, e.g. ATOM, OSMO, etc.
-     * @param {CoinDenom} param0.denom - denomination, e.g. uosmo, or ibc/143....
+     * @param {CoinSymbol|null} param0.symbol - the human readable all-caps version, e.g. ATOM, OSMO, etc.
+     * @param {CoinDenom|null} param0.denom - denomination, e.g. uosmo, or ibc/143....
      * @param {number} param0.amount - the amount of the token
      */
     constructor({ symbol, denom, amount = 0 }) {
@@ -165,8 +197,11 @@ export class OsmosisToken {
             this.denom = denom;
             this.symbol = symbolToOsmoDenom(denom);
         }
-        this.amount = displayUnitsToDenomUnits(this.symbol, amount);
+        this.amount = '' + displayUnitsToDenomUnits(this.symbol, amount)
     }
+    /**
+     * @returns {Coin} 
+     */
     toJSON() {
         return {
             denom: this.denom,
@@ -175,10 +210,47 @@ export class OsmosisToken {
     }
 }
 
+
+/**
+* @param {DisplayCoin[]} coins 
+* @returns {Coin[]} 
+*/
+
+export const symbolsAndDisplayValuesToCoinsArray = ( coins ) => 
+    coins.map(({ symbol, amount }) => ({
+        denom: symbolToOsmoDenom(symbol),
+        amount: '' + displayUnitsToDenomUnits(symbol, amount)
+    }));
+
+/**
+ * @param {object} param0
+ * @param {PriceHash} param0.prices
+ * @param {CoinDenom} param0.denom
+ * @param {number} param0.value - usd value
+ * @returns {CoinValue} 
+ */
+export const convertCoinValueToCoin = ({ prices, denom, value }) => {
+    const price = prices[denom];
+    const symbol = osmoDenomToSymbol(denom);
+    if (isNaN(price)) {
+        // console.log(`bad price for ${denom} NaN.`);
+        return null;
+    }
+    const displayAmount = value / prices[denom];
+    return {
+        symbol,
+        denom,
+        amount: '' + displayUnitsToDenomUnits(symbol, displayAmount),
+        displayAmount,
+        value
+    };
+};
+
 /**
  * @param {object} param0
  * @param {PriceHash} param0.prices
  * @param {Coin} param0.coin
+ * @returns {CoinValue} 
  */
 export const convertCoinToDisplayValues = ({ prices, coin }) => {
     const { denom, amount } = coin;
@@ -194,6 +266,7 @@ export const convertCoinToDisplayValues = ({ prices, coin }) => {
         return null;
     }
     return {
+        symbol,
         denom,
         amount,
         displayAmount,
@@ -205,18 +278,22 @@ export const convertCoinToDisplayValues = ({ prices, coin }) => {
  * @param {object} param0
  * @param {PriceHash} param0.prices
  * @param {Coin[]} param0.coins
+ * @returns {CoinValue[]} 
  */
 export const convertCoinsToDisplayValues = ({ prices, coins }) =>
-    coins.map((coin) => convertCoinToDisplayValues({ prices, coin }));
+coins.map((coin) => convertCoinToDisplayValues({ prices, coin }));
 
 /**
  * @param {object} param0
  * @param {PriceHash} param0.prices
  * @param {Coin[]} param0.coins
  */
-export const calculateCurrentPorfolioBalance = ({ prices, coins }) => {
+export const calculateCoinsBalance = ({ prices, coins }) => {
     return convertCoinsToDisplayValues
         ({ prices, coins }).reduce((m, v) => {
+            if (!v) {
+                console.log(new Error().stack)
+            }
             const { value } = v;
             return value + m;
         }, 0);
@@ -250,12 +327,20 @@ export const getPoolByGammName = (pools, gammId) => {
     return pools.find(({ totalShares: { denom } }) => denom === gammId);
 };
 
+/**
+ * 
+ * @param {object} param0
+ * @param {Pool[]} param0.pools
+ * @param {LockedPool[]} param0.lockedPools
+ * @returns {LockedPoolDisplay[]}
+ */
+
 export const getUserPools = ({ pools, lockedPools }) => {
     return lockedPools.map(({ denom, amount }) => {
         const pool = getPoolByGammName(pools, denom);
         // TODO why some pools missing?
         if (!pool) return null;
-        const value = pool.pricePerShare * amount;
+        const value = pool.pricePerShare * Number(amount);
         return {
             denom,
             amount,
@@ -316,4 +401,135 @@ export const getFilteredPoolsWithValues = ({ prices, pools }) =>
         // remove DIG or VIDL or coins not on coingecko that don't get prices    
         .filter(({ poolAssets, displayPoolAssets }) => poolAssets.length === displayPoolAssets.length);
 
+/**
+ * @param {object} param0
+ * @param {PriceHash} param0.prices
+ * @param {Coin[]} param0.balances
+ * @param {Coin[]} param0.desired
+ * @param {Pool[]} param0.pools
+ */
+export const getTradesRequiredToGetBalances = ({
+    prices,
+    balances,
+    desired
+}) => {
 
+    const totalCurrent = calculateCoinsBalance({prices, coins: balances });
+    const totalDesired = calculateCoinsBalance({prices, coins: desired });
+    
+    if (totalDesired > totalCurrent) {
+        throw new Error('insufficient balance');
+    }
+    
+    const hasEnough = desired.reduce((m, {denom, amount})=> {
+        const current = balances.find((c)=>c.denom===denom);
+        if (!current) return false;
+        if (current.amount >= amount) return m && true;
+        return false;
+    }, true);
+    
+    if (hasEnough) {
+        // no trades are required
+        return [];
+    }
+
+    const currentCoins = convertCoinsToDisplayValues({prices, coins: balances});
+    const desiredCoins = convertCoinsToDisplayValues({prices, coins: desired});
+
+    // returns a list of the available coins
+    const availableCoins = balances.reduce((m, coin)=> {
+        const { denom } = coin;
+        const desiredCoin = desiredCoins.find((c)=>c.denom===denom);
+        if (!desiredCoin) {
+            return [...m, coin];
+        }
+
+        const diff = Number(coin.amount) - Number(desiredCoin.amount);
+        if (diff <= 0) {
+            return m;
+        }
+
+        return [...m, {
+            denom: coin.denom,
+            amount: diff
+        }];
+    }, []);
+
+    // coins needed
+    const desiredCoinsNeeded = desired.reduce((m, coin)=> {
+        const { denom } = coin;
+        const current = currentCoins.find((c)=>c.denom===denom);
+        if (!current) {
+            return [...m, coin];
+        }
+        const diff = {
+            denom: coin.denom,
+            amount: Number(coin.amount) - Number(current.amount)
+        };
+        if (diff.amount <= 0) return m;
+        return [...m, diff];
+    }, []);
+
+    const availableCoinsValue = calculateCoinsBalance({prices, coins: availableCoins });
+    const desiredCoinsNeededValue = calculateCoinsBalance({prices, coins: desiredCoinsNeeded });
+
+    const availableCoinsWithValues = convertCoinsToDisplayValues({prices, coins: availableCoins });
+    const desiredCoinsNeededWithValues = convertCoinsToDisplayValues({prices, coins: desiredCoinsNeeded });
+
+ 
+    if (desiredCoinsNeededValue >= availableCoinsValue) {
+        throw new Error('not possible yet with current cases');
+    }
+
+    // trades are required
+    const trades = desiredCoinsNeededWithValues.reduce((m, coin)=> {
+        let valueNeeded = coin.value;
+        for (let i=0; i<availableCoinsWithValues.length; i++) {
+            if (valueNeeded <= 0) continue;
+            const current = availableCoinsWithValues[i];
+            if (coin.symbol === current.symbol) continue;
+
+            if (current.value >= valueNeeded) {
+                // console.log(`I desired:${coin.symbol} avail:${current.symbol}`);
+                // console.log(`I valueNeeded:${valueNeeded}`);
+                // 1. value is more than what is needed
+                // TAKE WHAT YOU NEED
+                const leftOver = current.value - valueNeeded;
+                const amountUsed = valueNeeded;
+                valueNeeded -= amountUsed;
+                
+                m.push({
+                    sell: convertCoinValueToCoin({prices, denom: current.denom, value: amountUsed}),
+                    buy: convertCoinValueToCoin({prices, denom: coin.denom, value: amountUsed}),
+                    beliefValue: amountUsed
+                });
+                
+                current.value = leftOver;
+                availableCoinsWithValues[i].value = leftOver;
+            } else if (current.value < valueNeeded) {               
+                // console.log(`II desired:${coin.symbol} avail:${current.symbol}`);
+                // console.log(`II valueNeeded:${valueNeeded}`);
+                // 2. value is less than what is needed
+                // TAKE IT ALL!
+                const amountUsed = current.value;
+                valueNeeded -= amountUsed;
+
+                m.push({
+                    sell: convertCoinValueToCoin({prices, denom: current.denom, value: amountUsed}),
+                    buy: convertCoinValueToCoin({prices, denom: coin.denom, value: amountUsed}),
+                    beliefValue: amountUsed
+                });
+
+                current.value = 0;
+                availableCoinsWithValues[i].value = 0;
+
+            }
+
+        }
+        return m;
+    }, []);
+
+    const balanceLeft = []
+
+    return {trades, balanceLeft};
+};
