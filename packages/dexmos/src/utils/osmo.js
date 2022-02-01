@@ -407,6 +407,7 @@ export const getFilteredPoolsWithValues = ({ prices, pools }) =>
  * @param {Coin[]} param0.balances
  * @param {Coin[]} param0.desired
  * @param {Pool[]} param0.pools
+ * @returns {Trade[]}
  */
 export const getTradesRequiredToGetBalances = ({
     prices,

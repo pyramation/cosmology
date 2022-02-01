@@ -135,15 +135,6 @@ describe('basic portfolio', () => {
     });
 });
 
-/*
- - [ ] give how much of each coin you're willing to sell
- - [ ] list of coins you want (via weights)
- - [ ] list of pools you want (via weights)
- - [ ] calculate coins needed for pools
- - [ ] calculate routes for swaps
- - [ ] convert dollar amount to coin amount
- */
-
 describe('user actions', () => {
     const balances = symbolsAndDisplayValuesToCoinsArray(
         [
