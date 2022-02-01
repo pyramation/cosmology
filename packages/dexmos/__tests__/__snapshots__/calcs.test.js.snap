@@ -60,7 +60,6 @@ Object {
     "swapFee": "0.003000000000000000",
   },
   "pricePerShare": 1.353191082134662e-18,
-  "pricePerShareDenom": 1.353191082134662,
   "totalShares": Object {
     "amount": "330228752041469100486167962",
     "denom": "gamm/pool/1",
@@ -130,7 +129,6 @@ Object {
     "swapFee": "0.005000000000000000",
   },
   "pricePerShare": 3.335651016095471e-20,
-  "pricePerShareDenom": 0.03335651016095471,
   "totalShares": Object {
     "amount": "578084487147375945198234662",
     "denom": "gamm/pool/2",
@@ -138,4 +136,100 @@ Object {
   "totalValue": 19282881.06942174,
   "totalWeight": "1073741824000000",
 }
+`;
+
+exports[`basic portfolio calculate pool value (user LP) 1`] = `
+Array [
+  Object {
+    "allocation": 0.0006056407831347302,
+    "amount": "200000000000000000000000",
+    "denom": "gamm/pool/1",
+    "poolId": "1",
+    "value": 270638.21642693237,
+  },
+  Object {
+    "allocation": 0.00025312875703865847,
+    "amount": "30000000000000000000000",
+    "denom": "gamm/pool/3",
+    "poolId": "3",
+    "value": 4330.186885199967,
+  },
+  Object {
+    "allocation": 0.0001296341180589231,
+    "amount": "200000000000000000000",
+    "denom": "gamm/pool/497",
+    "poolId": "497",
+    "value": 8518.23374397021,
+  },
+  Object {
+    "allocation": 0.00019494931711096735,
+    "amount": "200000000000000000000",
+    "denom": "gamm/pool/498",
+    "poolId": "498",
+    "value": 6846.902582193164,
+  },
+  Object {
+    "allocation": 0.0008236483020854653,
+    "amount": "2000000000000000000000",
+    "denom": "gamm/pool/560",
+    "poolId": "560",
+    "value": 137752.0262443482,
+  },
+  Object {
+    "allocation": 0.0015710988409629195,
+    "amount": "2000000000000000000000",
+    "denom": "gamm/pool/561",
+    "poolId": "561",
+    "value": 157337.8792014562,
+  },
+  Object {
+    "allocation": 0.0008591506333502901,
+    "amount": "10000000000000000000000",
+    "denom": "gamm/pool/562",
+    "poolId": "562",
+    "value": 78315.58591761148,
+  },
+  Object {
+    "allocation": 0.00011211369545863991,
+    "amount": "20000000000000000000",
+    "denom": "gamm/pool/584",
+    "poolId": "584",
+    "value": 2491.9211091431384,
+  },
+  Object {
+    "allocation": 0.00028497385134167483,
+    "amount": "400000000000000000",
+    "denom": "gamm/pool/586",
+    "poolId": "586",
+    "value": 966.13601789156,
+  },
+  Object {
+    "allocation": 0.0014516082171006953,
+    "amount": "40000000000000000000000000",
+    "denom": "gamm/pool/6",
+    "poolId": "6",
+    "value": 16951.61787619785,
+  },
+  Object {
+    "allocation": 0.004636281048913086,
+    "amount": "500000000000000000",
+    "denom": "gamm/pool/600",
+    "poolId": "600",
+    "value": 98921.4476073319,
+  },
+  Object {
+    "allocation": 0.003314039294840055,
+    "amount": "200000000000000000000",
+    "denom": "gamm/pool/601",
+    "poolId": "601",
+    "value": 96266.09178471018,
+  },
+  Object {
+    "allocation": 0.0003611517731477527,
+    "amount": "600000000000000000000000",
+    "denom": "gamm/pool/9",
+    "poolId": "9",
+    "value": 7237.691351195864,
+  },
+]
 `;

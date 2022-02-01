@@ -2,6 +2,7 @@
 import pricesFixture from '../__fixtures__/coingecko/api/v3/simple/price/data.json';
 import bankFixture from '../__fixtures__/keplr/bank/balances/osmo1x/data.json';
 import poolsFixture from '../__fixtures__/keplr/osmosis/gamm/v1beta1/pools/data.json';
+import lockedPoolsFixture from '../__fixtures__/keplr/osmosis/lockup/v1beta1/account_locked_coins/osmo1/data.json';
 import { Token } from '../src/model/Token';
 import { assets, chains } from '@pyramation/cosmos-registry';
 import { assets as osmosisAssets } from '../src/assets';
@@ -176,6 +177,40 @@ cases('convertPricesToDenomPriceHash', opts => {
         }
     }
 ]);
+const getPoolByGammName = (pools, gammId) => {
+    return pools.find(({totalShares: { denom }}) => denom === gammId);
+};
+
+const getUserPools = ({pools, lockedPools}) => {
+    return lockedPools.map(({denom, amount})=> {
+        const pool = getPoolByGammName(pools, denom);
+        // TODO why some pools missing?
+        if (!pool) return null;
+        const value = pool.pricePerShare * amount;
+        return {
+            denom,
+            amount,
+            value,
+            allocation: Number(amount) / Number(pool.totalShares.amount),
+            poolId: pool.id
+        };
+    }).filter(Boolean);
+};
+
+cases('getPoolByGammName', opts => {
+    const prices = convertPricesToDenomPriceHash(pricesFixture)
+    const pools = getFilteredPoolsWithValues({prices, pools: poolsFixture.pools})
+    expect(getPoolByGammName(pools, opts.name).id).toEqual(opts.poolId);
+}, [
+    {
+        name: 'gamm/pool/1',
+        poolId: "1"
+    },
+    {
+        name: 'gamm/pool/600',
+        poolId: "600"
+    }
+]);
 
 const convertPoolToDisplayValues = ({prices, pool}) => {
     const { totalShares, poolAssets } = pool;
@@ -195,7 +230,7 @@ const convertPoolToDisplayValues = ({prices, pool}) => {
     pool.totalValue = totalValue;
     // pool.pricePerShareL = Long.fromValue(totalValue) / Long.fromString(totalShares.amount),
     // TODO verify 10^18
-    pool.pricePerShareDenom = Number(totalValue) / Number(totalShares.amount) * Math.pow(10,18),
+    pool.pricePerShare = Number(totalValue) / Number(totalShares.amount) * Math.pow(10,18),
     pool.pricePerShare = Number(totalValue) / Number(totalShares.amount) 
     return pool;
 };
@@ -243,8 +278,12 @@ describe('basic portfolio', ()=> {
         expect(second).toMatchSnapshot();
     });
     
+
+
     it('calculate pool value (user LP)', () => {
-    
+        const pools = getFilteredPoolsWithValues({prices, pools: poolsFixture.pools})
+        const result = getUserPools({pools, lockedPools: lockedPoolsFixture.coins})
+        expect(result).toMatchSnapshot();
     });
     
     
