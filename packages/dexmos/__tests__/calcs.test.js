@@ -278,16 +278,11 @@ describe('basic portfolio', ()=> {
         expect(second).toMatchSnapshot();
     });
     
-
-
     it('calculate pool value (user LP)', () => {
         const pools = getFilteredPoolsWithValues({prices, pools: poolsFixture.pools})
         const result = getUserPools({pools, lockedPools: lockedPoolsFixture.coins})
         expect(result).toMatchSnapshot();
     });
-    
-    
-
 });
 
 
