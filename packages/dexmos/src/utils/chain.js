@@ -54,11 +54,11 @@ export const getChainByChainId = (chain_id) => {
 export const getBaseAndDisplayUnits = (symbol) => {
   const coinInfo = getCosmosAssetInfo(symbol);
   if (!coinInfo) {
-      throw new Error('coin not found.')
-  }
-  const asset = coinInfo.assets.find(a=>a.symbol===symbol);
-  if (!asset) {
-      throw new Error('coin not found.')
+      throw new Error(`coin:${symbol} not found.`);
+    }
+    const asset = coinInfo.assets.find(a=>a.symbol===symbol);
+    if (!asset) {
+    throw new Error(`coin:${symbol} not found.`);
   }
   
   const base = asset.denom_units.find(d=>d.denom===asset.base);
@@ -74,7 +74,7 @@ export const getBaseAndDisplayUnits = (symbol) => {
 export const getOsmosisSymbolIbcName = (symbol) => {
   const coinInfo = getOsmosisAssetInfo(symbol);
   if (!coinInfo) {
-      throw new Error('coin not found.')
+    throw new Error(`coin:${symbol} not found.`);
   }
   return coinInfo.base;
 }
@@ -82,6 +82,11 @@ export const getOsmosisSymbolIbcName = (symbol) => {
 export const displayUnitsToDenomUnits = (symbol, amount) => {
   const { display } = getBaseAndDisplayUnits(symbol);
   return amount * Math.pow(10, display.exponent); 
+}
+
+export const baseUnitsToDisplayUnits = (symbol, amount) => {
+  const { display } = getBaseAndDisplayUnits(symbol);
+  return amount / Math.pow(10, display.exponent); 
 }
 
 export const getChain = async ({ token }) => {
