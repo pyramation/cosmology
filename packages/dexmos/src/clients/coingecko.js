@@ -25,7 +25,7 @@ import axios from 'axios';
  * 'cheqd-network'|
  * 'vidulum')} CoinGeckoToken
  *
- * @typedef {Object.<string, {usd: number}>} TokenPricesUSDResponse
+ * @typedef {Object.<CoinGeckoToken, {usd: number}>} TokenPricesUSDResponse
  *
  */
 
