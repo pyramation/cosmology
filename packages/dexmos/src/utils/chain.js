@@ -51,7 +51,7 @@ export const getChainByChainId = (chain_id) => {
   return chain;
 };
 
-export const getBaseAndDisplayUnits = (symbol) => {
+export const getBaseAndDisplayUnitsGenericCosmos = (symbol) => {
   const coinInfo = getCosmosAssetInfo(symbol);
   if (!coinInfo) {
       throw new Error(`coin:${symbol} not found.`);
@@ -65,11 +65,27 @@ export const getBaseAndDisplayUnits = (symbol) => {
   const display = asset.denom_units.find(d=>d.denom===asset.display);
 
   if (!base || !display) {
-      throw new Error('cannot find denom for coin');
+      throw new Error(`cannot find denom for coin ${symbol}`);
   }
 
   return { base, display };
 }
+
+export const getBaseAndDisplayUnits = (symbol) => {
+  const coinInfo = getOsmosisAssetInfo(symbol);
+  if (!coinInfo) {
+    throw new Error(`coin:${symbol} not found.`);
+  }
+  
+  const base = coinInfo.denom_units.find(d=>d.denom===coinInfo.base);
+  const display = coinInfo.denom_units.find(d=>d.denom===coinInfo.display);
+
+  if (!base || !display) {
+      throw new Error(`cannot find denom for coin ${symbol}`);
+  }
+
+  return { base, display };
+};
 
 export const getOsmosisSymbolIbcName = (symbol) => {
   const coinInfo = getOsmosisAssetInfo(symbol);

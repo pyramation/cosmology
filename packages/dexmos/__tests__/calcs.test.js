@@ -7,14 +7,15 @@ import { assets, chains } from '@pyramation/cosmos-registry';
 import { assets as osmosisAssets } from '../src/assets';
 import cases from 'jest-in-case';
 import { displayUnitsToDenomUnits, baseUnitsToDisplayUnits, getOsmosisSymbolIbcName } from '../src/utils';
+import Long from 'long';
 
 /*
     - [ ] give how much of each coin you're willing to sell
     - [ ] list of coins you want (via weights)
     - [ ] list of pools you want (via weights)
 
-
-    - [ ] calculate value of LP pool
+    - [x] calculate value of LP pool
+    - [x] filter pools that have LOW value or are NOT calculable...
     */
 
 
@@ -23,7 +24,7 @@ const getCoinGeckoIdForSymbol = (token) => {
     const rec = osmosisAssets.find(({ symbol }) => symbol === token);
     const geckoId = rec?.coingecko_id;
     if (!geckoId) {
-        return console.log('cannot find coin');
+        return console.log(`cannot find coin: ${symbol}`);
     }
     return geckoId;
 };
@@ -32,7 +33,7 @@ const getSymbolForCoinGeckoId = (geckoId) => {
     const rec = osmosisAssets.find(({ coingecko_id }) => coingecko_id === geckoId);
     const symbol = rec?.symbol;
     if (!symbol) {
-        return console.log('cannot find coin');
+        console.log(`WARNING: cannot find coin for geckoId: ${geckoId}`);
     }
     return symbol;
 };
@@ -58,7 +59,8 @@ const osmoDenomToSymbol = (ibcName) => {
     const rec = osmosisAssets.find(({ base }) => base === ibcName);
     const symbol = rec?.symbol;
     if (!symbol) {
-        return console.log('cannot find symbol');
+        // console.log(`cannot find symbol ${ibcName} `);
+        return null;
     }
     return symbol;
 }
@@ -67,7 +69,7 @@ const symbolToOsmoDenom = (token) => {
     const rec = osmosisAssets.find(({ symbol }) => symbol === token);
     const base = rec?.base;
     if (!base) {
-        return console.log('cannot find base');
+        return console.log(`cannot find base for token ${token}`);
     }
     return base;
 }
@@ -93,7 +95,7 @@ class OsmosisToken {
     }
 }
 
-cases('displayUnitsToDenomUnits)', opts => {
+cases('displayUnitsToDenomUnits', opts => {
     expect(displayUnitsToDenomUnits(opts.name, opts.amount)).toBe(opts.value);
 }, [
     { name: 'ATOM', amount: 10, value: 10000000 },
@@ -101,7 +103,7 @@ cases('displayUnitsToDenomUnits)', opts => {
     { name: 'OSMO', amount: 10, value: 10000000 }
 ]);
 
-cases('osmoDenomToSymbol)', opts => {
+cases('osmoDenomToSymbol', opts => {
     expect(osmoDenomToSymbol(opts.denom)).toBe(opts.name);
 }, [
     { name: 'ATOM', denom: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2' },
@@ -109,7 +111,7 @@ cases('osmoDenomToSymbol)', opts => {
     { name: 'OSMO', denom: 'uosmo' }
 ]);
 
-cases('symbolToOsmoDenom)', opts => {
+cases('symbolToOsmoDenom', opts => {
     expect(symbolToOsmoDenom(opts.name)).toBe(opts.denom);
 }, [
     { name: 'ATOM', denom: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2' },
@@ -118,26 +120,33 @@ cases('symbolToOsmoDenom)', opts => {
 ]);
 
 
-const calculateCurrentPorfolioWithValues = ({ prices, balances }) => {
-    const values = balances.map(({denom, amount}) => {
-        const price = prices[denom];
-        const symbol = osmoDenomToSymbol(denom);
-        if (isNaN(price)) throw new Error('bad price, NaN.');
-        const displayAmount = baseUnitsToDisplayUnits(symbol, amount)
-        if (isNaN(displayAmount)) throw new Error('bad amount, NaN.');
-        return {
-            denom, 
-            amount,
-            displayAmount,
-            value: displayAmount * prices[denom]
-        };
-    });
-    return values;
+const convertCoinToDisplayValues = ({ prices, coin }) => {
+    const {denom, amount} = coin;
+    const price = prices[denom];
+    const symbol = osmoDenomToSymbol(denom);
+    if (isNaN(price)) {
+        // console.log(`bad price for ${denom} NaN.`);
+        return null;
+    }
+    const displayAmount = baseUnitsToDisplayUnits(symbol, amount)
+    if (isNaN(displayAmount)) {
+        // console.log('bad amount, NaN.');
+        return null;
+    }
+    return {
+        denom, 
+        amount,
+        displayAmount,
+        value: displayAmount * prices[denom]
+    };
 };
 
-const calculateCurrentPorfolioBalance = ({ prices, balances }) => {
-    return calculateCurrentPorfolioWithValues
-        ({prices, balances}).reduce((m, v)=> {
+const convertCoinsToDisplayValues = ({ prices, coins }) => 
+     coins.map((coin) => convertCoinToDisplayValues({prices, coin}));
+
+const calculateCurrentPorfolioBalance = ({ prices, coins }) => {
+    return convertCoinsToDisplayValues
+        ({prices, coins}).reduce((m, v)=> {
         const { value } = v;
         return value + m;
     }, 0);
@@ -147,8 +156,10 @@ const calculateCurrentPorfolioBalance = ({ prices, balances }) => {
 const convertPricesToDenomPriceHash = (prices) => {
     return Object.keys(prices).reduce((m, geckoId) => {
         const symbol = getSymbolForCoinGeckoId(geckoId);
-        const denom = symbolToOsmoDenom(symbol);
-        m[denom] = prices[geckoId].usd;
+        if (symbol) {
+            const denom = symbolToOsmoDenom(symbol);
+            m[denom] = prices[geckoId].usd;
+        }
         return m;
     }, {});
 };
@@ -166,11 +177,41 @@ cases('convertPricesToDenomPriceHash', opts => {
     }
 ]);
 
+const convertPoolToDisplayValues = ({prices, pool}) => {
+    const { totalShares, poolAssets } = pool;
+    let totalValue = 0;
+    pool.displayPoolAssets = poolAssets.map(({token, weight})=> {
+        const value = convertCoinToDisplayValues({prices, coin: token});
+        if (!value) return undefined;
+        totalValue += value.value;
+        return {
+            token, 
+            weight,
+            allocation: Long.fromString(weight) / Long.fromString(pool.totalWeight),
+            symbol: osmoDenomToSymbol(token.denom),
+            value
+        };
+    }).filter(Boolean);
+    pool.totalValue = totalValue;
+    // pool.pricePerShareL = Long.fromValue(totalValue) / Long.fromString(totalShares.amount),
+    // TODO verify 10^18
+    pool.pricePerShareDenom = Number(totalValue) / Number(totalShares.amount) * Math.pow(10,18),
+    pool.pricePerShare = Number(totalValue) / Number(totalShares.amount) 
+    return pool;
+};
 
+const convertPoolsToDisplayValues = ({prices, pools}) => 
+     pools.map(pool=> convertPoolToDisplayValues({prices, pool}) );
+    
+const getFilteredPoolsWithValues = ({prices, pools}) => 
+    convertPoolsToDisplayValues({prices, pools})
+    // remove small pools    
+    .filter(({totalValue})=>totalValue>=100000)
+    // remove DIG or VIDL or coins not on coingecko that don't get prices    
+    .filter(({poolAssets, displayPoolAssets})=>poolAssets.length===displayPoolAssets.length);
 
-
-it('calculate portfolio value (balances)', () => {
-    const balances = [
+describe('basic portfolio', ()=> {
+    const coins = [
         {
             symbol: 'ATOM',
             amount: 10
@@ -187,20 +228,30 @@ it('calculate portfolio value (balances)', () => {
         return (new OsmosisToken({ symbol, amount })).toJSON();
     });
 
-    const prices = convertPricesToDenomPriceHash({
-        cosmos: { usd: 1500 },
-        'terra-luna': { usd: 68.91 },
-        'akash-network': { usd: 22 },
-        osmosis: { usd: 1000 },
-        comdex: { usd: 4.13 },
-        secret: { usd: 5.3 }
+    const prices = convertPricesToDenomPriceHash(pricesFixture)
+
+    it('calculate portfolio value (balances)', () => {
+        const value = calculateCurrentPorfolioBalance({prices, coins});
+        expect(value).toBe(3086.3);
     });
-    const value = calculateCurrentPorfolioBalance({prices, balances});
-    expect(value).toBe(137000);
+    
+    it('calculate pool value (global)', () => {
+        const values = getFilteredPoolsWithValues({prices, pools: poolsFixture.pools})
+        // console.log(JSON.stringify(values, null, 2))
+        const [first, second] = values;
+        expect(first).toMatchSnapshot();
+        expect(second).toMatchSnapshot();
+    });
+    
+    it('calculate pool value (user LP)', () => {
+    
+    });
+    
+    
+
 });
 
-it('calculate pool value (user LP)', () => { });
-it('calculate pool value (global)', () => { });
+
 
 it('calcs', async () => {
     // console.log(prices);
