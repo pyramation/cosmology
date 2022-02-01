@@ -529,7 +529,5 @@ export const getTradesRequiredToGetBalances = ({
         return m;
     }, []);
 
-    const balanceLeft = []
-
-    return {trades, balanceLeft};
+    return trades
 };

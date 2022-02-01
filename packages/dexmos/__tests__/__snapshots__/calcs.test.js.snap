@@ -229,6 +229,20 @@ Array [
     "value": 96266.09178471018,
   },
   Object {
+    "allocation": 0.0027907320014314866,
+    "amount": "400000000000000000",
+    "denom": "gamm/pool/604",
+    "poolId": "604",
+    "value": 69503.31148887692,
+  },
+  Object {
+    "allocation": 0.002495331745914565,
+    "amount": "4000000000000000000000",
+    "denom": "gamm/pool/611",
+    "poolId": "611",
+    "value": 55416.69563830522,
+  },
+  Object {
     "allocation": 0.0003611517731477527,
     "amount": "600000000000000000000000",
     "denom": "gamm/pool/9",
@@ -236,54 +250,4 @@ Array [
     "value": 7237.691351195864,
   },
 ]
-`;
-
-exports[`trades case: 1 1`] = `
-Object {
-  "balanceLeft": Array [],
-  "trades": Array [
-    Object {
-      "beliefValue": 90.5,
-      "buy": Object {
-        "amount": "50000000",
-        "denom": "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4",
-        "displayAmount": 50,
-        "symbol": "AKT",
-        "value": 90.5,
-      },
-      "sell": Object {
-        "amount": "2470652.470652471",
-        "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
-        "displayAmount": 2.4706524706524706,
-        "symbol": "ATOM",
-        "value": 90.5,
-      },
-    },
-  ],
-}
-`;
-
-exports[`trades case: 2 1`] = `
-Object {
-  "balanceLeft": Array [],
-  "trades": Array [
-    Object {
-      "beliefValue": 90.5,
-      "buy": Object {
-        "amount": "50000000",
-        "denom": "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4",
-        "displayAmount": 50,
-        "symbol": "AKT",
-        "value": 90.5,
-      },
-      "sell": Object {
-        "amount": "2470652.470652471",
-        "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
-        "displayAmount": 2.4706524706524706,
-        "symbol": "ATOM",
-        "value": 90.5,
-      },
-    },
-  ],
-}
 `;
