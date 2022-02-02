@@ -1,11 +1,14 @@
+import { OsmosisApiClient } from '..';
 import { OsmosisValidatorClient } from '../clients/validator';
 import {  prompt } from '../utils';
+import { getPoolAprs } from '../utils/osmo';
 
-const client = new OsmosisValidatorClient();
+const validator = new OsmosisValidatorClient();
+const api = new OsmosisApiClient();
 
 const getPools = async (argv) => {
     if (argv.poolId) return [];
-    const pools = await client.getPools();
+    const pools = await validator.getPools();
     return Object.keys(pools).map(poolId=> {
         if (pools[poolId][0].liquidity > argv['liquidity-limit']) {
             return {
@@ -16,53 +19,13 @@ const getPools = async (argv) => {
     }).filter(Boolean);
 };
 
-const SECONDS_PER_YEAR = 365.25 * 24 * 60 * 60;
-const BLOCKS_IN_A_YEAR = SECONDS_PER_YEAR / 14;
-const aprToApy = (interest, frequency = BLOCKS_IN_A_YEAR) => ((1 + (interest / 100) / frequency) ** frequency - 1) * 100;
 
-
-const convertAprToApyObj = (obj) => {
-    return {
-        ...obj,
-        apy_1d: aprToApy(obj.apr_1d),
-        apy_7d: aprToApy(obj.apr_7d),
-        apy_14d: aprToApy(obj.apr_14d)
-    };
-};
-
-const pickApr = (argv) => (el) => {
-    const {apr_1d, apr_7d, apr_14d, apy_1d, apy_7d, apy_14d, ...rest} = el;
-    if (argv.lockup == "14") {
-        return {
-            ...rest,
-            apr_14d,
-            apy_14d
-        };
-    }
-    if (argv.lockup == "1") {
-        return {
-            ...rest,
-            apr_1d,
-            apy_1d
-        };
-    }
-    if (argv.lockup == "7") {
-        return {
-            ...rest,
-            apr_7d,
-            apy_7d
-        };
-    }
-}
-    
 
 export default async (argv) => {
 
     if (!argv['liquidity-limit']) argv['liquidity-limit'] = 100_000;
     if (!argv['lockup']) argv['lockup'] = "14";
-
-    const filterProps = pickApr(argv);
-
+   
     const pools = await getPools(argv);
     let { poolId } = await prompt(
         [
@@ -80,49 +43,33 @@ export default async (argv) => {
         poolId = [poolId];
     }
 
-    for (let p=0; p<poolId.length; p++) {
-        const now = Date.now();
+    const results = await getPoolAprs({
+        api,
+        validator,
+        poolIds: poolId,
+        liquidityLimit: argv['liquidity-limit'],
+        lockup: argv['lockup']
+    });
 
-        const [{apr_list}] = await client.getPoolApr(poolId[p]);
-
-        const osmoIncentives = apr_list.filter(i=>
-            new Date(i.start_date) <= new Date() && i.symbol == 'OSMO')
-            .map(convertAprToApyObj)
-            .map(filterProps)
-        
-        const externalIncentives = apr_list.filter(i=>
-            new Date(i.start_date) <= new Date() && i.symbol != 'OSMO')
-            .map(convertAprToApyObj)
-            .map(filterProps)
-        
-        const futureIncentives = apr_list.filter(i=>
-            new Date(i.start_date) > new Date())
-            .map(convertAprToApyObj)
-            .map(filterProps)
-        
-        const totalIncentives = filterProps(convertAprToApyObj(apr_list.filter(i=>
-                new Date(i.start_date) <= new Date())
-                .reduce((m, incentive)=> {
-                    m.apr_1d += incentive.apr_1d;
-                    m.apr_7d += incentive.apr_7d;
-                    m.apr_14d += incentive.apr_14d;
-                    return m;
-                }, {
-                    apr_1d: 0,
-                    apr_7d: 0,
-                    apr_14d: 0
-                })))
-
-        console.log(`POOL ${poolId[p]}`);
-        console.log({
+    results.forEach(item=> {
+        const {
+            poolId,
             osmoIncentives,
             externalIncentives,
             futureIncentives,
-            totalIncentives
-        });
+            totalIncentives,
+            gauge
+        } = item;
 
+        console.log(`POOL ${poolId}`);
+        console.log(JSON.stringify({
+            osmoIncentives,
+            externalIncentives,
+            futureIncentives,
+            totalIncentives,
+            gauge
+        }, null, 2));
 
-    }
-
+    })
 
 };
