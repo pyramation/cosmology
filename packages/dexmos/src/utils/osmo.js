@@ -23,6 +23,36 @@ import Long from 'long';
  * denom:CoinDenom;
  * }} LockedPool
  * 
+ * 
+ * @typedef {{
+ * poolId:string;
+ * tokenOutDenom:CoinDenom;
+ * tokenOutSymbol:CoinSymbol;
+ * }} TradeRoute
+ *
+ * @typedef {{
+ * trade: Trade;
+ * routes:TradeRoute[];
+ * }} Swap
+ * 
+ * @typedef {{
+ *  pool_address: string;
+ *  pool_id: string;
+ *  base_name: string;
+ *  base_symbol: CoinSymbol;
+ *  base_address: CoinDenom;
+ *  quote_name: string;
+ *  quote_symbol: CoinSymbol;
+ *  quote_address: CoinDenom;
+ *  price: number;
+ *  base_volume_24h: number;
+ *  quote_volume_24h: number;
+ *  volume_24h: number;
+ *  volume_7d: number;
+ *  liquidity: number;
+ *  liquidity_atom: number;
+ * }} Pair
+ * 
  * @typedef {{
  * amount:string;
  * denom:CoinDenom;
@@ -726,3 +756,84 @@ export const convertWeightsIntoCoins = ({ weights, pools, prices, balances }) =>
         weights:objs
     };
 };
+
+
+/**
+ * @param {object} param0
+ * @param {Pool[]} param0.pools
+ * @param {Trade} param0.trade
+ * @param {Pair[]} param0.pairs
+ * @returns {TradeRoute[]} 
+ */
+
+export const lookupRoutesForTrade = ({ pools, trade, pairs }) => {
+
+    const directPool = pairs.find(pair=>
+        ( pair.base_address == trade.sell.denom &&
+        pair.quote_address == trade.buy.denom ) ||
+        ( pair.quote_address == trade.sell.denom &&
+        pair.base_address == trade.buy.denom )
+    );
+
+    if (directPool) {
+        return [{
+            poolId: directPool.pool_id,
+            tokenOutDenom: trade.buy.denom,
+            tokenOutSymbol: trade.buy.symbol
+        }];
+    }
+    
+    const sellOsmoPool = pairs.find(pair=>
+        ( pair.base_address == trade.sell.denom &&
+        pair.quote_address == 'uosmo' ) ||
+        ( pair.quote_address == trade.sell.denom &&
+        pair.base_address == 'uosmo' )
+    );
+
+    const buyOsmoPool = pairs.find(pair=>
+        ( pair.base_address == 'uosmo' &&
+        pair.quote_address == trade.buy.denom ) ||
+        ( pair.quote_address == 'uosmo' &&
+        pair.base_address == trade.buy.denom )
+    );
+
+    if (sellOsmoPool && buyOsmoPool) {
+        const routes = [
+            {
+                poolId: sellOsmoPool.pool_id,
+                tokenOutDenom: trade.sell.denom,
+                tokenOutSymbol: trade.sell.symbol
+            },
+            {
+                poolId: buyOsmoPool.pool_id,
+                tokenOutDenom: trade.buy.denom,
+                tokenOutSymbol: trade.buy.symbol
+            }
+        ];
+
+        console.log({sellOsmoPool})
+        console.log({buyOsmoPool})
+    
+        return routes;
+    }
+
+    // TODO add ATOM routes...
+    throw new Error('no trade routes found!');
+};
+
+
+/**
+ * @param {object} param0
+ * @param {Pool[]} param0.pools
+ * @param {Trade[]} param0.trades
+ * @param {Pair[]} param0.pairs
+ * @returns {Swap[]} 
+ */
+
+export const lookupRoutesForTrades = ({ pools, trades, pairs }) => 
+    trades.reduce((m,trade)=>
+         [...m, {
+             trade,
+             routes: lookupRoutesForTrade({ pools, trade, pairs })
+         }]
+    , []);
