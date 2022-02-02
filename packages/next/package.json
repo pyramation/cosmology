@@ -10,8 +10,8 @@
     "export": "next build && next export",
     "postexport": "npm run seo",
     "seo": "node ./seo/seo.js",
-    "deploy": "aws s3 sync out/ s3://dexmos.finance",
-    "invalidate": "aws cloudfront create-invalidation --distribution-id DIST_ID_GOES_HERE --paths \"/*\"",
+    "deploy": "AWS_PROFILE=webinc aws s3 sync out/ s3://dexmos.finance",
+    "invalidate": "AWS_PROFILE=webinc aws cloudfront create-invalidation --distribution-id E35JVFMWAP8JRK --paths \"/*\"",
     "deploy:all": "npm run export && npm run deploy && ./seo/prepare.sh"
   },
   "dependencies": {
