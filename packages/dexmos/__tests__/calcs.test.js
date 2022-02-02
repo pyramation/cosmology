@@ -93,6 +93,10 @@ cases('getPoolByGammName', opts => {
     {
         name: 'gamm/pool/600',
         poolId: "600"
+    },
+    {
+        name: 'gamm/pool/606',
+        poolId: "606"
     }
 ]);
 

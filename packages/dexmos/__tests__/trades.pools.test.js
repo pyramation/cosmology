@@ -25,7 +25,8 @@ import {
     convertPoolsToDisplayValues,
     getFilteredPoolsWithValues,
     symbolsAndDisplayValuesToCoinsArray,
-    getTradesRequiredToGetBalances
+    getTradesRequiredToGetBalances,
+    displayWeightsToCoinWeights
 } from '../src/utils/osmo';
 
 /*
@@ -35,6 +36,61 @@ import {
  - [ ] calculate coins needed for pools
  - [ ] calculate routes for swaps
  */
+
+const prices = convertPricesToDenomPriceHash(pricesFixture);
+const pools = getFilteredPoolsWithValues({ prices, pools: poolsFixture.pools });
+
+
+cases('getPoolByGammName', opts => {
+    const prices = convertPricesToDenomPriceHash(pricesFixture)
+    const pools = getFilteredPoolsWithValues({ prices, pools: poolsFixture.pools })
+    expect(getPoolByGammName(pools, opts.name).id).toEqual(opts.poolId);
+}, [
+    {
+        name: 'gamm/pool/1',
+        poolId: "1"
+    },
+    {
+        name: 'gamm/pool/600',
+        poolId: "600"
+    },
+    {
+        name: 'gamm/pool/606',
+        poolId: "606"
+    }
+]);
+
+
+it('parse weights', async () => {
+    expect(displayWeightsToCoinWeights({weights: [
+        {
+            weight: 5,
+            denom: 'gamm/pool/3'
+        },
+        {
+            weight: 5,
+            denom: 'gamm/pool/1'
+        },
+        {
+            weight: 5,
+            poolId: '600'
+        },
+        {
+            weight: 5,
+            denom: 'gamm/pool/606'
+        },
+        {
+            weight: 2,
+            symbol: 'LUNA',
+            denom: 'ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0'
+        },
+        {
+            weight: 10,
+            symbol: 'UST',
+            denom: 'ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC'
+        }
+    ], pools, prices})).toMatchSnapshot();
+});
 
 it('pools desired', async () => {
     // CONVERT WEIGHTS of POOLS/COINS into COINS
@@ -50,7 +106,7 @@ it('pools desired', async () => {
         },
         {
             weight: 5,
-            denom: 'gamm/pool/600'
+            poolId: '600'
         },
         {
             weight: 5,
@@ -68,6 +124,10 @@ it('pools desired', async () => {
         }
     ];
 
+
+    const result = displayWeightsToCoinWeights({weights, pools, prices});
+    expect(result).toMatchSnapshot();
+    
     // console.log(prices);
     // console.log(bank);
     // console.log(pools);
