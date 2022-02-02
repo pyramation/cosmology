@@ -26,7 +26,8 @@ import {
     getFilteredPoolsWithValues,
     symbolsAndDisplayValuesToCoinsArray,
     getTradesRequiredToGetBalances,
-    displayWeightsToCoinWeights
+    displayWeightsToCoinWeights,
+    convertWeightsIntoCoins
 } from '../src/utils/osmo';
 
 /*
@@ -95,6 +96,19 @@ it('parse weights', async () => {
 it('pools desired', async () => {
     // CONVERT WEIGHTS of POOLS/COINS into COINS
 
+    const balances = symbolsAndDisplayValuesToCoinsArray(
+        [
+            {
+                symbol: 'ATOM',
+                amount: 100
+            },
+            {
+                symbol: 'OSMO',
+                amount: 1000
+            }
+        ]
+    );
+
     const weights = [
         {
             weight: 5,
@@ -125,7 +139,7 @@ it('pools desired', async () => {
     ];
 
 
-    const result = displayWeightsToCoinWeights({weights, pools, prices});
+    const result = convertWeightsIntoCoins({weights, pools, prices, balances});
     expect(result).toMatchSnapshot();
     
     // console.log(prices);

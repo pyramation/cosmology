@@ -61,6 +61,7 @@ Array [
     "name": "AKT/OSMO",
     "poolId": "3",
     "type": "pool",
+    "value": 1994.21875,
     "weight": 5,
   },
   Object {
@@ -69,6 +70,7 @@ Array [
     "name": "ATOM/OSMO",
     "poolId": "1",
     "type": "pool",
+    "value": 1994.21875,
     "weight": 5,
   },
   Object {
@@ -77,6 +79,7 @@ Array [
     "name": "ATOM/CMDX",
     "poolId": "600",
     "type": "pool",
+    "value": 1994.21875,
     "weight": 5,
   },
   Object {
@@ -85,6 +88,7 @@ Array [
     "name": "ATOM/HUAHUA",
     "poolId": "606",
     "type": "pool",
+    "value": 1994.21875,
     "weight": 5,
   },
   Object {
@@ -93,6 +97,7 @@ Array [
     "name": "LUNA",
     "symbol": "LUNA",
     "type": "coin",
+    "value": 797.6875,
     "weight": 2,
   },
   Object {
@@ -101,6 +106,7 @@ Array [
     "name": "UST",
     "symbol": "UST",
     "type": "coin",
+    "value": 3988.4375,
     "weight": 10,
   },
 ]

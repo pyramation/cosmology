@@ -621,13 +621,21 @@ export const displayWeightsToCoinWeights = ({ weights, pools, prices }) => {
  * @param {CoinWeight[]} param0.weights
  * @param {Pool[]} param0.pools
  * @param {PriceHash} param0.prices
+ * @param {Coin[]} param0.balances
  * @returns {CoinValue[]}
  */
 
 
-export const convertWeightsIntoCoins = ({ weights, pools, prices }) => {
+export const convertWeightsIntoCoins = ({ weights, pools, prices, balances }) => {
     const cleaned = displayWeightsToCoinWeights({ weights, pools, prices });
-    
-  
-    return [];
+
+    const totalCurrent = calculateCoinsBalance({ prices, coins: balances });
+
+
+    return cleaned.map(item=> {
+        return {
+            ...item,
+            value: totalCurrent * item.allocation
+        }
+    });
 };
