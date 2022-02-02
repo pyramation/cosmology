@@ -631,6 +631,9 @@ export const convertWeightsIntoCoins = ({ weights, pools, prices, balances }) =>
 
     const totalCurrent = calculateCoinsBalance({ prices, coins: balances });
 
+    // - [x] determine value of each allocation
+    // - [ ] determine trades required for coins
+    // - [ ] determine trades required for pools
 
     return cleaned.map(item=> {
         return {
