@@ -74,3 +74,5 @@ https://www.notion.so/Stake-Systems-LCD-RPC-gRPC-Instances-04a99a9a9aa14247a4294
 Why do we sometimes use imperator validator API and sometimes the LCD Rest API?
 
 > Iirc the reason there are two apr elements in the imperator return is bc one is swap fees and internal incentives and the other external incentives. But you'd have to double check that. Also you can't get total gamm for all pools with LCD, bc of a bug on early pools, so add a state export to your tool bag. 
+
+> just to clarify, the api from imperator is custom. This is not something that a normal node would be capable of displaying out of the box
