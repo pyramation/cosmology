@@ -26,7 +26,7 @@ import {
     getFilteredPoolsWithValues,
     symbolsAndDisplayValuesToCoinsArray,
     getTradesRequiredToGetBalances,
-    displayWeightsToCoinWeights,
+    canonicalizeCoinWeights,
     convertWeightsIntoCoins,
     poolAllocationToCoinsNeeded
 } from '../src/utils/osmo';
@@ -62,9 +62,13 @@ cases('getPoolByGammName', opts => {
     }
 ]);
 
-
-it('parse weights', async () => {
-    expect(displayWeightsToCoinWeights({
+cases('canonicalizeCoinWeights', opts => {
+    expect(canonicalizeCoinWeights({
+        weights: opts.weights, pools, prices
+    })).toMatchSnapshot();
+}, [
+    {
+        name: 'many weights',
         weights: [
             {
                 weight: 5,
@@ -92,11 +96,60 @@ it('parse weights', async () => {
                 symbol: 'UST',
                 denom: 'ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC'
             }
-        ], pools, prices
-    })).toMatchSnapshot();
+        ]
+    },
+    {
+        name: '3 weights',
+        weights: [
+            {
+                weight: 5,
+                denom: 'gamm/pool/606'
+            },
+            {
+                weight: 2,
+                symbol: 'LUNA'
+            },
+            {
+                weight: 10,
+                denom: 'ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC'
+            }
+        ]
+    },
+    {
+        name: 'pools only',
+        weights: [
+            {
+                weight: 5,
+                denom: 'gamm/pool/3'
+            },
+            {
+                weight: 5,
+                denom: 'gamm/pool/1'
+            },
+            {
+                weight: 5,
+                poolId: '600'
+            }
+        ]
+    }
+]);
+
+it('allocations', async () => {
+    const allocation = poolAllocationToCoinsNeeded({
+        pools, prices, weight: {
+            "allocation": 0.15625,
+            "denom": "gamm/pool/600",
+            "name": "ATOM/CMDX",
+            "poolId": "600",
+            "type": "pool",
+            "value": 1994.21875,
+            "weight": 5,
+        }
+    });
+    expect(allocation).toMatchSnapshot();
 });
 
-it('pools desired', async () => {
+describe('pool allocations', () => {
     // CONVERT WEIGHTS of POOLS/COINS into COINS
 
     const balances = symbolsAndDisplayValuesToCoinsArray(
@@ -111,7 +164,8 @@ it('pools desired', async () => {
             }
         ]
     );
-
+    
+    
     const weights = [
         {
             weight: 5,
@@ -141,41 +195,33 @@ it('pools desired', async () => {
         }
     ];
 
+    it('determines pool allocations', async () => {
+        // - [x] determine value of each allocation
+        // - [x] given value of pool allocation, determine amount of coins
+        const result = convertWeightsIntoCoins({ weights, pools, prices, balances });
+        expect(result).toMatchSnapshot();
+    });
 
-    const result = convertWeightsIntoCoins({ weights, pools, prices, balances });
-    expect(result).toMatchSnapshot();
 
 
-    const res = poolAllocationToCoinsNeeded({
-        pools, prices, weight: {
-            "allocation": 0.15625,
-            "denom": "gamm/pool/600",
-            "name": "ATOM/CMDX",
-            "poolId": "600",
-            "type": "pool",
-            "value": 1994.21875,
-            "weight": 5,
+    it('pool trades', async () => {
+        // - [x] determine trades required for pools
+        const result = convertWeightsIntoCoins({ weights, pools, prices, balances });
+        for (let i=0; i<result.pools.length; i++) {
+            const desired = result.pools[i].coins;
+            const trades = getTradesRequiredToGetBalances({ prices, balances, desired })
+            const a = {
+                name: result.pools[i].name,
+                trades
+            };
+            expect(a).toMatchSnapshot();
         }
     });
-    console.log(res);
 
-    // console.log(prices);
-    // console.log(bank);
-    // console.log(pools);
-    // let driver = new Driver()
-    // const jobs = await driver.getAllJobs([
-    //   { "type": "coin", "coin": "UST", "weight": 0.3 },
-    //   { "type": "pool", "pool": { "id": 562, "coin1": "LUNA", "coin2": "UST", "balance": 0.5 }, "weight": 0.3 },
-    //   { "type": "pool", "pool": { "id": 611, "coin1": "ATOM", "coin2": "STARS", "balance": 0.7 }, "weight": 0.4 }
-    // ])
-    // console.log(jobs);
-    // expect(jobs.length).toEqual(10)
-
-    // expect(jobs[0].job.inputCoin).toEqual("LUNA")
-    // expect(jobs[0].job.targetCoin).toEqual("UST")
-    // expect(jobs[0].job.amount).toBeGreaterThan(0)
-
-    // expect(jobs[5].job.inputCoin).toEqual("UST")
-    // expect(jobs[5].job.targetCoin).toEqual("STARS")
-    // expect(jobs[5].job.amount).toBeGreaterThan(0)
-})
+    it('determines pool allocations', async () => {
+        // - [x] determine trades required for coins
+        const result = convertWeightsIntoCoins({ weights, pools, prices, balances });
+        const trades = getTradesRequiredToGetBalances({ prices, balances, desired: result.coins })
+        expect(trades).toMatchSnapshot();
+    });
+});

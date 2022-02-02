@@ -589,12 +589,17 @@ export const getTradesRequiredToGetBalances = ({
  * @param {CoinWeight[]} param0.weights
  * @param {Pool[]} param0.pools
  * @param {PriceHash} param0.prices
+ * @param {number|null} param0.totalCurrentValue
  * @returns {CoinWeight[]}
+ *
+ * this is used to canonicalize CoinWeights so a user can 
+ * pass in only some properties, like poolId, or symbol, etc., 
+ * and it will determine the denom, etc.
+ *
  */
-//  * @returns {CoinValue[]}
 
 
-export const displayWeightsToCoinWeights = ({ weights, pools, prices }) => {
+export const canonicalizeCoinWeights = ({ weights, pools, prices, totalCurrentValue }) => {
 
     let total = 0;
     const enriched = weights.map(item => {
@@ -630,7 +635,8 @@ export const displayWeightsToCoinWeights = ({ weights, pools, prices }) => {
     return enriched.map(item=>
         ({
             ...item,
-            allocation: item.weight/total
+            allocation: item.weight/total,
+            value: typeof totalCurrentValue === 'undefined' ? undefined : totalCurrentValue * item.weight / total 
         })
     );
 };
@@ -643,7 +649,6 @@ export const displayWeightsToCoinWeights = ({ weights, pools, prices }) => {
  * @param {CoinWeight} param0.weight
  * @returns {PoolAllocation}
  */
-
 
 export const poolAllocationToCoinsNeeded = ({ pools, prices, weight }) => {
 
@@ -662,14 +667,16 @@ export const poolAllocationToCoinsNeeded = ({ pools, prices, weight }) => {
         });
     });
 
-
+    if (typeof weight.value === 'undefined') {
+        throw new Error('weight.value needs to be defined');
+    }
 
     const allocation = {
         name: pool.name,
         denom: pool.totalShares.denom,
-        amount: (Number(pool.totalShares.amount) / pool.totalValue) * weight.value,
+        amount: '' + ((Number(pool.totalShares.amount) / pool.totalValue) * weight.value),
         // TODO determine the pool multipliers
-        displayAmount: (Number(pool.totalShares.amount) / pool.totalValue) * weight.value,
+        displayAmount: -1,
         value: weight.value,
         coins
     };
@@ -684,24 +691,40 @@ export const poolAllocationToCoinsNeeded = ({ pools, prices, weight }) => {
  * @param {Pool[]} param0.pools
  * @param {PriceHash} param0.prices
  * @param {Coin[]} param0.balances
- * @returns {CoinValue[]}
+ * @returns {{
+ *  pools: PoolAllocation[];
+ *  coins: CoinValue[];
+ *  weights: CoinWeight[];
+ * }}
  */
 
 
 export const convertWeightsIntoCoins = ({ weights, pools, prices, balances }) => {
-    const cleaned = displayWeightsToCoinWeights({ weights, pools, prices });
+    const totalCurrentValue = calculateCoinsTotalBalance({ prices, coins: balances });
+    const cleaned = canonicalizeCoinWeights({ weights, pools, prices, totalCurrentValue });
+    const allocations = cleaned.filter(c=>c.type==='pool').map(pool=>{
+        return poolAllocationToCoinsNeeded({pools, prices, weight: pool});
+    });
 
-    const totalCurrent = calculateCoinsTotalBalance({ prices, coins: balances });
-
-    // - [x] determine value of each allocation
-    // - [ ] given value of pool allocation, determine amount of coins
-    // - [ ] determine trades required for coins
-    // - [ ] determine trades required for pools
-
-    return cleaned.map(item=> {
+    const objs = cleaned.map(item=> {
         return {
             ...item,
-            value: totalCurrent * item.allocation
+            value: totalCurrentValue * item.allocation
         }
     });
+
+    const coins = objs.filter(a=>a.type==='coin').map(coin=> {
+        return convertCoinValueToCoin
+        ({  
+            prices,
+            denom: coin.denom,
+            value: coin.value
+        });
+    });
+
+    return {
+        pools: allocations,
+        coins,
+        weights:objs
+    };
 };

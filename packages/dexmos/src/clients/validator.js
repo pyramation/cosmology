@@ -39,6 +39,10 @@ import { RestClient } from './rest';
  *  apr_list: ValidatorCoinApr[]
  * }} ValidatorPoolApr
  * 
+ * 
+ * interestingly this one has "price" which I think is the
+ * price of the LP token? TODO: verify...
+ * 
  * @typedef {{
  *  pool_address: string;
  *  pool_id: string;
@@ -123,33 +127,3 @@ export class OsmosisValidatorClient extends RestClient {
   }
 
 }
-
-/*
-
-NOTE about dynamic APR list!
-
-Here is DVPN, but it's actually NOT active
-Is there a route where we know if these are still active?
-or how to find out?
-
-    "pool_id": 5,
-    "apr_list": [
-      {
-        "start_date": "2021-06-19T05:44:53.216494037Z",
-        "denom": "uosmo",
-        "symbol": "OSMO",
-        "apr_1d": 34.07079603251842,
-        "apr_7d": 54.51335904043854,
-        "apr_14d": 68.14179059931155
-      },
-      {
-        "start_date": "2022-12-10T00:00:00Z",
-        "denom": "ibc/9712DBB13B9631EDFA9BF61B55F1B2D290B2ADB67E3A4EB3A875F3B6081B3B84",
-        "symbol": "DVPN",
-        "apr_1d": 45.70191185539188,
-        "apr_7d": 205.65860334926344,
-        "apr_14d": 457.0191185539188
-      }
-    ]
-
-*/
