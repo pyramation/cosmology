@@ -28,6 +28,8 @@ import Long from 'long';
  * poolId:string;
  * tokenOutDenom:CoinDenom;
  * tokenOutSymbol:CoinSymbol;
+ * tokenInSymbol:CoinSymbol;
+ * liquidity:number;
  * }} TradeRoute
  *
  * @typedef {{
@@ -475,10 +477,10 @@ export const convertPoolsToDisplayValues = ({ prices, pools }) =>
  */
 export const getFilteredPoolsWithValues = ({ prices, pools }) =>
     convertPoolsToDisplayValues({ prices, pools })
-        // remove small pools    
-        // .filter(({ totalValue }) => totalValue >= 100000)
-        // remove DIG or VIDL or coins not on coingecko that don't get prices    
-        // .filter(({ poolAssets, displayPoolAssets }) => poolAssets.length === displayPoolAssets.length);
+// remove small pools    
+// .filter(({ totalValue }) => totalValue >= 100000)
+// remove DIG or VIDL or coins not on coingecko that don't get prices    
+// .filter(({ poolAssets, displayPoolAssets }) => poolAssets.length === displayPoolAssets.length);
 
 /**
  * @param {object} param0
@@ -632,7 +634,7 @@ export const canonicalizeCoinWeights = ({ weights, pools, prices, totalCurrentVa
     let total = 0;
     const enriched = weights.map(item => {
         if (!item.weight || item.weight <= 0) throw new Error('no non-positive weights');
-        total+= item.weight;
+        total += item.weight;
         if (!item.denom) {
             if (item.symbol) {
                 item.denom = symbolToOsmoDenom(item.symbol);
@@ -660,12 +662,12 @@ export const canonicalizeCoinWeights = ({ weights, pools, prices, totalCurrentVa
         return item;
     });
 
-    return enriched.map(item=>
-        ({
-            ...item,
-            allocation: item.weight/total,
-            value: typeof totalCurrentValue === 'undefined' ? undefined : totalCurrentValue * item.weight / total 
-        })
+    return enriched.map(item =>
+    ({
+        ...item,
+        allocation: item.weight / total,
+        value: typeof totalCurrentValue === 'undefined' ? undefined : totalCurrentValue * item.weight / total
+    })
     );
 };
 
@@ -684,15 +686,15 @@ export const poolAllocationToCoinsNeeded = ({ pools, prices, weight }) => {
         throw new Error('not yet');
     }
 
-    const pool = getPoolInfo({prices, pools, poolId: weight.poolId});
+    const pool = getPoolInfo({ prices, pools, poolId: weight.poolId });
 
-    const coins = pool.displayPoolAssets.map(a=>{
+    const coins = pool.displayPoolAssets.map(a => {
         return convertCoinValueToCoin
-        ({  
-            prices,
-            denom: a.token.denom,
-            value: weight.value * a.allocation
-        });
+            ({
+                prices,
+                denom: a.token.denom,
+                value: weight.value * a.allocation
+            });
     });
 
     if (typeof weight.value === 'undefined') {
@@ -730,33 +732,80 @@ export const poolAllocationToCoinsNeeded = ({ pools, prices, weight }) => {
 export const convertWeightsIntoCoins = ({ weights, pools, prices, balances }) => {
     const totalCurrentValue = calculateCoinsTotalBalance({ prices, coins: balances });
     const cleaned = canonicalizeCoinWeights({ weights, pools, prices, totalCurrentValue });
-    const allocations = cleaned.filter(c=>c.type==='pool').map(pool=>{
-        return poolAllocationToCoinsNeeded({pools, prices, weight: pool});
+    const allocations = cleaned.filter(c => c.type === 'pool').map(pool => {
+        return poolAllocationToCoinsNeeded({ pools, prices, weight: pool });
     });
 
-    const objs = cleaned.map(item=> {
+    const objs = cleaned.map(item => {
         return {
             ...item,
             value: totalCurrentValue * item.allocation
         }
     });
 
-    const coins = objs.filter(a=>a.type==='coin').map(coin=> {
+    const coins = objs.filter(a => a.type === 'coin').map(coin => {
         return convertCoinValueToCoin
-        ({  
-            prices,
-            denom: coin.denom,
-            value: coin.value
-        });
+            ({
+                prices,
+                denom: coin.denom,
+                value: coin.value
+            });
     });
 
     return {
         pools: allocations,
         coins,
-        weights:objs
+        weights: objs
     };
 };
 
+/**
+ * @param {object} param0
+ * @param {CoinDenom} param0.denom
+ * @param {Trade} param0.trade
+ * @param {Pair[]} param0.pairs
+ * @returns {TradeRoute[]} 
+ */
+
+export const routeThroughPool = ({ denom, trade, pairs }) => {
+
+    const symbol = osmoDenomToSymbol(denom);
+
+    const sellPool = pairs.find(pair =>
+        (pair.base_address == trade.sell.denom &&
+            pair.quote_address == denom) ||
+        (pair.quote_address == trade.sell.denom &&
+            pair.base_address == denom)
+    );
+
+    const buyPool = pairs.find(pair =>
+        (pair.base_address == denom &&
+            pair.quote_address == trade.buy.denom) ||
+        (pair.quote_address == denom &&
+            pair.base_address == trade.buy.denom)
+    );
+
+    if (sellPool && buyPool) {
+        const routes = [
+            {
+                poolId: sellPool.pool_id,
+                tokenOutDenom: denom,
+                tokenOutSymbol: symbol,
+                tokenInSymbol: trade.sell.symbol,
+                liquidity: sellPool.liquidity
+            },
+            {
+                poolId: buyPool.pool_id,
+                tokenOutDenom: trade.buy.denom,
+                tokenOutSymbol: trade.buy.symbol,
+                tokenInSymbol: symbol,
+                liquidity: buyPool.liquidity
+            }
+        ];
+
+        return routes;
+    }
+}
 
 /**
  * @param {object} param0
@@ -768,54 +817,47 @@ export const convertWeightsIntoCoins = ({ weights, pools, prices, balances }) =>
 
 export const lookupRoutesForTrade = ({ pools, trade, pairs }) => {
 
-    const directPool = pairs.find(pair=>
-        ( pair.base_address == trade.sell.denom &&
-        pair.quote_address == trade.buy.denom ) ||
-        ( pair.quote_address == trade.sell.denom &&
-        pair.base_address == trade.buy.denom )
+    const directPool = pairs.find(pair =>
+        (pair.base_address == trade.sell.denom &&
+            pair.quote_address == trade.buy.denom) ||
+        (pair.quote_address == trade.sell.denom &&
+            pair.base_address == trade.buy.denom)
     );
 
     if (directPool) {
         return [{
             poolId: directPool.pool_id,
             tokenOutDenom: trade.buy.denom,
-            tokenOutSymbol: trade.buy.symbol
+            tokenOutSymbol: trade.buy.symbol,
+            tokenInSymbol: trade.sell.symbol,
+            liquidity: directPool.liquidity
         }];
     }
-    
-    const sellOsmoPool = pairs.find(pair=>
-        ( pair.base_address == trade.sell.denom &&
-        pair.quote_address == 'uosmo' ) ||
-        ( pair.quote_address == trade.sell.denom &&
-        pair.base_address == 'uosmo' )
-    );
 
-    const buyOsmoPool = pairs.find(pair=>
-        ( pair.base_address == 'uosmo' &&
-        pair.quote_address == trade.buy.denom ) ||
-        ( pair.quote_address == 'uosmo' &&
-        pair.base_address == trade.buy.denom )
-    );
+    const osmoRoutes = routeThroughPool({
+        denom: 'uosmo',
+        trade,
+        pairs
+    });
 
-    if (sellOsmoPool && buyOsmoPool) {
-        const routes = [
-            {
-                poolId: sellOsmoPool.pool_id,
-                tokenOutDenom: trade.sell.denom,
-                tokenOutSymbol: trade.sell.symbol
-            },
-            {
-                poolId: buyOsmoPool.pool_id,
-                tokenOutDenom: trade.buy.denom,
-                tokenOutSymbol: trade.buy.symbol
-            }
-        ];
+    const atomRoutes = routeThroughPool({
+        denom: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+        trade,
+        pairs
+    });
 
-        console.log({sellOsmoPool})
-        console.log({buyOsmoPool})
-    
-        return routes;
-    }
+    // if (atomRoutes?.length && osmoRoutes?.length) {
+    //     const atomLiquidity = atomRoutes.reduce((m, { liquidity }) => m + liquidity, 0);
+    //     const osmoLiquidity = osmoRoutes.reduce((m, { liquidity }) => m + liquidity, 0);
+    //     if (atomLiquidity < osmoLiquidity) {
+    //         return atomRoutes;
+    //     } else {
+    //         return osmoRoutes;
+    //     }
+    // }
+
+    if (atomRoutes) return atomRoutes;
+    if (osmoRoutes) return osmoRoutes;
 
     // TODO add ATOM routes...
     throw new Error('no trade routes found!');
@@ -830,10 +872,9 @@ export const lookupRoutesForTrade = ({ pools, trade, pairs }) => {
  * @returns {Swap[]} 
  */
 
-export const lookupRoutesForTrades = ({ pools, trades, pairs }) => 
-    trades.reduce((m,trade)=>
-         [...m, {
-             trade,
-             routes: lookupRoutesForTrade({ pools, trade, pairs })
-         }]
-    , []);
+export const getSwaps = ({ pools, trades, pairs }) =>
+    trades.reduce((m, trade) =>
+        [...m, {
+            trade,
+            routes: lookupRoutesForTrade({ pools, trade, pairs })
+        }], []);
