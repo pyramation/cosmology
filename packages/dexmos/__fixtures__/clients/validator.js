@@ -1,8 +1,8 @@
-import getPoolsFixture from '../imperator/search/v1/pools/data.json';
-import getTokensFixture from '../imperator/tokens/v2/all/data.json';
-import getPoolAprsFixture from '../imperator/apr/v1/all/data.json';
-import getPoolAprFixture from '../imperator/apr/v1/606/data.json';
-import getPairsSummaryFixture from '../imperator/pairs/v1/summary/data.json';
+import getPoolsFixture from '../validator/search/v1/pools/data.json';
+import getTokensFixture from '../validator/tokens/v2/all/data.json';
+import getPoolAprsFixture from '../validator/apr/v1/all/data.json';
+import getPoolAprFixture from '../validator/apr/v1/606/data.json';
+import getPairsSummaryFixture from '../validator/pairs/v1/summary/data.json';
 
 /**
  * 

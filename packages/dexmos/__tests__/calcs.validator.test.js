@@ -1,8 +1,8 @@
 // @ts-nocheck
-import validatorPricesFixture from '../__fixtures__/imperator/tokens/v2/all/data.json';
-import bankFixture from '../__fixtures__/keplr/bank/balances/osmo1x/data.json';
-import poolsFixture from '../__fixtures__/keplr/osmosis/gamm/v1beta1/pools/data.json';
-import lockedPoolsFixture from '../__fixtures__/keplr/osmosis/lockup/v1beta1/account_locked_coins/osmo1/data.json';
+import validatorPricesFixture from '../__fixtures__/validator/tokens/v2/all/data.json';
+import bankFixture from '../__fixtures__/lcd/bank/balances/osmo1x/data.json';
+import poolsFixture from '../__fixtures__/lcd/osmosis/gamm/v1beta1/pools/data.json';
+import lockedPoolsFixture from '../__fixtures__/lcd/osmosis/lockup/v1beta1/account_locked_coins/osmo1/data.json';
 import { Token } from '../src/model/Token';
 import { assets, chains } from '@pyramation/cosmos-registry';
 import { assets as osmosisAssets } from '../src/assets';

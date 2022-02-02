@@ -1,9 +1,9 @@
-import getPoolsFixture from '../keplr/osmosis/gamm/v1beta1/pools/data.json';
-import getLockableDurationsFixture from '../keplr/osmosis/pool-incentives/v1beta1/lockable_durations/data.json'
-import getGaugesFixture from '../keplr/osmosis/incentives/v1beta1/gauges/data.json';
-import getActiveGaugesFixture from '../keplr/osmosis/incentives/v1beta1/active_gauges/data.json';
-import getGaugeFixture from '../keplr/osmosis/incentives/v1beta1/gauge_by_id/600/data.json';
-import getIncentivizedPoolsFixture from '../keplr/osmosis/pool-incentives/v1beta1/incentivized_pools/data.json';
+import getPoolsFixture from '../lcd/osmosis/gamm/v1beta1/pools/data.json';
+import getLockableDurationsFixture from '../lcd/osmosis/pool-incentives/v1beta1/lockable_durations/data.json'
+import getGaugesFixture from '../lcd/osmosis/incentives/v1beta1/gauges/data.json';
+import getActiveGaugesFixture from '../lcd/osmosis/incentives/v1beta1/active_gauges/data.json';
+import getGaugeFixture from '../lcd/osmosis/incentives/v1beta1/gauge_by_id/600/data.json';
+import getIncentivizedPoolsFixture from '../lcd/osmosis/pool-incentives/v1beta1/incentivized_pools/data.json';
 
 export class OsmosisApiClient {
 
