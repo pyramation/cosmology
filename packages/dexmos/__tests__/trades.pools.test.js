@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 import pricesFixture from '../__fixtures__/coingecko/api/v3/simple/price/data.json';
 import bankFixture from '../__fixtures__/keplr/bank/balances/osmo1x/data.json';
 import poolsFixture from '../__fixtures__/keplr/osmosis/gamm/v1beta1/pools/data.json';
@@ -17,8 +17,8 @@ import {
     OsmosisToken,
     convertCoinToDisplayValues,
     convertCoinsToDisplayValues,
-    calculateCoinsBalance,
-    convertPricesToDenomPriceHash,
+    calculateCoinsTotalBalance,
+    convertGeckoPricesToDenomPriceHash,
     getPoolByGammName,
     getUserPools,
     convertPoolToDisplayValues,
@@ -27,7 +27,8 @@ import {
     symbolsAndDisplayValuesToCoinsArray,
     getTradesRequiredToGetBalances,
     displayWeightsToCoinWeights,
-    convertWeightsIntoCoins
+    convertWeightsIntoCoins,
+    poolAllocationToCoinsNeeded
 } from '../src/utils/osmo';
 
 /*
@@ -38,12 +39,12 @@ import {
  - [ ] calculate routes for swaps
  */
 
-const prices = convertPricesToDenomPriceHash(pricesFixture);
+const prices = convertGeckoPricesToDenomPriceHash(pricesFixture);
 const pools = getFilteredPoolsWithValues({ prices, pools: poolsFixture.pools });
 
 
 cases('getPoolByGammName', opts => {
-    const prices = convertPricesToDenomPriceHash(pricesFixture)
+    const prices = convertGeckoPricesToDenomPriceHash(pricesFixture)
     const pools = getFilteredPoolsWithValues({ prices, pools: poolsFixture.pools })
     expect(getPoolByGammName(pools, opts.name).id).toEqual(opts.poolId);
 }, [
@@ -63,34 +64,36 @@ cases('getPoolByGammName', opts => {
 
 
 it('parse weights', async () => {
-    expect(displayWeightsToCoinWeights({weights: [
-        {
-            weight: 5,
-            denom: 'gamm/pool/3'
-        },
-        {
-            weight: 5,
-            denom: 'gamm/pool/1'
-        },
-        {
-            weight: 5,
-            poolId: '600'
-        },
-        {
-            weight: 5,
-            denom: 'gamm/pool/606'
-        },
-        {
-            weight: 2,
-            symbol: 'LUNA',
-            denom: 'ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0'
-        },
-        {
-            weight: 10,
-            symbol: 'UST',
-            denom: 'ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC'
-        }
-    ], pools, prices})).toMatchSnapshot();
+    expect(displayWeightsToCoinWeights({
+        weights: [
+            {
+                weight: 5,
+                denom: 'gamm/pool/3'
+            },
+            {
+                weight: 5,
+                denom: 'gamm/pool/1'
+            },
+            {
+                weight: 5,
+                poolId: '600'
+            },
+            {
+                weight: 5,
+                denom: 'gamm/pool/606'
+            },
+            {
+                weight: 2,
+                symbol: 'LUNA',
+                denom: 'ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0'
+            },
+            {
+                weight: 10,
+                symbol: 'UST',
+                denom: 'ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC'
+            }
+        ], pools, prices
+    })).toMatchSnapshot();
 });
 
 it('pools desired', async () => {
@@ -139,9 +142,23 @@ it('pools desired', async () => {
     ];
 
 
-    const result = convertWeightsIntoCoins({weights, pools, prices, balances});
+    const result = convertWeightsIntoCoins({ weights, pools, prices, balances });
     expect(result).toMatchSnapshot();
-    
+
+
+    const res = poolAllocationToCoinsNeeded({
+        pools, prices, weight: {
+            "allocation": 0.15625,
+            "denom": "gamm/pool/600",
+            "name": "ATOM/CMDX",
+            "poolId": "600",
+            "type": "pool",
+            "value": 1994.21875,
+            "weight": 5,
+        }
+    });
+    console.log(res);
+
     // console.log(prices);
     // console.log(bank);
     // console.log(pools);

@@ -57,3 +57,4 @@ https://github.com/osmosis-labs/awesome#publicly-available-endpoints
 
 https://www.notion.so/Stake-Systems-LCD-RPC-gRPC-Instances-04a99a9a9aa14247a42944931eec7024
 
+https://api-osmosis.imperator.co/swagger/#/pools_v2/liquidity_by_pools_pools_v2_liquidity__pool_id__chart_get

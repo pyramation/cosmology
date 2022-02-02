@@ -2,13 +2,13 @@
 import pricesFixture from '../__fixtures__/coingecko/api/v3/simple/price/data.json';
 import cases from 'jest-in-case';
 import {
-    convertPricesToDenomPriceHash,
+    convertGeckoPricesToDenomPriceHash,
     symbolsAndDisplayValuesToCoinsArray,
     getTradesRequiredToGetBalances
 } from '../src/utils/osmo';
 
 cases('trades', opts => {
-    const prices = convertPricesToDenomPriceHash(pricesFixture);
+    const prices = convertGeckoPricesToDenomPriceHash(pricesFixture);
     const balances = symbolsAndDisplayValuesToCoinsArray(
         opts.balances
     );

@@ -40,6 +40,7 @@ Object {
   ],
   "future_pool_governor": "24h",
   "id": "1",
+  "name": "ATOM/OSMO",
   "poolAssets": Array [
     Object {
       "token": Object {
@@ -111,6 +112,7 @@ Object {
   ],
   "future_pool_governor": "24h",
   "id": "2",
+  "name": "ION/OSMO",
   "poolAssets": Array [
     Object {
       "token": Object {
@@ -194,6 +196,13 @@ Array [
     "value": 78315.58591761148,
   },
   Object {
+    "allocation": 0.0031545274576644427,
+    "amount": "40000000000000000000",
+    "denom": "gamm/pool/574",
+    "poolId": "574",
+    "value": 3897.2319876727747,
+  },
+  Object {
     "allocation": 0.00011211369545863991,
     "amount": "20000000000000000000",
     "denom": "gamm/pool/584",
@@ -206,6 +215,13 @@ Array [
     "denom": "gamm/pool/586",
     "poolId": "586",
     "value": 966.13601789156,
+  },
+  Object {
+    "allocation": 0.0018810841038095674,
+    "amount": "30000000000000000000",
+    "denom": "gamm/pool/592",
+    "poolId": "592",
+    "value": 2058.693663583535,
   },
   Object {
     "allocation": 0.0014516082171006953,
@@ -234,6 +250,13 @@ Array [
     "denom": "gamm/pool/604",
     "poolId": "604",
     "value": 69503.31148887692,
+  },
+  Object {
+    "allocation": 0.0008335361960606539,
+    "amount": "300000000000000000000000",
+    "denom": "gamm/pool/606",
+    "poolId": "606",
+    "value": 4639.142154504307,
   },
   Object {
     "allocation": 0.002495331745914565,

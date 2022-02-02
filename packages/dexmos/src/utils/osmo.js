@@ -42,6 +42,7 @@ import Long from 'long';
  * weight:number;
  * type:('coin'|'pool');
  * name:string;
+ * value:number|null;
  * symbol:CoinSymbol|null;
  * poolId:string|null;
  * denom:CoinDenom;
@@ -55,6 +56,15 @@ import Long from 'long';
  * value: number;
  * symbol: CoinSymbol;
  * }} CoinValue
+ * 
+ * @typedef {{
+ * name: string;
+ * denom:CoinDenom;
+ * amount:string|null;
+ * displayAmount: number|null;
+ * value: number;
+ * coins: CoinValue[];
+ * }} PoolAllocation
  * 
  * @typedef {{
  * amount:string;
@@ -299,12 +309,9 @@ export const convertCoinsToDisplayValues = ({ prices, coins }) =>
  * @param {PriceHash} param0.prices
  * @param {Coin[]} param0.coins
  */
-export const calculateCoinsBalance = ({ prices, coins }) => {
+export const calculateCoinsTotalBalance = ({ prices, coins }) => {
     return convertCoinsToDisplayValues
         ({ prices, coins }).reduce((m, v) => {
-            if (!v) {
-                console.log(new Error().stack)
-            }
             const { value } = v;
             return value + m;
         }, 0);
@@ -316,13 +323,26 @@ export const calculateCoinsBalance = ({ prices, coins }) => {
  * @returns {PriceHash}
  */
 
-export const convertPricesToDenomPriceHash = (prices) => {
+export const convertGeckoPricesToDenomPriceHash = (prices) => {
     return Object.keys(prices).reduce((m, geckoId) => {
         const symbol = getSymbolForCoinGeckoId(geckoId);
         if (symbol) {
             const denom = symbolToOsmoDenom(symbol);
             m[denom] = prices[geckoId].usd;
         }
+        return m;
+    }, {});
+};
+
+/**
+ * 
+ * @param {ValidatorToken[]} tokens 
+ * @returns {PriceHash}
+ */
+
+export const convertValidatorPricesToDenomPriceHash = (tokens) => {
+    return tokens.reduce((m, token) => {
+        m[token.denom] = token.price;
         return m;
     }, {});
 };
@@ -428,9 +448,9 @@ export const convertPoolsToDisplayValues = ({ prices, pools }) =>
 export const getFilteredPoolsWithValues = ({ prices, pools }) =>
     convertPoolsToDisplayValues({ prices, pools })
         // remove small pools    
-        .filter(({ totalValue }) => totalValue >= 100000)
+        // .filter(({ totalValue }) => totalValue >= 100000)
         // remove DIG or VIDL or coins not on coingecko that don't get prices    
-        .filter(({ poolAssets, displayPoolAssets }) => poolAssets.length === displayPoolAssets.length);
+        // .filter(({ poolAssets, displayPoolAssets }) => poolAssets.length === displayPoolAssets.length);
 
 /**
  * @param {object} param0
@@ -446,8 +466,8 @@ export const getTradesRequiredToGetBalances = ({
     desired
 }) => {
 
-    const totalCurrent = calculateCoinsBalance({ prices, coins: balances });
-    const totalDesired = calculateCoinsBalance({ prices, coins: desired });
+    const totalCurrent = calculateCoinsTotalBalance({ prices, coins: balances });
+    const totalDesired = calculateCoinsTotalBalance({ prices, coins: desired });
 
     if (totalDesired > totalCurrent) {
         throw new Error('insufficient balance');
@@ -502,8 +522,8 @@ export const getTradesRequiredToGetBalances = ({
         return [...m, diff];
     }, []);
 
-    const availableCoinsValue = calculateCoinsBalance({ prices, coins: availableCoins });
-    const desiredCoinsNeededValue = calculateCoinsBalance({ prices, coins: desiredCoinsNeeded });
+    const availableCoinsValue = calculateCoinsTotalBalance({ prices, coins: availableCoins });
+    const desiredCoinsNeededValue = calculateCoinsTotalBalance({ prices, coins: desiredCoinsNeeded });
 
     const availableCoinsWithValues = convertCoinsToDisplayValues({ prices, coins: availableCoins });
     const desiredCoinsNeededWithValues = convertCoinsToDisplayValues({ prices, coins: desiredCoinsNeeded });
@@ -618,6 +638,48 @@ export const displayWeightsToCoinWeights = ({ weights, pools, prices }) => {
 
 /**
  * @param {object} param0
+ * @param {Pool[]} param0.pools
+ * @param {PriceHash} param0.prices
+ * @param {CoinWeight} param0.weight
+ * @returns {PoolAllocation}
+ */
+
+
+export const poolAllocationToCoinsNeeded = ({ pools, prices, weight }) => {
+
+    if (weight.type !== 'pool') {
+        throw new Error('not yet');
+    }
+
+    const pool = getPoolInfo({prices, pools, poolId: weight.poolId});
+
+    const coins = pool.displayPoolAssets.map(a=>{
+        return convertCoinValueToCoin
+        ({  
+            prices,
+            denom: a.token.denom,
+            value: weight.value * a.allocation
+        });
+    });
+
+
+
+    const allocation = {
+        name: pool.name,
+        denom: pool.totalShares.denom,
+        amount: (Number(pool.totalShares.amount) / pool.totalValue) * weight.value,
+        // TODO determine the pool multipliers
+        displayAmount: (Number(pool.totalShares.amount) / pool.totalValue) * weight.value,
+        value: weight.value,
+        coins
+    };
+
+    return allocation;
+};
+
+
+/**
+ * @param {object} param0
  * @param {CoinWeight[]} param0.weights
  * @param {Pool[]} param0.pools
  * @param {PriceHash} param0.prices
@@ -629,9 +691,10 @@ export const displayWeightsToCoinWeights = ({ weights, pools, prices }) => {
 export const convertWeightsIntoCoins = ({ weights, pools, prices, balances }) => {
     const cleaned = displayWeightsToCoinWeights({ weights, pools, prices });
 
-    const totalCurrent = calculateCoinsBalance({ prices, coins: balances });
+    const totalCurrent = calculateCoinsTotalBalance({ prices, coins: balances });
 
     // - [x] determine value of each allocation
+    // - [ ] given value of pool allocation, determine amount of coins
     // - [ ] determine trades required for coins
     // - [ ] determine trades required for pools
 

@@ -77,8 +77,14 @@ export const getBaseAndDisplayUnits = (symbol) => {
     throw new Error(`coin:${symbol} not found.`);
   }
   
-  const base = coinInfo.denom_units.find(d=>d.denom===coinInfo.base);
-  const display = coinInfo.denom_units.find(d=>d.denom===coinInfo.display);
+  const base = coinInfo.denom_units.find(d=>
+      d.denom===coinInfo.base ||
+      d.aliases?.includes(coinInfo.base)
+  );
+  const display = coinInfo.denom_units.find(
+    d=>d.denom===coinInfo.display ||
+    d.aliases?.includes(coinInfo.display)
+  );
 
   if (!base || !display) {
       throw new Error(`cannot find denom for coin ${symbol}`);

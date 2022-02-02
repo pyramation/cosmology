@@ -1,5 +1,5 @@
 // @ts-nocheck
-import pricesFixture from '../__fixtures__/coingecko/api/v3/simple/price/data.json';
+import validatorPricesFixture from '../__fixtures__/imperator/tokens/v2/all/data.json';
 import bankFixture from '../__fixtures__/keplr/bank/balances/osmo1x/data.json';
 import poolsFixture from '../__fixtures__/keplr/osmosis/gamm/v1beta1/pools/data.json';
 import lockedPoolsFixture from '../__fixtures__/keplr/osmosis/lockup/v1beta1/account_locked_coins/osmo1/data.json';
@@ -17,8 +17,8 @@ import {
     OsmosisToken,
     convertCoinToDisplayValues,
     convertCoinsToDisplayValues,
-    calculateCoinsBalance,
-    convertPricesToDenomPriceHash,
+    calculateCoinsTotalBalance,
+    convertValidatorPricesToDenomPriceHash,
     getPoolByGammName,
     getUserPools,
     convertPoolToDisplayValues,
@@ -27,22 +27,6 @@ import {
     symbolsAndDisplayValuesToCoinsArray,
     getTradesRequiredToGetBalances
 } from '../src/utils/osmo';
-
-cases('getCoinGeckoIdForSymbol', opts => {
-    expect(getCoinGeckoIdForSymbol(opts.name)).toBe(opts.geckoId);
-}, [
-    { name: 'ATOM', geckoId: 'cosmos' },
-    { name: 'AKT', geckoId: 'akash-network' },
-    { name: 'OSMO', geckoId: 'osmosis' }
-]);
-
-cases('getSymbolForCoinGeckoId', opts => {
-    expect(getSymbolForCoinGeckoId(opts.geckoId)).toBe(opts.name);
-}, [
-    { name: 'ATOM', geckoId: 'cosmos' },
-    { name: 'AKT', geckoId: 'akash-network' },
-    { name: 'OSMO', geckoId: 'osmosis' }
-]);
 
 cases('displayUnitsToDenomUnits', opts => {
     expect(displayUnitsToDenomUnits(opts.name, opts.amount)).toBe(opts.value);
@@ -68,12 +52,21 @@ cases('symbolToOsmoDenom', opts => {
     { name: 'OSMO', denom: 'uosmo' }
 ]);
 
-cases('convertPricesToDenomPriceHash', opts => {
-    expect(convertPricesToDenomPriceHash(opts.prices)).toEqual(opts.hash);
+cases('convertValidatorPricesToDenomPriceHash', opts => {
+    expect(convertValidatorPricesToDenomPriceHash(opts.tokens)).toEqual(opts.hash);
 }, [
     {
         name: 'test1',
-        prices: { 'akash-network': { usd: 100 }, cosmos: { usd: 20 } },
+        tokens: [ 
+            {
+                denom: "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4",
+                price: 100
+            },
+            {
+                denom: "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+                price: 20
+            }
+        ],
         hash: {
             "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4": 100,
             "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2": 20
@@ -82,7 +75,8 @@ cases('convertPricesToDenomPriceHash', opts => {
 ]);
 
 cases('getPoolByGammName', opts => {
-    const prices = convertPricesToDenomPriceHash(pricesFixture)
+    // const prices = convertValidatorPricesToDenomPriceHash(validatorPricesFixture)
+    const prices = convertValidatorPricesToDenomPriceHash(validatorPricesFixture);
     const pools = getFilteredPoolsWithValues({ prices, pools: poolsFixture.pools })
     expect(getPoolByGammName(pools, opts.name).id).toEqual(opts.poolId);
 }, [
@@ -118,11 +112,11 @@ describe('basic portfolio', () => {
         ]
     );
 
-    const prices = convertPricesToDenomPriceHash(pricesFixture)
+    const prices = convertValidatorPricesToDenomPriceHash(validatorPricesFixture)
 
     it('calculate portfolio value (balances)', () => {
-        const value = calculateCoinsBalance({ prices, coins });
-        expect(value).toBe(3086.3);
+        const value = calculateCoinsTotalBalance({ prices, coins });
+        expect(value).toBe(2622.48607051);
     });
 
     it('calculate pool value (global)', () => {
@@ -157,7 +151,7 @@ describe('user actions', () => {
         ]
     );
 
-    const prices = convertPricesToDenomPriceHash(pricesFixture)
+    const prices = convertValidatorPricesToDenomPriceHash(validatorPricesFixture)
 
     it('cannot desire more value than current', async () => {
         const desired = symbolsAndDisplayValuesToCoinsArray(
