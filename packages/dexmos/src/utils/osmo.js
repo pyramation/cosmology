@@ -1,9 +1,7 @@
 // osmo specific utils
 
-import { Token } from '../model/Token';
-import { assets, chains } from '@pyramation/cosmos-registry';
 import { assets as osmosisAssets } from '../assets';
-import { displayUnitsToDenomUnits, baseUnitsToDisplayUnits, getOsmosisSymbolIbcName } from '.';
+import { displayUnitsToDenomUnits, baseUnitsToDisplayUnits } from '.';
 import Long from 'long';
 
 /**
