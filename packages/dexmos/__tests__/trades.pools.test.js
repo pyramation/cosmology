@@ -1,28 +1,10 @@
 // @ts-nocheck
 import pricesFixture from '../__fixtures__/coingecko/api/v3/simple/price/data.json';
-import bankFixture from '../__fixtures__/keplr/bank/balances/osmo1x/data.json';
 import poolsFixture from '../__fixtures__/keplr/osmosis/gamm/v1beta1/pools/data.json';
-import lockedPoolsFixture from '../__fixtures__/keplr/osmosis/lockup/v1beta1/account_locked_coins/osmo1/data.json';
-import { Token } from '../src/model/Token';
-import { assets, chains } from '@pyramation/cosmos-registry';
-import { assets as osmosisAssets } from '../src/assets';
 import cases from 'jest-in-case';
-import { displayUnitsToDenomUnits, baseUnitsToDisplayUnits, getOsmosisSymbolIbcName } from '../src/utils';
-import Long from 'long';
 import {
-    getCoinGeckoIdForSymbol,
-    getSymbolForCoinGeckoId,
-    osmoDenomToSymbol,
-    symbolToOsmoDenom,
-    OsmosisToken,
-    convertCoinToDisplayValues,
-    convertCoinsToDisplayValues,
-    calculateCoinsTotalBalance,
     convertGeckoPricesToDenomPriceHash,
     getPoolByGammName,
-    getUserPools,
-    convertPoolToDisplayValues,
-    convertPoolsToDisplayValues,
     getFilteredPoolsWithValues,
     symbolsAndDisplayValuesToCoinsArray,
     getTradesRequiredToGetBalances,
@@ -31,17 +13,8 @@ import {
     poolAllocationToCoinsNeeded
 } from '../src/utils/osmo';
 
-/*
- - [ ] list of coins you want (via weights)
- - [ ] list of pools you want (via weights)
-
- - [ ] calculate coins needed for pools
- - [ ] calculate routes for swaps
- */
-
 const prices = convertGeckoPricesToDenomPriceHash(pricesFixture);
 const pools = getFilteredPoolsWithValues({ prices, pools: poolsFixture.pools });
-
 
 cases('getPoolByGammName', opts => {
     const prices = convertGeckoPricesToDenomPriceHash(pricesFixture)

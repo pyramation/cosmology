@@ -27,7 +27,7 @@ const convertAprToApyObj = (obj) => {
         apy_1d: aprToApy(obj.apr_1d),
         apy_7d: aprToApy(obj.apr_7d),
         apy_14d: aprToApy(obj.apr_14d)
-    }
+    };
 };
 
 const pickApr = (argv) => (el) => {
@@ -37,21 +37,21 @@ const pickApr = (argv) => (el) => {
             ...rest,
             apr_14d,
             apy_14d
-        }
+        };
     }
     if (argv.lockup == "1") {
         return {
             ...rest,
             apr_1d,
             apy_1d
-        }
+        };
     }
     if (argv.lockup == "7") {
         return {
             ...rest,
             apr_7d,
             apy_7d
-        }
+        };
     }
 }
     

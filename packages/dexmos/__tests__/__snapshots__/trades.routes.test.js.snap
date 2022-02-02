@@ -1,0 +1,310 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`trade routes determines pool allocations 1`] = `
+Object {
+  "coins": Array [
+    Object {
+      "amount": "12837832.904530361",
+      "denom": "ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0",
+      "displayAmount": 12.83783290453036,
+      "symbol": "LUNA",
+      "value": 676.55379406875,
+    },
+    Object {
+      "amount": "3382768970.34375",
+      "denom": "ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC",
+      "displayAmount": 3382.76897034375,
+      "symbol": "UST",
+      "value": 3382.76897034375,
+    },
+  ],
+  "pools": Array [
+    Object {
+      "amount": "1.358377431765868e+22",
+      "coins": Array [
+        Object {
+          "amount": "549150806.8739854",
+          "denom": "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4",
+          "displayAmount": 549.1508068739854,
+          "symbol": "AKT",
+          "value": 845.6922425859375,
+        },
+        Object {
+          "amount": "106284660.98996627",
+          "denom": "uosmo",
+          "displayAmount": 106.28466098996627,
+          "symbol": "OSMO",
+          "value": 845.6922425859375,
+        },
+      ],
+      "denom": "gamm/pool/3",
+      "displayAmount": -1,
+      "name": "AKT/OSMO",
+      "value": 1691.384485171875,
+    },
+    Object {
+      "amount": "1.5096601793148973e+21",
+      "coins": Array [
+        Object {
+          "amount": "29487177.2170829",
+          "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+          "displayAmount": 29.4871772170829,
+          "symbol": "ATOM",
+          "value": 845.6922425859375,
+        },
+        Object {
+          "amount": "106284660.98996627",
+          "denom": "uosmo",
+          "displayAmount": 106.28466098996627,
+          "symbol": "OSMO",
+          "value": 845.6922425859375,
+        },
+      ],
+      "denom": "gamm/pool/1",
+      "displayAmount": -1,
+      "name": "ATOM/OSMO",
+      "value": 1691.384485171875,
+    },
+    Object {
+      "amount": "11953925414526946",
+      "coins": Array [
+        Object {
+          "amount": "29487177.2170829",
+          "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+          "displayAmount": 29.4871772170829,
+          "symbol": "ATOM",
+          "value": 845.6922425859375,
+        },
+        Object {
+          "amount": "319069827.89931124",
+          "denom": "ibc/EA3E1640F9B1532AB129A571203A0B9F789A7F14BB66E350DCBFA18E1A1931F0",
+          "displayAmount": 319.06982789931124,
+          "symbol": "CMDX",
+          "value": 845.6922425859375,
+        },
+      ],
+      "denom": "gamm/pool/600",
+      "displayAmount": -1,
+      "name": "ATOM/CMDX",
+      "value": 1691.384485171875,
+    },
+    Object {
+      "amount": "1.2500178120155716e+23",
+      "coins": Array [
+        Object {
+          "amount": "29487177.2170829",
+          "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+          "displayAmount": 29.4871772170829,
+          "symbol": "ATOM",
+          "value": 845.6922425859375,
+        },
+        Object {
+          "amount": "195144578049.78735",
+          "denom": "ibc/B9E0A1A524E98BB407D3CED8720EFEFD186002F90C1B1B7964811DD0CCC12228",
+          "displayAmount": 195144.57804978735,
+          "symbol": "HUAHUA",
+          "value": 845.6922425859375,
+        },
+      ],
+      "denom": "gamm/pool/606",
+      "displayAmount": -1,
+      "name": "ATOM/HUAHUA",
+      "value": 1691.384485171875,
+    },
+  ],
+  "weights": Array [
+    Object {
+      "allocation": 0.15625,
+      "denom": "gamm/pool/3",
+      "name": "AKT/OSMO",
+      "poolId": "3",
+      "type": "pool",
+      "value": 1691.384485171875,
+      "weight": 5,
+    },
+    Object {
+      "allocation": 0.15625,
+      "denom": "gamm/pool/1",
+      "name": "ATOM/OSMO",
+      "poolId": "1",
+      "type": "pool",
+      "value": 1691.384485171875,
+      "weight": 5,
+    },
+    Object {
+      "allocation": 0.15625,
+      "denom": "gamm/pool/600",
+      "name": "ATOM/CMDX",
+      "poolId": "600",
+      "type": "pool",
+      "value": 1691.384485171875,
+      "weight": 5,
+    },
+    Object {
+      "allocation": 0.15625,
+      "denom": "gamm/pool/606",
+      "name": "ATOM/HUAHUA",
+      "poolId": "606",
+      "type": "pool",
+      "value": 1691.384485171875,
+      "weight": 5,
+    },
+    Object {
+      "allocation": 0.0625,
+      "denom": "ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0",
+      "name": "LUNA",
+      "symbol": "LUNA",
+      "type": "coin",
+      "value": 676.55379406875,
+      "weight": 2,
+    },
+    Object {
+      "allocation": 0.3125,
+      "denom": "ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC",
+      "name": "UST",
+      "symbol": "UST",
+      "type": "coin",
+      "value": 3382.76897034375,
+      "weight": 10,
+    },
+  ],
+}
+`;
+
+exports[`trade routes determines pool allocations 2`] = `
+Array [
+  Object {
+    "beliefValue": 676.55379406875,
+    "buy": Object {
+      "amount": "12837832.904530361",
+      "denom": "ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0",
+      "displayAmount": 12.83783290453036,
+      "symbol": "LUNA",
+      "value": 676.55379406875,
+    },
+    "sell": Object {
+      "amount": "23589741.77366632",
+      "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+      "displayAmount": 23.58974177366632,
+      "symbol": "ATOM",
+      "value": 676.55379406875,
+    },
+  },
+  Object {
+    "beliefValue": 2191.44620593125,
+    "buy": Object {
+      "amount": "2191446205.93125",
+      "denom": "ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC",
+      "displayAmount": 2191.44620593125,
+      "symbol": "UST",
+      "value": 2191.44620593125,
+    },
+    "sell": Object {
+      "amount": "76410258.22633368",
+      "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+      "displayAmount": 76.41025822633368,
+      "symbol": "ATOM",
+      "value": 2191.44620593125,
+    },
+  },
+  Object {
+    "beliefValue": 1191.3227644125,
+    "buy": Object {
+      "amount": "1191322764.4125",
+      "denom": "ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC",
+      "displayAmount": 1191.3227644125,
+      "symbol": "UST",
+      "value": 1191.3227644125,
+    },
+    "sell": Object {
+      "amount": "149722712.0802698",
+      "denom": "uosmo",
+      "displayAmount": 149.72271208026982,
+      "symbol": "OSMO",
+      "value": 1191.3227644125,
+    },
+  },
+]
+`;
+
+exports[`trade routes pool trades 1`] = `
+Object {
+  "name": "AKT/OSMO",
+  "trades": Array [
+    Object {
+      "beliefValue": 845.6922425859375,
+      "buy": Object {
+        "amount": "549150806.8739854",
+        "denom": "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4",
+        "displayAmount": 549.1508068739854,
+        "symbol": "AKT",
+        "value": 845.6922425859375,
+      },
+      "sell": Object {
+        "amount": "29487177.2170829",
+        "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+        "displayAmount": 29.4871772170829,
+        "symbol": "ATOM",
+        "value": 845.6922425859375,
+      },
+    },
+  ],
+}
+`;
+
+exports[`trade routes pool trades 2`] = `
+Object {
+  "name": "ATOM/OSMO",
+  "trades": Array [],
+}
+`;
+
+exports[`trade routes pool trades 3`] = `
+Object {
+  "name": "ATOM/CMDX",
+  "trades": Array [
+    Object {
+      "beliefValue": 845.6922425859376,
+      "buy": Object {
+        "amount": "319069827.89931124",
+        "denom": "ibc/EA3E1640F9B1532AB129A571203A0B9F789A7F14BB66E350DCBFA18E1A1931F0",
+        "displayAmount": 319.06982789931124,
+        "symbol": "CMDX",
+        "value": 845.6922425859376,
+      },
+      "sell": Object {
+        "amount": "29487177.217082903",
+        "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+        "displayAmount": 29.487177217082902,
+        "symbol": "ATOM",
+        "value": 845.6922425859376,
+      },
+    },
+  ],
+}
+`;
+
+exports[`trade routes pool trades 4`] = `
+Object {
+  "name": "ATOM/HUAHUA",
+  "trades": Array [
+    Object {
+      "beliefValue": 845.6922425859375,
+      "buy": Object {
+        "amount": "195144578049.78735",
+        "denom": "ibc/B9E0A1A524E98BB407D3CED8720EFEFD186002F90C1B1B7964811DD0CCC12228",
+        "displayAmount": 195144.57804978735,
+        "symbol": "HUAHUA",
+        "value": 845.6922425859375,
+      },
+      "sell": Object {
+        "amount": "29487177.2170829",
+        "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+        "displayAmount": 29.4871772170829,
+        "symbol": "ATOM",
+        "value": 845.6922425859375,
+      },
+    },
+  ],
+}
+`;
