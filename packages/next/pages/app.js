@@ -27,16 +27,16 @@ const styles = {
 
 fontawesome.library.add(faTimes);
 
-export async function getServerSideProps(ctx) {
-    // we could do this in frontend, but i didn't want to create a spinner
-    const pools = await fetchListOfPools();
+// export async function getServerSideProps(ctx) {
+//     // we could do this in frontend, but i didn't want to create a spinner
+//     const pools = await fetchListOfPools();
 
-    return {
-        props: {
-            pools,
-        },
-    };
-}
+//     return {
+//         props: {
+//             pools,
+//         },
+//     };
+// }
 
 const defaultPools = [
     {
@@ -51,10 +51,11 @@ const defaultPools = [
 
 let saverTimeout = null;
 
-const App = ({ pools }) => {
+const App = () => {
     const [ourPools, setOurPools] = useState(null);
     const [showPoolAdder, setShowPoolAdder] = useState(false);
     const [queuedPools, setQueuedPools] = useState([]);
+    const [pools, setPools] = useState([]);
     const [accounts, setAccounts] = useState([]);
     const [showPreview, setShowPreview] = useState(false);
     const [swaps, setSwaps] = useState([]);
@@ -74,6 +75,15 @@ const App = ({ pools }) => {
             console.log(balances);
         })()
     }, [accounts]);
+
+    useEffect(() => {
+        (async () => {
+            if (!pools) {
+                const poolList = await fetchListOfPools();
+                setPools(poolList);
+            }
+        })()
+    }, [pools]);
 
     useEffect(() => {
         if (!ourPools) {
@@ -107,7 +117,7 @@ const App = ({ pools }) => {
 
 
     function savePoolSettings() {
-        console.log("Savinng", ourPools);
+        console.log("Saving", ourPools);
         window.localStorage.setItem('poolsConfig', JSON.stringify(ourPools))
     }
 
@@ -170,6 +180,12 @@ const App = ({ pools }) => {
 
     function handleRun() {
         driver.executejobs(jobs);
+    }
+
+    if (!pools || !pools.length) {
+        return (
+            <div>Loading...</div>
+        );
     }
 
     return <div style={{ marginBottom: 32 }}>
