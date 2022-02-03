@@ -168,16 +168,17 @@ export default async (argv) => {
         const trades = getTradesRequiredToGetBalances({ prices, balances, desired })
         // needs to return balance so we can pass that in on the next one!
         // OTHERWISE IT REUSES THE SAME BALANCE!
-        const coinsToSubstract = trades.map(trade=>
-            trade.sell
+        let coinsToSubstract = trades.map(trade=>
+            ({...trade.sell})
         );
-        console.log('balances before trades');
-        console.log('coinsToSubstract');
-        console.log(coinsToSubstract);
-        console.log(balances);
+        // console.log('balances before trades');
+        // console.log('coinsToSubstract');
+        // console.log(coinsToSubstract);
+        // console.log(balances);
+        coinsToSubstract = convertCoinsToDisplayValues({ prices, coins: coinsToSubstract })
         balances = substractCoins(balances, coinsToSubstract);
-        console.log('balances after trades');
-        console.log(balances);
+        // console.log('balances after trades');
+        // console.log(balances);
         const a = {
             name: result.pools[i].name,
             trades
@@ -201,20 +202,22 @@ export default async (argv) => {
 
     // coins
     const trades = getTradesRequiredToGetBalances({ prices, balances, desired: result.coins });
-    const coinsToSubstract = trades.map(trade=>
-        trade.sell
+    let coinsToSubstract = trades.map(trade=>
+        ({...trade.sell})
     );
 
-    console.log('balances before coins');
-    console.log('coinsToSubstract');
-    console.log(coinsToSubstract);
-    console.log(balances);
+    // console.log('balances before coins');
+    // console.log('coinsToSubstract');
+    // console.log(coinsToSubstract);
+    // console.log(balances);
+    coinsToSubstract = convertCoinsToDisplayValues({ prices, coins: coinsToSubstract })
     balances = substractCoins(balances, coinsToSubstract);
-    console.log('balances after coins');
-    console.log(balances);
+    // console.log('balances after coins');
+    // console.log(balances);
 
     console.log(`\nSWAPS for ${c.magenta('STAKING')}`);
     trades.forEach(({ sell, buy, beliefValue }) => {
+        if (Number(beliefValue) == 0) return; // lol why
         actions.push({
             type: 'coin',
             name: buy.symbol,
