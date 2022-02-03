@@ -195,7 +195,7 @@ export default async (argv) => {
         });
         console.log(`TRADE $${beliefValue} worth of ${sell.symbol} for ${buy.symbol}`);
     });
-
+    console.log('\n\nSpecify an outfile for the recipe file:');
 
     let { outfile } = await prompt([
         {
