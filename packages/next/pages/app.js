@@ -4,9 +4,9 @@ import fontawesome from "@fortawesome/fontawesome";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faPlus, faSearch } from "@fortawesome/fontawesome-free-solid";
 import ReactSlider from "react-slider";
-import { Driver, assets, OsmosisApiClient } from "autosmosis";
+import { Driver, assets, OsmosisApiClient } from "dexmos";
 import PoolAdder from "../src/components/PoolAdder";
-import { fetchListOfPools } from "../src/clients/autosmosis";
+import { fetchListOfPools } from "../src/clients/dexmos";
 import PoolPairImage from "../src/components/subComponents/PoolPairImage";
 import PoolAllocSummary from "../src/components/PoolAllocSummary";
 import Nav from "../src/components/Nav";
@@ -27,16 +27,16 @@ const styles = {
 
 fontawesome.library.add(faTimes);
 
-export async function getServerSideProps(ctx) {
-    // we could do this in frontend, but i didn't want to create a spinner
-    const pools = await fetchListOfPools();
+// export async function getServerSideProps(ctx) {
+//     // we could do this in frontend, but i didn't want to create a spinner
+//     const pools = await fetchListOfPools();
 
-    return {
-        props: {
-            pools,
-        },
-    };
-}
+//     return {
+//         props: {
+//             pools,
+//         },
+//     };
+// }
 
 const defaultPools = [
     {
@@ -51,15 +51,25 @@ const defaultPools = [
 
 let saverTimeout = null;
 
-const App = ({ pools }) => {
+const App = () => {
     const [ourPools, setOurPools] = useState(null);
     const [showPoolAdder, setShowPoolAdder] = useState(false);
     const [queuedPools, setQueuedPools] = useState([]);
+    const [pools, setPools] = useState([]);
+    const [queryingForPools, setQueryingForPools] = useState(false);
     const [accounts, setAccounts] = useState([]);
     const [showPreview, setShowPreview] = useState(false);
     const [swaps, setSwaps] = useState([]);
     const [jobs, setJobs] = useState([]);
     const [driver, setDriver] = useState(null);
+
+    const queryForPools = async () => {
+        if (!queryingForPools) {
+            const poolList = await fetchListOfPools();
+            setPools(poolList);
+            setQueryingForPools(true);
+        }
+    };
 
     useEffect(() => {
         (async () => {
@@ -74,6 +84,14 @@ const App = ({ pools }) => {
             console.log(balances);
         })()
     }, [accounts]);
+
+    useEffect(() => {
+        (async () => {
+            if (!pools) {
+                await queryForPools();
+            }
+        })()
+    }, [pools]);
 
     useEffect(() => {
         if (!ourPools) {
@@ -107,7 +125,7 @@ const App = ({ pools }) => {
 
 
     function savePoolSettings() {
-        console.log("Savinng", ourPools);
+        console.log("Saving", ourPools);
         window.localStorage.setItem('poolsConfig', JSON.stringify(ourPools))
     }
 
@@ -170,6 +188,13 @@ const App = ({ pools }) => {
 
     function handleRun() {
         driver.executejobs(jobs);
+    }
+
+    if (!pools || !pools.length) {
+        queryForPools();
+        return (
+            <div>Loading...</div>
+        );
     }
 
     return <div style={{ marginBottom: 32 }}>

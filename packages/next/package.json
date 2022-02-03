@@ -1,12 +1,18 @@
 {
-  "version": "0.0.0-yolo.3",
+  "version": "0.0.0-yolo.6",
   "name": "next",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export": "next build && next export",
+    "postexport": "npm run seo",
+    "seo": "node ./seo/seo.js",
+    "deploy": "AWS_PROFILE=webinc aws s3 sync out/ s3://dexmos.finance",
+    "invalidate": "AWS_PROFILE=webinc aws cloudfront create-invalidation --distribution-id E35JVFMWAP8JRK --paths \"/*\"",
+    "deploy:all": "npm run export && npm run deploy && ./seo/prepare.sh"
   },
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.8",
@@ -14,7 +20,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/react-fontawesome": "^0.1.16",
     "aos": "^2.3.4",
-    "autosmosis": "^0.0.10",
+    "dexmos": "^0.0.13",
     "font-awesome": "^4.7.0",
     "next": "12.0.8",
     "react": "17.0.2",
