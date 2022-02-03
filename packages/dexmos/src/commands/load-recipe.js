@@ -175,7 +175,7 @@ export default async (argv) => {
         console.log('coinsToSubstract');
         console.log(coinsToSubstract);
         console.log(balances);
-        balances = substractCoins(available, coinsToSubstract);
+        balances = substractCoins(balances, coinsToSubstract);
         console.log('balances after trades');
         console.log(balances);
         const a = {
@@ -209,7 +209,7 @@ export default async (argv) => {
     console.log('coinsToSubstract');
     console.log(coinsToSubstract);
     console.log(balances);
-    balances = substractCoins(available, coinsToSubstract);
+    balances = substractCoins(balances, coinsToSubstract);
     console.log('balances after coins');
     console.log(balances);
 
