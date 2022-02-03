@@ -56,11 +56,20 @@ const App = () => {
     const [showPoolAdder, setShowPoolAdder] = useState(false);
     const [queuedPools, setQueuedPools] = useState([]);
     const [pools, setPools] = useState([]);
+    const [queryingForPools, setQueryingForPools] = useState(false);
     const [accounts, setAccounts] = useState([]);
     const [showPreview, setShowPreview] = useState(false);
     const [swaps, setSwaps] = useState([]);
     const [jobs, setJobs] = useState([]);
     const [driver, setDriver] = useState(null);
+
+    const queryForPools = async () => {
+        if (!queryingForPools) {
+            const poolList = await fetchListOfPools();
+            setPools(poolList);
+            setQueryingForPools(true);
+        }
+    };
 
     useEffect(() => {
         (async () => {
@@ -79,8 +88,7 @@ const App = () => {
     useEffect(() => {
         (async () => {
             if (!pools) {
-                const poolList = await fetchListOfPools();
-                setPools(poolList);
+                await queryForPools();
             }
         })()
     }, [pools]);
@@ -183,6 +191,7 @@ const App = () => {
     }
 
     if (!pools || !pools.length) {
+        queryForPools();
         return (
             <div>Loading...</div>
         );
