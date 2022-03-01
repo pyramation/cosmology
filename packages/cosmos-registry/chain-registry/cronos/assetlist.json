@@ -1,9 +1,9 @@
 {
     "$schema": "../assetlist.schema.json",
-    "chain_id": "crypto-org-chain-mainnet-1",
+    "chain_id": "cronosmainnet_25-1",
     "assets": [
       {
-        "description": "CRO coin is the token for the Crypto.com platform.",
+        "description": "Cronos Chain - Get Instant DApp Portability with EVM Support",
         "denom_units": [
           {
             "denom": "basecro",
@@ -11,7 +11,7 @@
           },
           {
             "denom": "cro",
-            "exponent": 8
+            "exponent": 18
           }
         ],
         "base": "basecro",
@@ -19,7 +19,7 @@
         "display": "cro",
         "symbol": "CRO",
         "logo_URIs": {
-          "png": "https://raw.githubusercontent.com/osmosis-labs/assetlists/main/images/cro.png"
+          "svg": "https://raw.githubusercontent.com/crypto-org-chain/cronos-docs/master/docs/.vuepress/public/cronos.svg"
         },
         "coingecko_id": "crypto-com-chain"
       }
