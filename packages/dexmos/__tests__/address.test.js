@@ -1,6 +1,23 @@
 // @ts-nocheck
 import cases from 'jest-in-case';
-import { HdPath, Slip10RawIndex } from "@cosmjs/crypto";
+import { Slip10RawIndex } from "@cosmjs/crypto";
+import { Secp256k1HdWallet } from '@cosmjs/amino';
+import { chains } from '@pyramation/cosmos-registry';
+
+export const combineAll = (array) => {
+    const res = [];
+    const max = array.length - 1;
+    const helper = (arr, i) => {
+        for (let j = 0, l = array[i].length; j < l; j++) {
+            const copy = arr.slice(0);
+            copy.push(array[i][j]);
+            if (i == max) res.push(copy);
+            else helper(copy, i + 1);
+        }
+    };
+    helper([], 0);
+    return res;
+};
 
 /**
  * The Cosmos Hub derivation path in the form `m/44'/118'/0'/0/a`
@@ -16,15 +33,6 @@ export function makeHdPath(coinType = 118, account = 0) {
     ];
 }
 
-
-import { Secp256k1HdWallet } from '@cosmjs/amino';
-// import {
-//     toBech32,
-//     fromBech32,
-//     lookup
-// } from '../src/utils/bech32';
-import { chains } from '@pyramation/cosmos-registry';
-
 const mnemonic = "mammal wrestle hybrid cart choose flee transfer filter fly object swamp rookie"
 
 const addresses = {
@@ -38,8 +46,8 @@ const addresses = {
     akash: 'akash1mwwvfu804wcaanz8j78f8h75flxkyjua82m245'
 };
 
-const coinTypes = Object.keys(addresses).reduce((m, name)=>{
-    const chain = chains.find((obj)=>obj.bech32_prefix===name);
+const coinTypes = Object.keys(addresses).reduce((m, name) => {
+    const chain = chains.find((obj) => obj.bech32_prefix === name);
     if (!chain) {
         throw new Error(name + ' is undefined')
     }
@@ -47,14 +55,11 @@ const coinTypes = Object.keys(addresses).reduce((m, name)=>{
     return m;
 }, []);
 
-console.log(coinTypes)
 
 cases('wallets', async opts => {
     const wallet = await Secp256k1HdWallet.fromMnemonic(mnemonic, {
         prefix: opts.name,
         hdPaths: [makeHdPath(coinTypes[opts.name], 0)]
-        // TODO use the `slip44` from chain
-        // hdPaths: makeHdPath(coinType, index)
     });
     const [mainAccount] = await wallet.getAccounts();
     expect(mainAccount.address).toBe(addresses[opts.name]);
@@ -68,3 +73,19 @@ cases('wallets', async opts => {
     { name: 'cosmos' },
     { name: 'secret' }
 ]);
+
+const all = combineAll([Object.keys(addresses), Object.keys(addresses)]).filter(([a, b]) =>
+    a !== b
+).map(([from, to])=> {
+    return {
+        name: `${from}->${to}`,
+        from,
+        to
+    };
+});
+
+cases('from', async opts => {
+    // expect(lookup(addresses[opts.from], opts.to)).toEqual(addresses[opts.to])
+    expect(true).toBe(true)
+}, all);
+
