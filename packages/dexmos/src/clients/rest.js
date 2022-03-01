@@ -7,13 +7,14 @@ export class RestClient {
     this.instance = axios.create({
       baseURL: this.url,
       timeout: 10000,
-      headers: { 'X-Cosmonauts': 'true' }
+      headers: {
+      }
     });
   }
 
-  async request(endpoint, opts = { }) {
+  async request(endpoint, opts = {}) {
     try {
-      const response = await this.instance.get(endpoint, { timeout: 30000, ...opts});
+      const response = await this.instance.get(endpoint, { timeout: 30000, ...opts });
       return response.data;
     } catch (e) {
       console.error(
