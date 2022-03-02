@@ -2,6 +2,12 @@ import { filter } from 'fuzzy';
 import { assets as osmosisAssets } from '../assets';
 import { assets, chains } from '@pyramation/cosmos-registry';
 import { prompt as inquirerer } from 'inquirerer';
+import { getChain, getChainByChainId } from './chain'
+
+const assetList = assets.reduce(
+  (m, { assets }) => [...m, ...assets.map(({ symbol }) => symbol)],
+  []
+).sort();
 
 export const getFuzzySearch = (list) => {
   return (answers, input) => {
@@ -75,4 +81,36 @@ export const promptMnemonic = async (argv = {}) => {
     ],
     argv
   );
+};
+
+export const promptChain = async (argv) => {
+  const { chainToken } = await prompt(
+    [
+      {
+        type: 'fuzzy',
+        name: 'chainToken',
+        message: 'chainToken',
+        choices: assetList
+      }
+    ],
+    argv
+  );
+  argv.chainToken = chainToken;
+  return await getChain({ token: chainToken });
+};
+
+export const promptChainIdAndChain = async (argv) => {
+  const { chainId } = await prompt(
+    [
+      {
+        type: 'fuzzy',
+        name: 'chainId',
+        message: 'chainId',
+        choices: chains.map(c=>c.chain_id).sort()
+      }
+    ],
+    argv
+  );
+  argv.chainId = chainId;
+  return await getChainByChainId( chainId );
 };
