@@ -1,5 +1,5 @@
-import { prompt, promptOsmoWallet } from '..';
-import { promptChain  } from '..';
+import { promptOsmoWallet } from '../helpers';
+import { prompt, promptChain  } from '../prompt';
 import { getClient } from '../../messages';
 import { OsmosisApiClient } from '../../clients/osmosis';
 
