@@ -1,11 +1,12 @@
 import React, { Component, useState } from 'react';
-
 import { Bech32Address } from '@keplr-wallet/cosmos';
-
 import { OsmosisApiClient, getCoinFromDenom } from 'dexmos';
-
+import { chains } from '@pyramation/cosmos-registry';
 import { Keplr } from '@keplr-wallet/types';
 
+// TODO add test env switches
+const osmoChainConfig = chains.find(el=>el.chain_name==='osmosis');
+const restEndpoint = osmoChainConfig.apis.rest[0].address;
 
 const BalanceTest = (props) => {
 
@@ -27,59 +28,13 @@ const BalanceTest = (props) => {
         setLoaded(false);
         setBalances([]);
 
-        // const osmoChainConfig = EmbedChainInfos[0] (do we need to get the other chains as well?)
-        const osmoChainConfig = {
-            rpc: 'https://rpc-osmosis.keplr.app',
-            rest: 'https://lcd-osmosis.keplr.app',
-            chainId: 'osmosis-1',
-            chainName: 'Osmosis',
-            stakeCurrency: {
-                coinDenom: 'OSMO',
-                coinMinimalDenom: 'uosmo',
-                coinDecimals: 6,
-                coinGeckoId: 'osmosis',
-                coinImageUrl: window.location.origin + '/public/assets/tokens/osmosis.svg',
-            },
-            bip44: {
-                coinType: 118,
-            },
-            bech32Config: Bech32Address.defaultBech32Config('osmo'),
-            currencies: [
-                {
-                    coinDenom: 'OSMO',
-                    coinMinimalDenom: 'uosmo',
-                    coinDecimals: 6,
-                    coinGeckoId: 'osmosis',
-                    coinImageUrl: window.location.origin + '/public/assets/tokens/osmosis.svg',
-                },
-                {
-                    coinDenom: 'ION',
-                    coinMinimalDenom: 'uion',
-                    coinDecimals: 6,
-                    coinGeckoId: 'ion',
-                    coinImageUrl: window.location.origin + '/public/assets/tokens/ion.png',
-                },
-            ],
-            feeCurrencies: [
-                {
-                    coinDenom: 'OSMO',
-                    coinMinimalDenom: 'uosmo',
-                    coinDecimals: 6,
-                    coinGeckoId: 'osmosis',
-                    coinImageUrl: window.location.origin + '/public/assets/tokens/osmosis.svg',
-                },
-            ],
-            features: ['stargate', 'ibc-transfer', 'no-legacy-stdTx', 'ibc-go'],
-            explorerUrlToTx: 'https://www.mintscan.io/osmosis/txs/{txHash}',
-        };
-
         const client = new OsmosisApiClient({
-            url: osmoChainConfig.rest
+            url: restEndpoint
         });
 
         // get public key (address)
-        getKeplr().enable(osmoChainConfig.chainId);
-        const offlineSigner = getKeplr().getOfflineSigner(osmoChainConfig.chainId);
+        getKeplr().enable(osmoChainConfig.chain_id);
+        const offlineSigner = getKeplr().getOfflineSigner(osmoChainConfig.chain_id);
         const accounts = await offlineSigner.getAccounts();
         const osmoAddress = accounts[0].address;
         console.log(osmoAddress);
