@@ -25,6 +25,7 @@
     "@fortawesome/react-fontawesome": "^0.1.16",
     "@keplr-wallet/cosmos": "^0.9.12",
     "@keplr-wallet/types": "^0.9.12",
+    "@pyramation/cosmos-registry": "^0.1.6",
     "aos": "^2.3.4",
     "dexmos": "^0.0.13",
     "font-awesome": "^4.7.0",
