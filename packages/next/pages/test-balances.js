@@ -95,17 +95,20 @@ const BalanceTest = (props) => {
          * amount:number;
          * }[]}
          */
-        const balanceList = data.result;
-        const enrichedBalanceList = [];
-        for (let balance of balanceList) {
-            const coin = getCoinFromDenom(balance.denom);
-            enrichedBalanceList.push({
-                ...coin,
-                amount: balance.amount
-            });
-        }
 
-        setBalances(enrichedBalanceList);
+        if (data && data.result) {
+            const balanceList = data.result;
+            const enrichedBalanceList = [];
+            for (let balance of balanceList) {
+                const coin = getCoinFromDenom(balance.denom);
+                enrichedBalanceList.push({
+                    ...coin,
+                    amount: balance.amount
+                });
+            }
+    
+            setBalances(enrichedBalanceList);
+        }
         setLoading(false);
         setLoaded(true);
     }
