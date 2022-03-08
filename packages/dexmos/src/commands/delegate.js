@@ -102,7 +102,7 @@ export default async (argv) => {
         console.log(delegations.result)
         const vals = delegations.result.map(val=>val.delegation.validator_address);
         for (let v=0; v<vals.length; v++) {
-            const info = await client.getValidatorInfo(address, vals[v]);
+            const info = await client.getValidatorInfo(vals[v]);
             validators.push({
                 name: info.validator.description.moniker,
                 value: vals[v]
