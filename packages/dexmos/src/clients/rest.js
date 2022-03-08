@@ -17,9 +17,10 @@ export class RestClient {
       const response = await this.instance.get(endpoint, { timeout: 30000, ...opts });
       return response.data;
     } catch (e) {
+      console.log(`STATUS CODE: ${e?.response?.status}`);
+      console.log(`STATUS TEXT: ${e?.response?.statusText}`);
       console.error(
-        `${this._clientType} response error:`,
-        e.response ? e.response.data : e
+        `${this._clientType} response error: ${e.response ? e.response.data : e}`,
       );
       return null;
     }

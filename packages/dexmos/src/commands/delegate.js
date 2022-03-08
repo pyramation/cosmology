@@ -41,8 +41,17 @@ export default async (argv) => {
     //   const url = await findAvailableUrl(chain.chain_id, chain.apis.rest.map(r=>r.address))
     //   console.log({url});
 
+    const { restEndpoint } = await prompt([
+        {
+            type: 'list',
+            message: 'restEndpoint',
+            name: 'restEndpoint',
+            choices: chain.apis.rest.map(e=>e.address)
+        }
+    ], argv);
+
     const client = new CosmosApiClient({
-        url: chain.apis.rest[0].address
+        url: restEndpoint
     });
 
 
@@ -53,9 +62,17 @@ export default async (argv) => {
 
     const signer = await getWalletFromMnemonic({ mnemonic: argv.mnemonic, token: argv.chainToken })
 
+    const { rpcEndpoint } = await prompt([
+        {
+            type: 'list',
+            message: 'rpcEndpoint',
+            name: 'rpcEndpoint',
+            choices: chain.apis.rpc.map(e=>e.address)
+        }
+    ], argv);
 
     const stargateClient = await SigningStargateClient.connectWithSigner(
-        chain.apis.rpc[0].address,
+        rpcEndpoint,
         signer
     );
 
@@ -159,8 +176,17 @@ export default async (argv) => {
     }));
 
     const fee = await getGasPrice(address, messagesToDelegate);
-    
-    stargateClient.signAndBroadcast(address, messagesToDelegate, fee, 'MyDelegationMemo').then((result) => {
+
+    if (denom === 'uhuahua') {
+        // literally wtf (needs a 10x + 1)
+        fee.amount[0].amount = `${fee.amount[0].amount}1`;
+    }
+    if (denom === 'ucmdx') {
+        // literally wtf (needs a 10x + 1)
+        fee.amount[0].amount = `${fee.amount[0].amount}1`;
+    }
+
+    stargateClient.signAndBroadcast(address, messagesToDelegate, fee, '').then((result) => {
         try {
             assertIsDeliverTxSuccess(result);
             stargateClient.disconnect();

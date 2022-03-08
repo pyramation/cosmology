@@ -19,11 +19,6 @@ import {
 } from '@cosmjs/stargate'
 import { messages } from '../messages/native';
 
-
-// TODO doesn't work for HUAHUA
-// Error: Broadcasting transaction failed with code 13 (codespace: sdk). Log: insufficient fees; got: 2311uhuahua required: 23110uhuahua: insufficient fee
-// TODO doesn't work for CMDX
-
 export default async (argv) => {
     argv = await promptMnemonic(argv);
     const chain = await promptChain(argv);
@@ -40,21 +35,38 @@ export default async (argv) => {
     //   const url = await findAvailableUrl(chain.chain_id, chain.apis.rest.map(r=>r.address))
     //   console.log({url});
 
+    const { restEndpoint } = await prompt([
+        {
+            type: 'list',
+            message: 'restEndpoint',
+            name: 'restEndpoint',
+            choices: chain.apis.rest.map(e=>e.address)
+        }
+    ], argv);
+
     const client = new CosmosApiClient({
-        url: chain.apis.rest[0].address
+        url: restEndpoint
     });
 
 
     // check re-stake (w display or base?)
-    const base = getCosmosAssetInfo(argv.chainToken).assets.find((a) => a.symbol === argv.chainToken).base;
-    if (!base) throw new Error('cannot find asset base unit');
-    const defaultGasPrice = '0.0025' + base;
+    const denom = getCosmosAssetInfo(argv.chainToken).assets.find((a) => a.symbol === argv.chainToken).base;
+    if (!denom) throw new Error('cannot find asset base unit');
+    const defaultGasPrice = '0.0025' + denom;
 
     const signer = await getWalletFromMnemonic({ mnemonic: argv.mnemonic, token: argv.chainToken })
 
+    const { rpcEndpoint } = await prompt([
+        {
+            type: 'list',
+            message: 'rpcEndpoint',
+            name: 'rpcEndpoint',
+            choices: chain.apis.rpc.map(e=>e.address)
+        }
+    ], argv);
 
     const stargateClient = await SigningStargateClient.connectWithSigner(
-        chain.apis.rpc[0].address,
+        rpcEndpoint,
         signer
     );
 
@@ -81,15 +93,17 @@ export default async (argv) => {
 
     const delegations = await client.getDelegations(address);
 
-    if (delegations.result && delegations.result.length) {
-        console.log(delegations.result)
+    if (!delegations.result || !delegations.result.length) {
+        console.log('no delegations. Exiting.')
     }
+
+    // console.log(delegations.result);
 
     const messagesToClaim = [];
     let totalClaimable = 0;
 
     const rewards = await client.getRewards(address);
-    if (rewards.rewards && rewards.rewards.length) {
+    if (rewards && rewards.rewards && rewards.rewards.length) {
         rewards.rewards.forEach(data => {
             const {
                 validator_address,
@@ -111,6 +125,11 @@ export default async (argv) => {
         });
     }
 
+    if (!messagesToClaim.length) {
+        console.log('no rewards. Exiting.');
+        return;
+    }
+
     const simulate = async (address, msgs, memo, modifier) => {
         const estimate = await stargateClient.simulate(address, msgs, memo);
         console.log({ estimate })
@@ -124,7 +143,6 @@ export default async (argv) => {
             gas = await simulate(address, msgs, memo)
             fee = getFee(gas);
             //   fee = getFee(gas, gasPrice)
-            console.log(fee);
             return fee;
             //   const feeAmount = Number(fee.amount[0].amount);
             //   return feeAmount;
@@ -136,12 +154,21 @@ export default async (argv) => {
     console.log(JSON.stringify(messagesToClaim, null, 2));
 
     const fee = await getGasPrice(address, messagesToClaim);
-    console.log({ fee });
+    console.log(JSON.stringify({ fee }, null, 2));
+
+    if (denom === 'uhuahua') {
+        // literally wtf (needs a 10x + 1)
+        fee.amount[0].amount = `${fee.amount[0].amount}1`;
+    }
+    if (denom === 'ucmdx') {
+        // literally wtf (needs a 10x + 1)
+        fee.amount[0].amount = `${fee.amount[0].amount}1`;
+    }
 
     if (totalClaimable >= minAmount) {
     
         console.log('minAmount available, starting claim process...');
-        stargateClient.signAndBroadcast(address, messagesToClaim, fee, 'DexmosClaim').then((result) => {
+        stargateClient.signAndBroadcast(address, messagesToClaim, fee, '').then((result) => {
             try {
                 assertIsDeliverTxSuccess(result);
                 stargateClient.disconnect();

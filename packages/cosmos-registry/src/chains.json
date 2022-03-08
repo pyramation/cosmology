@@ -1109,22 +1109,32 @@
     "apis": {
       "rpc": [
         {
-          "address": "https://rpc-cosmoshub.keplr.app",
-          "provider": "chainapsis"
-        },
-        {
           "address": "https://cosmoshub.validator.network/",
           "provider": "validatornetwork"
         },
         {
           "address": "https://cosmoshub-4.technofractal.com:443",
           "provider": "strangelove-ventures"
+        },
+        {
+          "address": "https://rpc.cosmos.network:443",
+          "provider": "tendermint-inc"
+        },
+        {
+          "address": "https://rpc-cosmoshub.blockapsis.com",
+          "provider": "chainapsis"
         }
       ],
       "rest": [
         {
-          "address": "https://lcd-cosmoshub.keplr.app",
+          "address": "https://lcd-cosmoshub.blockapsis.com",
           "provider": "chainapsis"
+        }
+      ],
+      "grpc": [
+        {
+          "address": "cosmoshub.strange.love:9090",
+          "provider": "strangelove"
         }
       ]
     },
@@ -2829,16 +2839,10 @@
     },
     "codebase": {
       "git_repo": "https://github.com/osmosis-labs/osmosis",
-      "recommended_version": "v5.0.0",
+      "recommended_version": "v7.0.2",
       "compatible_versions": [
-        "v5.0.0"
-      ],
-      "binaries": {
-        "linux/amd64": "https://github.com/osmosis-labs/osmosis/releases/download/v5.0.0/osmosisd-5.0.0-linux-amd64",
-        "linux/arm64": "https://github.com/osmosis-labs/osmosis/releases/download/v5.0.0/osmosisd-5.0.0-linux-arm64",
-        "darwin/amd64": "https://github.com/osmosis-labs/osmosis/releases/download/v5.0.0/osmosisd-5.0.0-darwin-amd64",
-        "windows/amd64": "https://github.com/osmosis-labs/osmosis/releases/download/v5.0.0/osmosisd-5.0.0-windows-amd64.exe"
-      }
+        "v7.0.2"
+      ]
     },
     "peers": {
       "seeds": [
@@ -3002,18 +3006,24 @@
           "provider": "strangelove-ventures"
         },
         {
-          "address": "https://rpc-osmosis.keplr.app",
+          "address": "https://rpc-osmosis.blockapsis.com",
           "provider": "chainapsis"
         }
       ],
       "rest": [
         {
-          "address": "https://lcd-osmosis.keplr.app",
+          "address": "https://lcd-osmosis.blockapsis.com",
           "provider": "chainapsis"
         },
         {
           "address": "https://osmosis.stakesystems.io/",
           "provider": "stakesystems"
+        }
+      ],
+      "grpc": [
+        {
+          "address": "osmosis.strange.love:9090",
+          "provider": "strangelove"
         }
       ]
     },
@@ -4543,7 +4553,7 @@
     "$schema": "../chain.schema.json",
     "chain_name": "osmosis-testnet",
     "status": "live",
-    "network_type": "mainnet",
+    "network_type": "testnet",
     "pretty_name": "Osmosis",
     "chain_id": "osmosis-testnet-0",
     "origin_chain_id": "osmosis-1",
