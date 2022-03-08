@@ -20,11 +20,10 @@ import {
 import { messages } from '../messages/native';
 
 
-// TODO doesn't work for HUAHUA
-// Error: Broadcasting transaction failed with code 13 (codespace: sdk). Log: insufficient fees; got: 2311uhuahua required: 23110uhuahua: insufficient fee
-// TODO doesn't work for CMDX
-
-// junovaloper17n3w6v5q3n0tws4xv8upd9ul4qqes0nlg7q0xd
+// TODO certain calc'd values cosmjs doesn't like...
+// ? [amount] amount 0.05329299999999999
+// /Users/pyramation/code/dexmos/dexmos/node_modules/@cosmjs/amino/build/coins.js:26
+//             throw new Error("Invalid unsigned integer string format");
 
 export default async (argv) => {
     argv = await promptMnemonic(argv);
@@ -111,11 +110,9 @@ export default async (argv) => {
         return;
     }
 
-    const [bal] = balances.result;
+    const bal = balances.result.find(el=>el.denom===denom);
     const readableBalance = baseUnitsToDisplayUnitsByDenom(bal.denom, bal.amount);
     console.log({readableBalance});
-
-    
 
     const simulate = async (address, msgs, memo, modifier) => {
         const estimate = await stargateClient.simulate(address, msgs, memo);
@@ -162,7 +159,7 @@ export default async (argv) => {
     }));
 
     const fee = await getGasPrice(address, messagesToDelegate);
-
+    
     stargateClient.signAndBroadcast(address, messagesToDelegate, fee, 'MyDelegationMemo').then((result) => {
         try {
             assertIsDeliverTxSuccess(result);
