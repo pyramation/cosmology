@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0-yolo.8",
+  "version": "0.0.0-yolo.9",
   "name": "next",
   "private": true,
   "scripts": {
@@ -27,7 +27,7 @@
     "@keplr-wallet/types": "^0.9.12",
     "@pyramation/cosmos-registry": "^0.1.8",
     "aos": "^2.3.4",
-    "dexmos": "^0.0.15",
+    "dexmos": "^0.0.16",
     "font-awesome": "^4.7.0",
     "next": "12.0.8",
     "react": "17.0.2",
