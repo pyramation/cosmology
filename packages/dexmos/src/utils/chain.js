@@ -2,6 +2,7 @@ import { assets, chains } from '@pyramation/cosmos-registry';
 import { assets as osmosisAssets } from '../assets/index';
 import { coins } from '@cosmjs/amino';
 import { gas } from '../messages/gas';
+import axios from 'axios';
 
 export const getFeeForChainAndMsg =  (chainId, message) => {
   const chain = getChainByChainId(chainId);
@@ -21,6 +22,14 @@ export const getFeeForChainAndMsg =  (chainId, message) => {
 
 export const getCosmosAssetInfo = (symbol) => 
   assets.find(a=>!!a.assets.find(i=>i.symbol === symbol));
+
+export const getCosmosAssetInfoByDenom = (denom) => 
+  assets.find(a=>!!a.assets.find(asset=>
+    !!asset.denom_units.find(unit=>unit.denom===denom)
+  ));
+
+// export const getAssetInfoByDenom = (denom) => 
+//   assets.find(a=>a.symbol === symbol);
 
 export const getOsmosisAssetInfo = (symbol) => 
   osmosisAssets.find(a=>a.symbol === symbol);
@@ -87,6 +96,31 @@ export const getBaseAndDisplayUnits = (symbol) => {
   return { base, display };
 };
 
+// uses cosmos
+export const getBaseAndDisplayUnitsByDenom = (denom) => {
+  const chainInfo = getCosmosAssetInfoByDenom(denom);
+  if (!chainInfo) {
+    throw new Error(`coin:denom:${denom} not found.`);
+  }
+
+  const coinInfo = chainInfo.assets.find(asset=>asset.base===denom || asset.display ===denom);
+
+  const base = coinInfo.denom_units.find(d=>
+      d.denom===coinInfo.base ||
+      d.aliases?.includes(coinInfo.base)
+  );
+  const display = coinInfo.denom_units.find(
+    d=>d.denom===coinInfo.display ||
+    d.aliases?.includes(coinInfo.display)
+  );
+
+  if (!base || !display) {
+      throw new Error(`cannot find denom for coin ${denom}`);
+  }
+
+  return { base, display };
+};
+
 export const getOsmosisSymbolIbcName = (symbol) => {
   const coinInfo = getOsmosisAssetInfo(symbol);
   if (!coinInfo) {
@@ -105,6 +139,11 @@ export const baseUnitsToDisplayUnits = (symbol, amount) => {
   return Number(amount) / Math.pow(10, display.exponent); 
 }
 
+export const baseUnitsToDisplayUnitsByDenom = (denom, amount) => {
+  const { display } = getBaseAndDisplayUnitsByDenom(denom);
+  return Number(amount) / Math.pow(10, display.exponent); 
+}
+
 export const getChain = async ({ token }) => {
   const chainFromAssets = assets.find(({ assets }) => {
     const found = assets.find(({ symbol }) => symbol === token);
@@ -115,4 +154,30 @@ export const getChain = async ({ token }) => {
   );
   return chain;
 };
+
+
+
+// from re-stake
+
+// export function mapAsync(array, callbackfn) {
+//   return Promise.all(array.map(callbackfn));
+// }
+
+// export function findAsync(array, callbackfn) {
+//   return mapAsync(array, callbackfn).then(findMap => {
+//     return array.find((value, index) => findMap[index]);
+//   });
+// }
+
+// export function findAvailableUrl(chainId, urls){
+//   return findAsync(urls, (url) => {
+//     return axios.get(url + '/status?', {timeout: 1000})
+//       .then(res => res.data)
+//       .then(data => {
+//         return data.result.node_info.network === chainId
+//       }).catch(error => {
+//         return false
+//       })
+//   })
+// }
 

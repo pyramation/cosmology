@@ -1,5 +1,15 @@
-import { coins } from '@cosmjs/amino';
+// import { coins } from '@cosmjs/amino';
+
+import {
+  coin, coins
+} from '@cosmjs/stargate'
+import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgDelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+
+
 import { getFeeForChainAndMsg } from '../utils';
+
+
 
 /**
  * @typedef {{
@@ -97,6 +107,64 @@ export const messages = {
         };
 
         console.log(JSON.stringify(pkt, null, 2));
+
+        return pkt;
+    },
+
+    /**
+     * @param {object} param0
+     * @param {string} param0.delegatorAddress
+     * @param {string} param0.validatorAddress
+     */
+     withdrawDelegatorReward: ({
+        // chainId,
+        //
+        delegatorAddress,
+        validatorAddress
+    }) => {
+        // const fee = getFeeForChainAndMsg(chainId, 'MsgSend');
+
+        // NOTE: not calculating fees here anymore
+
+        const pkt = {
+            typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+            value: MsgWithdrawDelegatorReward.fromPartial({
+              delegatorAddress,
+              validatorAddress
+            })
+          };
+
+        // console.log(JSON.stringify(pkt, null, 2));
+
+        return pkt;
+    },
+
+    /**
+     * @param {object} param0
+     * @param {string} param0.delegatorAddress
+     * @param {string} param0.validatorAddress
+     * @param {string} param0.amount
+     * @param {string} param0.denom
+     */
+     delegate: ({
+        // chainId,
+        //
+        delegatorAddress,
+        validatorAddress,
+        amount,
+        denom
+    }) => {
+        // NOTE: not calculating fees here anymore
+        const pkt = {
+            typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
+            value: MsgDelegate.fromPartial({
+              delegatorAddress,
+              validatorAddress,
+              amount: coin(amount, denom)
+            })
+          };
+
+        // console.log(JSON.stringify(pkt, null, 2));
 
         return pkt;
     }
