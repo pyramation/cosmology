@@ -72,4 +72,10 @@ export class CosmosApiClient extends RestClient {
     const endpoint = `staking/delegators/${address}/delegations`;
     return await this.request(endpoint);
   }
+
+  async getRewards(address) {
+    const endpoint = `cosmos/distribution/v1beta1/delegators/${address}/rewards`;
+    return await this.request(endpoint);
+  }
+
 }
