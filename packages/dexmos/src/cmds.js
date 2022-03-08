@@ -1,5 +1,6 @@
 
 import _create_mnemonic_wallet from './commands/create-mnemonic-wallet';
+import _delegate from './commands/delegate';
 import _get_balances from './commands/get-balances';
 import _get_latest_block from './commands/get-latest-block';
 import _get_pool_apr from './commands/get-pool-apr';
@@ -19,6 +20,7 @@ import _swap_exact_amount_in from './commands/swap-exact-amount-in';
 import _wallet_from_mnemonic from './commands/wallet-from-mnemonic';
 const Commands = {};
 Commands['create-mnemonic-wallet'] = _create_mnemonic_wallet;
+Commands['delegate'] = _delegate;
 Commands['get-balances'] = _get_balances;
 Commands['get-latest-block'] = _get_latest_block;
 Commands['get-pool-apr'] = _get_pool_apr;
