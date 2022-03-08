@@ -1,4 +1,4 @@
-import { osmoDenomToSymbol, symbolToOsmoDenom } from '..';
+import { convertCoinsToDisplayValues, osmoDenomToSymbol, symbolToOsmoDenom } from '..';
 import { prompt } from '../utils/prompt';
 import { CosmosApiClient } from '../clients/cosmos';
 import {
@@ -24,17 +24,19 @@ import { messages } from '../messages/native';
 // Error: Broadcasting transaction failed with code 13 (codespace: sdk). Log: insufficient fees; got: 2311uhuahua required: 23110uhuahua: insufficient fee
 // TODO doesn't work for CMDX
 
+// junovaloper17n3w6v5q3n0tws4xv8upd9ul4qqes0nlg7q0xd
+
 export default async (argv) => {
     argv = await promptMnemonic(argv);
     const chain = await promptChain(argv);
 
-    const { minAmount } = await prompt([
-        {
-            type: 'number',
-            message: 'minAmount',
-            name: 'minAmount'
-        }
-    ], argv);
+    // const { minAmount } = await prompt([
+    //     {
+    //         type: 'number',
+    //         message: 'minAmount',
+    //         name: 'minAmount'
+    //     }
+    // ], argv);
 
 
     //   const url = await findAvailableUrl(chain.chain_id, chain.apis.rest.map(r=>r.address))
@@ -46,9 +48,9 @@ export default async (argv) => {
 
 
     // check re-stake (w display or base?)
-    const base = getCosmosAssetInfo(argv.chainToken).assets.find((a) => a.symbol === argv.chainToken).base;
-    if (!base) throw new Error('cannot find asset base unit');
-    const defaultGasPrice = '0.0025' + base;
+    const denom = getCosmosAssetInfo(argv.chainToken).assets.find((a) => a.symbol === argv.chainToken).base;
+    if (!denom) throw new Error('cannot find asset base unit');
+    const defaultGasPrice = '0.0025' + denom;
 
     const signer = await getWalletFromMnemonic({ mnemonic: argv.mnemonic, token: argv.chainToken })
 
@@ -76,40 +78,44 @@ export default async (argv) => {
     //   console.log(address);
 
 
-    // const balances = await client.getBalances(address);
-    //   console.log(balances);
 
     const delegations = await client.getDelegations(address);
 
+    let validators = [];
     if (delegations.result && delegations.result.length) {
         console.log(delegations.result)
+        const vals = delegations.result.map(val=>val.delegation.validator_address);
+        for (let v=0; v<vals.length; v++) {
+            const info = await client.getValidatorInfo(address, vals[v]);
+            validators.push({
+                name: info.validator.description.moniker,
+                value: vals[v]
+            })
+        }
     }
 
-    const messagesToClaim = [];
-    let totalClaimable = 0;
+    const { validatorAddress } = await prompt([
+        {
+            type: 'list',
+            message: 'validatorAddress',
+            name: 'validatorAddress',
+            choices: validators
+        }
+    ], argv);
 
-    const rewards = await client.getRewards(address);
-    if (rewards.rewards && rewards.rewards.length) {
-        rewards.rewards.forEach(data => {
-            const {
-                validator_address,
-                reward
-            } = data;
+    console.log(validatorAddress)
 
-            if (reward && reward.length) {
-                const [{ denom, amount }] = reward;
-
-                const value = baseUnitsToDisplayUnitsByDenom(denom, amount);
-                totalClaimable += value;
-
-                messagesToClaim.push(messages.withdrawDelegatorReward({
-                    delegatorAddress: address,
-                    validatorAddress: validator_address
-                }));
-            }
-
-        });
+    const balances = await client.getBalances(address);
+    if (!balances || !balances.result || !balances.result.length) {
+        console.log('no balance!');
+        return;
     }
+
+    const [bal] = balances.result;
+    const readableBalance = baseUnitsToDisplayUnitsByDenom(bal.denom, bal.amount);
+    console.log({readableBalance});
+
+    
 
     const simulate = async (address, msgs, memo, modifier) => {
         const estimate = await stargateClient.simulate(address, msgs, memo);
@@ -133,31 +139,40 @@ export default async (argv) => {
         }
     };
 
-    console.log(JSON.stringify(messagesToClaim, null, 2));
+    const messagesToDelegate = [];
+  
+    const { amount: displayAmount } = await prompt([
+        {
+            type: 'number',
+            message: 'amount',
+            name: 'amount',
+            default: readableBalance - 0.02,
+            choices: validators
+        }
+    ], argv);
 
-    const fee = await getGasPrice(address, messagesToClaim);
-    console.log({ fee });
 
-    if (totalClaimable >= minAmount) {
-    
-        console.log('minAmount available, starting claim process...');
-        stargateClient.signAndBroadcast(address, messagesToClaim, fee, 'DexmosClaim').then((result) => {
-            try {
-                assertIsDeliverTxSuccess(result);
-                stargateClient.disconnect();
-                console.log('⚛️')
-                console.log('success!')
-            } catch (error) {
-                console.log(error);
-            }
-        }, (error) => {
+    const amount = await displayUnitsToDenomUnits(argv.chainToken, displayAmount);
+
+    messagesToDelegate.push(messages.delegate({
+        delegatorAddress: address,
+        validatorAddress: validatorAddress,
+        amount: (amount + ''),
+        denom
+    }));
+
+    const fee = await getGasPrice(address, messagesToDelegate);
+
+    stargateClient.signAndBroadcast(address, messagesToDelegate, fee, 'MyDelegationMemo').then((result) => {
+        try {
+            assertIsDeliverTxSuccess(result);
+            stargateClient.disconnect();
+            console.log('⚛️')
+            console.log('success!')
+        } catch (error) {
             console.log(error);
-        })
-
-    } else {
-        console.log('minAmount not available.')
-    }
-
-
-
+        }
+    }, (error) => {
+        console.log(error);
+    })
 };

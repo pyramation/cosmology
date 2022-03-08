@@ -73,6 +73,11 @@ export class CosmosApiClient extends RestClient {
     return await this.request(endpoint);
   }
 
+  async getValidatorInfo(delegatorAddr, validatorAddr) {
+    const endpoint = `cosmos/staking/v1beta1/delegators/${delegatorAddr}/validators/${validatorAddr}`;
+    return await this.request(endpoint);
+  }
+
   async getRewards(address) {
     const endpoint = `cosmos/distribution/v1beta1/delegators/${address}/rewards`;
     return await this.request(endpoint);
