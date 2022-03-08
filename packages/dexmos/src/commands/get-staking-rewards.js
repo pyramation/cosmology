@@ -155,9 +155,7 @@ export default async (argv) => {
         })
 
     } else {
-        console.log('minAmount not available.')
+        console.log(`minAmount not available (${totalClaimable} < minAmount)`)
     }
-
-
 
 };
