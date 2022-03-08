@@ -2,6 +2,7 @@
 import _create_mnemonic_wallet from './commands/create-mnemonic-wallet';
 import _delegate from './commands/delegate';
 import _get_balances from './commands/get-balances';
+import _get_cosmos_balance from './commands/get-cosmos-balance';
 import _get_latest_block from './commands/get-latest-block';
 import _get_pool_apr from './commands/get-pool-apr';
 import _get_price from './commands/get-price';
@@ -22,6 +23,7 @@ const Commands = {};
 Commands['create-mnemonic-wallet'] = _create_mnemonic_wallet;
 Commands['delegate'] = _delegate;
 Commands['get-balances'] = _get_balances;
+Commands['get-cosmos-balance'] = _get_cosmos_balance;
 Commands['get-latest-block'] = _get_latest_block;
 Commands['get-pool-apr'] = _get_pool_apr;
 Commands['get-price'] = _get_price;
