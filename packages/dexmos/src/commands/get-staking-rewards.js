@@ -111,9 +111,11 @@ export default async (argv) => {
             } = data;
 
             if (reward && reward.length) {
-                const [{ denom, amount }] = reward;
+                // question for later: why does reward array have other coins like ATOM in it? (for OSMO).
+                const rewardWeWant = reward.find(r=>r.denom===denom);
+                if (!rewardWeWant) return;
 
-                const value = baseUnitsToDisplayUnitsByDenom(denom, amount);
+                const value = baseUnitsToDisplayUnitsByDenom(rewardWeWant.denom, rewardWeWant.amount);
                 totalClaimable += value;
 
                 messagesToClaim.push(messages.withdrawDelegatorReward({
@@ -163,6 +165,12 @@ export default async (argv) => {
     if (denom === 'ucmdx') {
         // literally wtf (needs a 10x + 1)
         fee.amount[0].amount = `${fee.amount[0].amount}1`;
+    }
+
+    if (argv.simulate) {
+        console.log(JSON.stringify(messagesToClaim, null, 2))
+        console.log(JSON.stringify(fee, null, 2))
+        return;
     }
 
     if (totalClaimable >= minAmount) {
