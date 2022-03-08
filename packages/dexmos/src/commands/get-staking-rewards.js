@@ -132,7 +132,7 @@ export default async (argv) => {
 
     const simulate = async (address, msgs, memo, modifier) => {
         const estimate = await stargateClient.simulate(address, msgs, memo);
-        console.log({ estimate })
+        // console.log({ estimate })
         return (parseInt(estimate * (modifier || 1.5)))
     };
 
@@ -151,10 +151,10 @@ export default async (argv) => {
         }
     };
 
-    console.log(JSON.stringify(messagesToClaim, null, 2));
+    // console.log(JSON.stringify(messagesToClaim, null, 2));
 
     const fee = await getGasPrice(address, messagesToClaim);
-    console.log(JSON.stringify({ fee }, null, 2));
+    // console.log(JSON.stringify({ fee }, null, 2));
 
     if (denom === 'uhuahua') {
         // literally wtf (needs a 10x + 1)

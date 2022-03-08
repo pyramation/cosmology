@@ -23,11 +23,18 @@ export default async (argv) => {
     argv = await promptMnemonic(argv);
     const chain = await promptChain(argv);
 
-    const client = new CosmosApiClient({
-        url: chain.apis.rest[0].address
-    });
-    
+    const { restEndpoint } = await prompt([
+        {
+            type: 'list',
+            message: 'restEndpoint',
+            name: 'restEndpoint',
+            choices: chain.apis.rest.map(e=>e.address)
+        }
+    ], argv);
 
+    const client = new CosmosApiClient({
+        url: restEndpoint
+    });
 
     const denom = getCosmosAssetInfo(argv.chainToken).assets.find((a) => a.symbol === argv.chainToken).base;
     if (!denom) throw new Error('cannot find asset base unit');
