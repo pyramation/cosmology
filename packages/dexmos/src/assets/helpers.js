@@ -13,4 +13,5 @@ export const getCoinFromDenom = (denom) => {
             return asset;
         }
     }
+    return null;
 }

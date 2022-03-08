@@ -2,10 +2,10 @@ import React, { Component, useState } from 'react';
 import { Bech32Address } from '@keplr-wallet/cosmos';
 import { OsmosisApiClient, getCoinFromDenom } from 'dexmos';
 import { chains } from '@pyramation/cosmos-registry';
-import { Keplr } from '@keplr-wallet/types';
+import { getKeplr } from '../src/utils/utils';
 
 // TODO add test env switches
-const osmoChainConfig = chains.find(el=>el.chain_name==='osmosis');
+const osmoChainConfig = chains.find(el => el.chain_name === 'osmosis');
 const restEndpoint = osmoChainConfig.apis.rest[0].address;
 
 const BalanceTest = (props) => {
@@ -13,15 +13,6 @@ const BalanceTest = (props) => {
     const [loading, setLoading] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const [balances, setBalances] = useState([]);
-
-    /**
-     * 
-     * @returns {Keplr}
-     */
-    const getKeplr = () => {
-        if (typeof window === 'undefined') return null;
-        else return window['keplr']
-    }
 
     const getBalance = async () => {
         setLoading(true);
@@ -58,10 +49,11 @@ const BalanceTest = (props) => {
                 const coin = getCoinFromDenom(balance.denom);
                 enrichedBalanceList.push({
                     ...coin,
-                    amount: balance.amount
+                    amount: balance.amount,
+                    normedAmount: balance.amount * 10 ** -6,
                 });
             }
-    
+
             setBalances(enrichedBalanceList);
         }
         setLoading(false);
@@ -81,7 +73,7 @@ const BalanceTest = (props) => {
                             <h4 className='main-text'>{b.symbol}</h4>
                             <p className='detail-text' style={{ fontSize: 12 }}>{b.base}</p>
                         </div>
-                        <h5 className='main-text' style={{ marginLeft: 'auto', marginRight: 8 }}>{b.amount}</h5>
+                        <h5 className='main-text' style={{ marginLeft: 'auto', marginRight: 8 }}>{b.normedAmount}</h5>
                     </div>
                 })
                 :
