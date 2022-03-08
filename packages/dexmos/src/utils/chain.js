@@ -1,13 +1,7 @@
 import { assets, chains } from '@pyramation/cosmos-registry';
 import { assets as osmosisAssets } from '../assets/index';
 import { coins } from '@cosmjs/amino';
-import { prompt } from './prompt';
 import { gas } from '../messages/gas';
-
-const assetList = assets.reduce(
-  (m, { assets }) => [...m, ...assets.map(({ symbol }) => symbol)],
-  []
-).sort();
 
 export const getFeeForChainAndMsg =  (chainId, message) => {
   const chain = getChainByChainId(chainId);
@@ -122,34 +116,3 @@ export const getChain = async ({ token }) => {
   return chain;
 };
 
-export const promptChain = async (argv) => {
-  const { chainToken } = await prompt(
-    [
-      {
-        type: 'fuzzy',
-        name: 'chainToken',
-        message: 'chainToken',
-        choices: assetList
-      }
-    ],
-    argv
-  );
-  argv.chainToken = chainToken;
-  return await getChain({ token: chainToken });
-};
-
-export const promptChainIdAndChain = async (argv) => {
-  const { chainId } = await prompt(
-    [
-      {
-        type: 'fuzzy',
-        name: 'chainId',
-        message: 'chainId',
-        choices: chains.map(c=>c.chain_id).sort()
-      }
-    ],
-    argv
-  );
-  argv.chainId = chainId;
-  return await getChainByChainId( chainId );
-};

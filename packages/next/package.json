@@ -14,11 +14,18 @@
     "invalidate": "AWS_PROFILE=webinc aws cloudfront create-invalidation --distribution-id E35JVFMWAP8JRK --paths \"/*\"",
     "deploy:all": "npm run export && npm run deploy && ./seo/prepare.sh"
   },
+  "resolutions": {
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-free-solid": "^5.0.13",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/react-fontawesome": "^0.1.16",
+    "@keplr-wallet/cosmos": "^0.9.12",
+    "@keplr-wallet/types": "^0.9.12",
+    "@pyramation/cosmos-registry": "^0.1.6",
     "aos": "^2.3.4",
     "dexmos": "^0.0.13",
     "font-awesome": "^4.7.0",

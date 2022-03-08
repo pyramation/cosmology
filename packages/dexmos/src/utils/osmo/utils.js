@@ -1,7 +1,7 @@
 // osmo specific utils
 
 import { assets as osmosisAssets } from '../../assets';
-import { displayUnitsToDenomUnits, baseUnitsToDisplayUnits } from '..';
+import { displayUnitsToDenomUnits, baseUnitsToDisplayUnits } from '../chain';
 import Long from 'long';
 
 /**

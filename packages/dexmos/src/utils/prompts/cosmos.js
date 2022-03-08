@@ -1,5 +1,5 @@
-import { prompt, promptCosmosChainWallet } from '..';
-import { promptChainIdAndChain  } from '..';
+import { prompt, promptChainIdAndChain } from '../prompt';
+import { promptCosmosChainWallet } from '../helpers';
 import { getClient } from '../../messages';
 import { CosmosApiClient } from '../../clients/cosmos';
 

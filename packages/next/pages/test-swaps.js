@@ -1,14 +1,22 @@
 import React, { Component, useState } from 'react';
-import { Bech32Address } from '@keplr-wallet/cosmos';
-import { OsmosisApiClient, getCoinFromDenom } from 'dexmos';
+import {
+    OsmosisApiClient,
+    OsmosisValidatorClient,
+    getCoinFromDenom,
+    symbolsAndDisplayValuesToCoinsArray,
+    getTradesRequiredToGetBalances,
+    getSwaps,
+    getFilteredPoolsWithValues,
+    convertValidatorPricesToDenomPriceHash
+} from 'dexmos';
+
 import { chains } from '@pyramation/cosmos-registry';
 import { Keplr } from '@keplr-wallet/types';
 
 // TODO add test env switches
-const osmoChainConfig = chains.find(el=>el.chain_name==='osmosis');
+const osmoChainConfig = chains.find(el => el.chain_name === 'osmosis');
 const restEndpoint = osmoChainConfig.apis.rest[0].address;
-
-const BalanceTest = (props) => {
+const SwapTest = (props) => {
 
     const [loading, setLoading] = useState(false);
     const [loaded, setLoaded] = useState(false);
@@ -43,6 +51,25 @@ const BalanceTest = (props) => {
         const data = await client.getBalances(osmoAddress)
         console.log({ data });
 
+        // get prices
+        const validator = new OsmosisValidatorClient({
+            url: 'https://api-osmosis.imperator.co/'
+        });
+        const tokensAndPrices = await validator.getTokens();
+        console.log(tokensAndPrices); 
+
+        const pairsSummary = await validator.getPairsSummary();
+        console.log(pairsSummary);
+
+        const poolsInfo = await client.getPools();
+        console.log(poolsInfo); 
+
+        const prices = convertValidatorPricesToDenomPriceHash(tokensAndPrices);
+        const pools = getFilteredPoolsWithValues({ prices, pools: poolsInfo.pools })
+
+        console.log(prices);
+        console.log(pools);
+
         // enrich balance data
         /**
          * @type {{
@@ -61,7 +88,7 @@ const BalanceTest = (props) => {
                     amount: balance.amount
                 });
             }
-    
+
             setBalances(enrichedBalanceList);
         }
         setLoading(false);
@@ -92,4 +119,4 @@ const BalanceTest = (props) => {
     </div>
 }
 
-export default BalanceTest
+export default SwapTest;
