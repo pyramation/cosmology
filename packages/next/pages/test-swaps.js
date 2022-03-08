@@ -21,7 +21,7 @@ import { SigningCosmosClient } from '@cosmjs/launchpad';
 
 // TODO add test env switches
 const osmoChainConfig = chains.find(el => el.chain_name === 'osmosis');
-const restEndpoint = 'https://lcd-osmosis.blockapsis.com';//osmoChainConfig.apis.rest[0].address;
+const restEndpoint = osmoChainConfig.apis.rest[0].address;
 
 const SwapTest = (props) => {
 
