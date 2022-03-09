@@ -19,7 +19,8 @@
     "react-dom": "17.0.2"
   },
   "dependencies": {
-    "@cosmjs/launchpad": "^0.27.1",
+    "@cosmjs/launchpad": "0.27.1",
+    "@cosmjs/stargate": "0.27.1",
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-free-solid": "^5.0.13",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",

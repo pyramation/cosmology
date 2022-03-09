@@ -1,6 +1,6 @@
 import { prompt, promptChainIdAndChain } from '../prompt';
 import { promptCosmosChainWallet } from '../helpers';
-import { getClient } from '../../messages';
+import { getSigningOsmosisClient } from '../../messages';
 import { CosmosApiClient } from '../../clients/cosmos';
 
 export const cosmosRpcClient = async (argv) => {
@@ -32,7 +32,7 @@ export const cosmosRpcClient = async (argv) => {
     ];
     const { rpcEndpoint } = await prompt(questions, argv);
 
-    const client = await getClient({ rpcEndpoint: rpcEndpoint, wallet });
+    const client = await getSigningOsmosisClient({ rpcEndpoint: rpcEndpoint, signer: wallet });
 
     // argv.chainId = chainId;
     argv.rpcEndpoint = rpcEndpoint;

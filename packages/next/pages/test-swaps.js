@@ -9,7 +9,8 @@ import {
     getFilteredPoolsWithValues,
     convertValidatorPricesToDenomPriceHash,
     messages,
-    signAndBroadcast
+    signAndBroadcast,
+    getSigningOsmosisClient
 } from 'dexmos';
 
 import { chains } from '@pyramation/cosmos-registry';
@@ -17,11 +18,17 @@ import { getColor, getKeplr } from '../src/utils/utils';
 import useRoot from '../src/hooks/useRoot';
 import LoadingIndicator from '../src/components/subComponents/LoadingIndicator';
 import TokenInput from '../src/components/token/TokenInput';
-import { SigningCosmosClient } from '@cosmjs/launchpad';
+import {
+    SigningStargateClient,
+    calculateFee,
+    assertIsDeliverTxSuccess,
+    GasPrice
+} from '@cosmjs/stargate';
 
 // TODO add test env switches
 const osmoChainConfig = chains.find(el => el.chain_name === 'osmosis');
 const restEndpoint = osmoChainConfig.apis.rest[0].address;
+const rpcEndpoint = osmoChainConfig.apis.rpc[0].address;
 
 const SwapTest = (props) => {
 
@@ -106,7 +113,8 @@ const SwapTest = (props) => {
             console.log({ swaps });
 
             keplr.enable(osmoChainConfig.chain_id);
-            const offlineSigner = keplr.getOfflineSigner(osmoChainConfig.chain_id);
+            // TODO determine why use getOfflineSignerOnlyAmino vs getOfflineSigner
+            const offlineSigner = keplr.getOfflineSignerOnlyAmino(osmoChainConfig.chain_id);
             const accounts = await offlineSigner.getAccounts();
             const osmoAddress = accounts[0].address;
 
@@ -114,13 +122,32 @@ const SwapTest = (props) => {
                 sender: osmoAddress,
                 routes: swaps[0].routes,
                 tokenIn: tokenInObj,
-                tokenOutMinAmount: outAmount * 0.99 // 1% slippage
+                tokenOutMinAmount: outAmount * 0.95 // 1% slippage
             });
             console.log({ msg, fee });
 
-            const keplrSigningClient = new SigningCosmosClient(restEndpoint, osmoAddress, offlineSigner);
-            const res = await signAndBroadcast({ client: keplrSigningClient, chainId: osmoChainConfig.chain_id, osmoAddress, msg, fee });
+            // const stargateClient = await SigningStargateClient.connectWithSigner(
+            //     rpcEndpoint,
+            //     offlineSigner
+            // );
+
+            const stargateClient = await getSigningOsmosisClient({
+                rpcEndpoint,
+                signer: offlineSigner
+            });
+
+            const res = await signAndBroadcast({ 
+                client: stargateClient,
+                chainId: osmoChainConfig.chain_id,
+                address: osmoAddress,
+                msg,
+                fee,
+                memo: ''
+            });
+
+            // const res = await stargateClient.signAndBroadcast(osmoAddress, [msg], fee, '');
             console.log(res);
+
         } else {
             alert("Make sure to define inToken, outToken, and inAmount.");
         }

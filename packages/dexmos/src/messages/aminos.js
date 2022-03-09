@@ -39,8 +39,11 @@ export const aminos = {
     toAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => ({
       sender,
       routes: parseRoutes(routes),
-      tokenIn,
-      tokenOutMinAmount
+      tokenIn: {
+        denom: tokenIn.denom,
+        amount: Long.fromNumber(tokenIn.amount).toString()
+      },
+      tokenOutMinAmount: Long.fromNumber(tokenOutMinAmount).toString()
     }),
     fromAmino: ({ sender, routes, tokenIn, tokenOutMinAmount }) => ({
       sender,

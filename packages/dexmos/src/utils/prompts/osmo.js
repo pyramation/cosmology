@@ -1,6 +1,6 @@
 import { promptOsmoWallet } from '../helpers';
 import { prompt, promptChain  } from '../prompt';
-import { getClient } from '../../messages';
+import { getSigningOsmosisClient } from '../../messages';
 import { OsmosisApiClient } from '../../clients/osmosis';
 
 const osmosTestnetRests = ['http://143.244.147.126:1317'].map(value => {
@@ -54,7 +54,7 @@ export const osmoRpcClient = async (argv) => {
     if (osmosTestnetRpcs.includes(rpcEndpoint)) {
       console.log('WARN: using TESTNET');
     }
-    const client = await getClient({ rpcEndpoint: rpcEndpoint, wallet });
+    const client = await getSigningOsmosisClient({ rpcEndpoint: rpcEndpoint, wallet });
 
     argv.chainId = chainId;
     argv.rpcEndpoint = rpcEndpoint;
