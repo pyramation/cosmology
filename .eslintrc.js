@@ -2,6 +2,11 @@ module.exports = {
   plugins: ['prettier'],
   extends: ['eslint:recommended', 'prettier'],
   parser: '@babel/eslint-parser',
+  settings: {
+    next: {
+      rootDir: 'packages/next/'
+    }
+  },
   parserOptions: {
     ecmaVersion: 11,
     requireConfigFile: false,
