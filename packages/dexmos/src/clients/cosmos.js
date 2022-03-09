@@ -30,21 +30,21 @@ export class CosmosApiClient extends RestClient {
   }
 
   /**
- * @returns {Promise<{
- *   block_id: {
- *      hash: string;
- *      part_set_header: object;
- *   };
- *   block: {
- *      header: {
- *        version: object;
- *        chain_id: string;
- *        height: string;
- *        time: string;
- *      }
- *   }
- * }>}
- */
+   * @returns {Promise<{
+   *   block_id: {
+   *      hash: string;
+   *      part_set_header: object;
+   *   };
+   *   block: {
+   *      header: {
+   *        version: object;
+   *        chain_id: string;
+   *        height: string;
+   *        time: string;
+   *      }
+   *   }
+   * }>}
+   */
 
   async getLatestBlock() {
     const endpoint = `/cosmos/base/tendermint/v1beta1/blocks/latest`;
@@ -95,5 +95,4 @@ export class CosmosApiClient extends RestClient {
     const endpoint = `cosmos/distribution/v1beta1/delegators/${address}/rewards`;
     return await this.request(endpoint);
   }
-
 }

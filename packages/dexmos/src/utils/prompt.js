@@ -2,13 +2,12 @@ import { filter } from 'fuzzy';
 import { assets as osmosisAssets } from '../assets';
 import { assets, chains } from '@pyramation/cosmos-registry';
 import { prompt as inquirerer } from 'inquirerer';
-import { getChain, getChainByChainId } from './chain'
+import { getChain, getChainByChainId } from './chain';
 import { crypt, decrypt } from './crypt';
 
-const assetList = assets.reduce(
-  (m, { assets }) => [...m, ...assets.map(({ symbol }) => symbol)],
-  []
-).sort();
+const assetList = assets
+  .reduce((m, { assets }) => [...m, ...assets.map(({ symbol }) => symbol)], [])
+  .sort();
 
 export const getFuzzySearch = (list) => {
   return (answers, input) => {
@@ -27,7 +26,7 @@ export const getFuzzySearch = (list) => {
 };
 
 const coinSymbols = osmosisAssets.map(({ symbol }) => symbol).sort();
-const allChains = chains.map(a => a.chain_id);
+const allChains = chains.map((a) => a.chain_id);
 
 const transform = (questions) => {
   return questions.map((q) => {
@@ -94,9 +93,7 @@ export const encryptPrompt = async (str, argv) => {
   return encrypted_str;
 };
 
-
 export const prompt = async (questions = [], argv = {}) => {
-
   questions = transform(questions);
   return await inquirerer(questions, argv);
 };
@@ -154,11 +151,11 @@ export const promptChainIdAndChain = async (argv) => {
         type: 'fuzzy',
         name: 'chainId',
         message: 'chainId',
-        choices: chains.map(c=>c.chain_id).sort()
+        choices: chains.map((c) => c.chain_id).sort()
       }
     ],
     argv
   );
   argv.chainId = chainId;
-  return await getChainByChainId( chainId );
+  return await getChainByChainId(chainId);
 };
