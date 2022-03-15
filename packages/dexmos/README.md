@@ -1,5 +1,5 @@
-# dexmos
+# cosmology
 
 ```
-npm install -g dexmos
+npm install -g cosmology
 ```

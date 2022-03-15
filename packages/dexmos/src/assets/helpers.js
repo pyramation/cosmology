@@ -1,17 +1,17 @@
 // need to figure out typescript compatability
-// import { Coin } from '../dexmos-types';
+// import { Coin } from '../cosmology-types';
 import assetList from './assetlist.json';
 
 // /**
-//  * 
-//  * @param {string} denom 
+//  *
+//  * @param {string} denom
 //  * @returns {Coin}
 //  */
 export const getCoinFromDenom = (denom) => {
-    for (let asset of assetList.assets) {
-        if (asset.base === denom) {
-            return asset;
-        }
+  for (const asset of assetList.assets) {
+    if (asset.base === denom) {
+      return asset;
     }
-    return null;
-}
+  }
+  return null;
+};

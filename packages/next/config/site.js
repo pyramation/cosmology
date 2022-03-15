@@ -4,8 +4,8 @@ const canonical = siteAddress.href.slice(0, -1);
 
 module.exports = {
   company: {
-    nick: 'Dexmos',
-    name: 'Dexmos',
+    nick: 'Cosmology',
+    name: 'Cosmology',
     addr: ['San Francisco, CA'],
     legalCounty: 'San Francisco',
     legalState: 'California'
