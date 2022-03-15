@@ -55,7 +55,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.0.0-yolo.6](https://github.com/pyramation/autosmosis/compare/next@0.0.0-yolo.5...next@0.0.0-yolo.6) (2022-02-03)
+# [0.0.0-yolo.6](https://github.com/pyramation/cosmology/compare/next@0.0.0-yolo.5...next@0.0.0-yolo.6) (2022-02-03)
 
 **Note:** Version bump only for package next
 
@@ -63,7 +63,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.0.0-yolo.5](https://github.com/pyramation/autosmosis/compare/next@0.0.0-yolo.3...next@0.0.0-yolo.5) (2022-02-03)
+# [0.0.0-yolo.5](https://github.com/pyramation/cosmology/compare/next@0.0.0-yolo.3...next@0.0.0-yolo.5) (2022-02-03)
 
 **Note:** Version bump only for package next
 
@@ -71,7 +71,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.0.0-yolo.4](https://github.com/pyramation/autosmosis/compare/next@0.0.0-yolo.3...next@0.0.0-yolo.4) (2022-01-30)
+# [0.0.0-yolo.4](https://github.com/pyramation/cosmology/compare/next@0.0.0-yolo.3...next@0.0.0-yolo.4) (2022-01-30)
 
 **Note:** Version bump only for package next
 
