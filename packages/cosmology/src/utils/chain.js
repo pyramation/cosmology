@@ -2,7 +2,7 @@ import { assets, chains } from '@cosmology/cosmos-registry';
 import { assets as osmosisAssets } from '../assets/index';
 import { coins } from '@cosmjs/amino';
 import { gas } from '../messages/gas';
-import { symbolToOsmoDenom } from '..';
+import { symbolToOsmoDenom } from './osmo';
 
 export const getFeeForChainAndMsg = (chainId, message) => {
   const chain = getChainByChainId(chainId);
