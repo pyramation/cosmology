@@ -424,8 +424,27 @@ button {
   border-radius: 20px;
   margin-bottom: 8px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 8px 16px;
+  flex-wrap: wrap;
+}
+
+.job-details {
+  overflow: scroll;
+  max-height: 200px;
+}
+
+.job-wrapper {}
+
+.job-wrapper>div>img {
+  height: 16px;
+  width: 16px;
+}
+
+.job-wrapper>div>svg {
+  height: 16px;
+  width: 16px;
+  margin: 0px 8px;
 }
 
 .job-status-indicator {
@@ -433,6 +452,7 @@ button {
   height: 12px;
   border-radius: 6px;
   margin-right: 8px;
+  margin-top: 3px;
 }
 
 .defi-backdrop {

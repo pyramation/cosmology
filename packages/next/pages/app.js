@@ -225,7 +225,7 @@ const App = () => {
       };
     });
 
-    console.log(poolObjectsMapped);
+    console.log({ balances });
     const compounder = new Compounder({
       tokens,
       lcdClient: client,
@@ -298,7 +298,7 @@ const App = () => {
               osmoChainConfig={osmoChainConfig}
             />
           ) : screen === 'preview' ? (
-            <CompounderStatus jobs={jobs} />
+            <CompounderStatus jobs={jobs} tokens={tokens} />
           ) : (
             <>
               <div className="grid-item" style={{ textAlign: 'center' }}>

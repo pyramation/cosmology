@@ -151,13 +151,18 @@ export default class Compounder {
       });
 
       const swaps = await getSwaps({ pools, trades, pairs: this.pairs.data });
-      const swapJob = {
-        type: 'swap',
-        swaps,
-        trades: []
-      };
 
-      jobs.push(swapJob);
+      for (let s = 0; s < swaps.length; s++) {
+        const swap = swaps[s];
+        const swapJob = {
+          type: 'swap',
+          swap,
+          trades: []
+        };
+
+        jobs.push(swapJob);
+      }
+
       // console.log(`\nSWAPS for ${c.bold.magenta(result.pools[i].name)}`);
 
       if (!simulate) {

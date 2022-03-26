@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Job from '../src/components/subComponents/Job';
 
-const Dashboard = ({ jobs }) => {
+const Dashboard = ({ jobs, tokens }) => {
   function handleRun() {
     // driver.executejobs(jobs);
   }
@@ -27,7 +27,7 @@ const Dashboard = ({ jobs }) => {
       </div>
       {jobs.map((job) => {
         const jobDetails = job.job;
-        return <Job job={job} />;
+        return <Job job={job} tokens={tokens} />;
       })}
 
       {/* <div className="grid-item" style={{ display: "flex", flex: 1 }}>
