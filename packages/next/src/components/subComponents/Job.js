@@ -5,13 +5,14 @@ import axios from 'axios';
  * @typedef {('queued'|'running'|'success'|'failed')} Status
  */
 
-const Jobs = ({ driver, job }) => {
+const Jobs = ({ job }) => {
   /** @type {[Status, (Status)=>void]} */
   const [status, setStatus] = useState('queued');
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const newStatus = driver.getStatus(job.txnId);
+      const newStatus = 'success';
+      // const newStatus = driver.getStatus(job.txnId);
       setStatus(newStatus);
     }, 1500);
     return () => clearInterval(interval);
@@ -34,15 +35,16 @@ const Jobs = ({ driver, job }) => {
         className="job-status-indicator"
         style={{ backgroundColor: getColor(status) }}
       />
-      <p className="detail-text">
-        {job.type === 'swap'
+      <pre className="detail-text" style={{ textAlign: 'left' }}>
+        {JSON.stringify(job, null, 2)}
+        {/* {job.type === 'swap'
           ? 'Swap ' + job.job.inputCoin + ' for ' + job.job.targetCoin
           : job.type === 'joinPool'
           ? 'Deposit into pool #' + job.job.poolId
           : job.type === 'lockTokens'
           ? 'Lock LP for pool #' + job.job.poolId
-          : 'UNKNOWN JOB TYPE - this is not expected'}
-      </p>
+          : 'UNKNOWN JOB TYPE - this is not expected'} */}
+      </pre>
       <p
         className="main-text"
         style={{

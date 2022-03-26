@@ -14,6 +14,9 @@ import Job from '../src/components/subComponents/Job';
 import SelectBalances from '../partials/SelectBalances';
 import { chains } from '@cosmology/cosmos-registry';
 import useRoot from '../src/hooks/useRoot';
+import Compounder from '../src/orchestration/compounder';
+import LoadingIndicator from '../src/components/subComponents/LoadingIndicator';
+import CompounderStatus from '../partials/CompounderStatus';
 
 const SYMBOLCOINHASH = {};
 const COINHASH = assets.reduce((m, asset) => {
@@ -21,7 +24,6 @@ const COINHASH = assets.reduce((m, asset) => {
   SYMBOLCOINHASH[asset.symbol] = asset;
   return m;
 }, {});
-console.log(COINHASH);
 
 const styles = {
   fontFamily: 'sans-serif',
@@ -47,6 +49,8 @@ const defaultPools = [
     icon: '/terra.png',
     nickname: 'UST',
     symbol: 'UST',
+    denom:
+      'ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC',
     rewardAlloc: 100,
     isSingle: true
   }
@@ -88,6 +92,8 @@ const App = () => {
     chainConfig: osmoChainConfig,
     ...loadConfig
   });
+
+  // console.log({ balances, tokens, poolsInfo });
 
   const queryForPools = async () => {
     if (!queryingForPools) {
@@ -193,12 +199,18 @@ const App = () => {
     : 100;
 
   async function triggerSwapsPreview() {
+    if (loading) {
+      alert('still loading');
+      return;
+    }
     if (totalAlloc === 0.0000001)
       // eslint-disable-next-line no-alert
       return alert('You must allocate your rewards into at least one pool.');
 
+    /** @type {CoinWeight[]} */
     const poolObjectsMapped = ourPools.map((pool) => {
       return {
+        weight: pool.rewardAlloc / totalAlloc,
         type: pool.isSingle ? 'coin' : 'pool',
         coin: pool.isSingle ? pool.symbol : null,
         pool: pool.isSingle
@@ -209,16 +221,33 @@ const App = () => {
               id: pool.id,
               balance: pool.poolAssetsPretty?.[0]?.ratio
             },
-        weight: pool.rewardAlloc / totalAlloc
+        denom: pool.isSingle ? pool.denom : pool.totalShares.denom
       };
     });
 
-    const jobs = await driver.getAllJobs(poolObjectsMapped);
+    console.log(poolObjectsMapped);
+    const compounder = new Compounder({
+      tokens,
+      lcdClient: client,
+      osmoChainConfig,
+      keplr,
+      pairs: pairsSummary,
+      pools: poolsInfo
+    });
+
+    const jobs = await compounder.constructAndExecuteJobs(
+      balances,
+      poolObjectsMapped,
+      exclusions,
+      true
+    );
+
+    console.log(jobs);
+
+    // const jobs = await driver.getAllJobs(poolObjectsMapped);
     setScreen('preview');
     setJobs(jobs);
   }
-
-  console.log(ourPools);
 
   function handleSetExclusions(newExclusions) {
     setExclusions(newExclusions);
@@ -230,10 +259,6 @@ const App = () => {
     setScreen('balances');
   }
 
-  function handleRun() {
-    driver.executejobs(jobs);
-  }
-
   if (!pools || !pools.length) {
     queryForPools();
     return <div>Loading...</div>;
@@ -241,6 +266,18 @@ const App = () => {
 
   return (
     <div style={{ marginBottom: 32 }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0 }}>
+        <LoadingIndicator
+          loadConfig={loadConfig}
+          loading={loading}
+          loadables={{
+            balances,
+            tokens,
+            pairsSummary,
+            poolsInfo
+          }}
+        />
+      </div>
       <Nav accounts={accounts} setAccounts={setAccounts} />
       <div
         className="container maxwidth-xs"
@@ -261,46 +298,18 @@ const App = () => {
               osmoChainConfig={osmoChainConfig}
             />
           ) : screen === 'preview' ? (
-            <div>
-              <div className="horiz" style={{ marginBottom: 16 }}>
-                <h3 className="main-text">Pending Jobs</h3>
-                <button
-                  className="action-button"
-                  onClick={handleRun}
-                  style={{
-                    flex: 0,
-                    marginLeft: 'auto',
-                    height: 26,
-                    padding: '2px 16px',
-                    fontSize: 14
-                  }}
-                >
-                  Run
-                </button>
-              </div>
-              {jobs.map((job) => {
-                const jobDetails = job.job;
-                return <Job driver={driver} job={job} />;
-              })}
-
-              {/* <div className="grid-item" style={{ display: "flex", flex: 1 }}>
-                            <button
-                                className="action-button"
-                                style={{ flex: 1, height: 60 }}
-                                onClick={() => triggerSwapsPreview()}
-                            >
-                                Run
-                            </button>
-                        </div> */}
-            </div>
+            <CompounderStatus jobs={jobs} />
           ) : (
             <>
               <div className="grid-item" style={{ textAlign: 'center' }}>
                 <h3 className="main-text paragraph">Auto-Compounder Config</h3>
               </div>
               <div className="grid-item" style={{ textAlign: 'left' }}>
-                <p className="detail-text" style={{ paddingLeft: 8 }}>
-                  Pools
+                <p
+                  className="detail-text"
+                  style={{ paddingLeft: 8, marginBottom: 4 }}
+                >
+                  Pools to compound into:
                 </p>
                 <div className="pool-list">
                   {ourPools &&
@@ -387,7 +396,9 @@ const App = () => {
               <p className="detail-text" style={{ marginBottom: 4 }}>
                 Running with{' '}
                 {exclusions.length
-                  ? exclusions.length + ' tokens excluded from compounding '
+                  ? exclusions.length +
+                    (exclusions.length > 1 ? ' assets' : ' asset') +
+                    ' excluded from compounding '
                   : 'no exclusions '}
                 <a
                   href="#"

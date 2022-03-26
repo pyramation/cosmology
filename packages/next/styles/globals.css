@@ -495,18 +495,15 @@ button {
 
 .balance-row:last-of-type {
   border-bottom: none;
-
 }
 
 .balance-row>input {
   background: transparent;
   margin-right: 8px;
-
 }
 
 .balance-row>img {
   width: 30px;
   height: 30px;
   margin-right: 8px;
-
 }

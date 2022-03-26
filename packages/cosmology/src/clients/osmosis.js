@@ -86,8 +86,8 @@ export class OsmosisApiClient extends CosmosApiClient {
     return await this.request(endpoint);
   }
 
-  async getPoolsPretty({ includeDetails = false } = {}) {
-    const { pools } = await this.getPools();
+  async getPoolsPretty({ loadedPools = null, includeDetails = false } = {}) {
+    const { pools } = loadedPools || (await this.getPools());
     return pools.map((pool) => prettyPool(pool, { includeDetails }));
   }
 
