@@ -4,7 +4,7 @@ import fontawesome from '@fortawesome/fontawesome';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus, faSearch } from '@fortawesome/fontawesome-free-solid';
 import ReactSlider from 'react-slider';
-import { Driver, assets, OsmosisApiClient } from 'cosmology';
+import { Driver, assets, OsmosisApiClient, prettyPool } from 'cosmology';
 import PoolAdder from '../src/components/PoolAdder';
 import { fetchListOfPools } from '../src/clients/cosmology';
 import PoolPairImage from '../src/components/subComponents/PoolPairImage';
@@ -32,17 +32,6 @@ const styles = {
 
 fontawesome.library.add(faTimes);
 
-// export async function getServerSideProps(ctx) {
-//     // we could do this in frontend, but i didn't want to create a spinner
-//     const pools = await fetchListOfPools();
-
-//     return {
-//         props: {
-//             pools,
-//         },
-//     };
-// }
-
 const defaultPools = [
   {
     id: 0,
@@ -64,9 +53,7 @@ const App = () => {
   const [ourPools, setOurPools] = useState(null);
   const [showPoolAdder, setShowPoolAdder] = useState(false);
   const [queuedPools, setQueuedPools] = useState([]);
-  const [pools, setPools] = useState([]);
   const [exclusions, setExclusions] = useState([]);
-  const [queryingForPools, setQueryingForPools] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [screen, setScreen] = useState('pools');
   const [swaps, setSwaps] = useState([]);
@@ -95,14 +82,6 @@ const App = () => {
 
   // console.log({ balances, tokens, poolsInfo });
 
-  const queryForPools = async () => {
-    if (!queryingForPools) {
-      const poolList = await fetchListOfPools();
-      setPools(poolList);
-      setQueryingForPools(true);
-    }
-  };
-
   useEffect(() => {
     (async () => {
       if (!driver) {
@@ -116,14 +95,6 @@ const App = () => {
       console.log(balances);
     })();
   }, [accounts]);
-
-  useEffect(() => {
-    (async () => {
-      if (!pools) {
-        await queryForPools();
-      }
-    })();
-  }, [pools]);
 
   useEffect(() => {
     if (!ourPools) {
@@ -200,6 +171,7 @@ const App = () => {
 
   async function triggerSwapsPreview() {
     if (loading) {
+      // eslint-disable-next-line no-alert
       alert('still loading');
       return;
     }
@@ -259,9 +231,12 @@ const App = () => {
     setScreen('balances');
   }
 
-  if (!pools || !pools.length) {
-    queryForPools();
-    return <div>Loading...</div>;
+  function handleRun() {
+    driver.executejobs(jobs);
+  }
+
+  if (!poolsInfo.pools || !poolsInfo.pools.length) {
+    return <div>Loading Pools...</div>;
   }
 
   return (
@@ -370,7 +345,9 @@ const App = () => {
                     })}
                   {showPoolAdder ? (
                     <PoolAdder
-                      data={pools}
+                      data={poolsInfo.pools.map((pool) =>
+                        prettyPool(pool, { includeDetails: true })
+                      )}
                       addPool={addPool}
                       setShowPoolAdder={setShowPoolAdder}
                     />
