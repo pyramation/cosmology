@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Job from '../src/components/subComponents/Job';
 
-const Dashboard = ({ jobs, tokens }) => {
+const Dashboard = ({ jobs, tokens, compounder, compounderRunArgs }) => {
   function handleRun() {
     // driver.executejobs(jobs);
+    compounder.constructAndExecuteJobs(compounderRunArgs);
   }
 
   return (
@@ -26,8 +27,8 @@ const Dashboard = ({ jobs, tokens }) => {
         </button>
       </div>
       {jobs.map((job) => {
-        const jobDetails = job.job;
-        return <Job job={job} tokens={tokens} />;
+        // const jobDetails = job.job;
+        return <Job job={job} tokens={tokens} key={job.id} />;
       })}
 
       {/* <div className="grid-item" style={{ display: "flex", flex: 1 }}>

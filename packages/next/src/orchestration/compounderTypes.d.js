@@ -56,7 +56,12 @@
  * dollarAmount: number,
  * }} DisplayBalance
  *
- *
+ * @typedef {{
+ * status: ('queued'|'success'|'failed'|'running'|'')
+ * type: ('swap'|'join'|'lock')
+ * id: string
+ * data: object
+ * }} Job
  *
  *
  *

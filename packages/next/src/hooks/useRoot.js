@@ -1,8 +1,4 @@
-import {
-  OsmosisApiClient,
-  OsmosisValidatorClient,
-  fetchListOfPools
-} from 'cosmology';
+import { OsmosisApiClient, OsmosisValidatorClient } from 'cosmology';
 import { useEffect, useState } from 'react';
 
 import { chains } from '@cosmology/cosmos-registry';
@@ -95,8 +91,7 @@ const useRoot = ({
           id: 'pool-info',
           shouldLoad: loadPoolsInfo,
           setter: setPoolsInfo,
-          // asyncLoader: client.getPools
-          asyncLoader: async () => fetchListOfPools()
+          asyncLoader: client.getPools
         }
       ];
 

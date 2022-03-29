@@ -6,11 +6,18 @@ import {
   convertValidatorPricesToDenomPriceHash
 } from 'cosmology';
 import { ArrowSmRightIcon, ArrowSmDownIcon } from '@heroicons/react/solid';
+import PoolPairImage from './PoolPairImage';
 
 /**
  * @typedef {('queued'|'running'|'success'|'failed')} Status
  */
-
+/**
+ *
+ * @param {object} param0
+ * @param {Job} param0.job
+ * @param {object} param0.tokens
+ * @returns
+ */
 const Jobs = ({ job, tokens }) => {
   /** @type {[Status, (Status)=>void]} */
   const [status, setStatus] = useState('queued');
@@ -45,8 +52,9 @@ const Jobs = ({ job, tokens }) => {
 
   function renderJob(job) {
     if (job.type === 'swap') {
-      const sellCoin = job?.swap?.trade?.sell;
-      const buyCoin = job?.swap?.trade?.buy;
+      console.log({ job });
+      const sellCoin = job?.data?.swap?.trade?.sell;
+      const buyCoin = job?.data?.swap?.trade?.buy;
       const sellSymbol = sellCoin?.symbol;
       const buySymbol = buyCoin?.symbol;
       const sellAmount = sellCoin?.displayAmount;
@@ -73,9 +81,9 @@ const Jobs = ({ job, tokens }) => {
             {formatAmount(buyAmount)} {buySymbol}
           </p>
           <div className="horiz" style={{ marginBottom: 4 }}>
-            <img src={buyLogo} />
-            <ArrowSmRightIcon />
             <img src={sellLogo} />
+            <ArrowSmRightIcon style={{ opacity: '80%' }} />
+            <img src={buyLogo} />
             <p
               className="main-text"
               style={{ marginLeft: 8, opacity: 0.5, fontSize: 12 }}
@@ -85,11 +93,46 @@ const Jobs = ({ job, tokens }) => {
           </div>
         </div>
       );
+    } else if (job.type === 'join' || job.type === 'lock') {
+      const poolId = job?.data?.poolId;
+      const poolNickname = job?.data?.poolInfo?.nickname;
+
+      const firstAsset = job.data?.poolInfo?.poolAssetsPretty?.[0];
+      const secondAsset = job.data?.poolInfo?.poolAssetsPretty?.[1];
+      const firstSymbol = firstAsset?.symbol;
+      const secondSymbol = secondAsset?.symbol;
+      const firstOsmoAsset = getOsmosisAssetInfo(firstSymbol);
+      const secondOsmoAsset = getOsmosisAssetInfo(secondSymbol);
+      const firstLogo = firstOsmoAsset?.logo_URIs?.png;
+      const secondLogo = secondOsmoAsset?.logo_URIs?.png;
+      console.log({ firstSymbol, firstOsmoAsset, firstLogo });
+
+      return (
+        <div className="job-wrapper">
+          <div className="horiz">
+            <PoolPairImage images={[firstLogo, secondLogo]} height={36} />
+            <b
+              className="detail-text"
+              style={{ fontSize: 12, marginRight: 6, marginLeft: 4 }}
+            >
+              #{poolId}:
+            </b>{' '}
+            <span className="detail-text" style={{ fontSize: 12 }}>
+              {poolNickname}
+            </span>
+          </div>
+        </div>
+      );
     }
+
+    // else if (job.type === 'lock') {
+    //   console.log({ job });
+    //   return <div className="job-wrapper"></div>;
+    // }
   }
 
   return (
-    <div className="job-container">
+    <div className="job-container" key={job.id}>
       {/* <div
         className="job-status-indicator"
         style={{ backgroundColor: getColor(status) }}
@@ -103,17 +146,27 @@ const Jobs = ({ job, tokens }) => {
           ? 'Lock LP for pool #' + job.job.poolId
           : 'UNKNOWN JOB TYPE - this is not expected'} */}
       <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-        <p
-          className="main-text"
-          style={{
-            fontSize: 12,
-            opacity: 0.5,
-            textTransform: 'uppercase',
-            marginBottom: 8
-          }}
+        <div
+          className="horiz"
+          style={{ justifyContent: 'flex-end', marginBottom: 8 }}
         >
-          {job.type}
-        </p>
+          <p
+            className="main-text"
+            style={{
+              fontSize: 12,
+              opacity: 0.5,
+              textTransform: 'uppercase'
+            }}
+          >
+            {job.type}
+          </p>
+          {job.status && (
+            <div
+              className="job-status-indicator"
+              style={{ backgroundColor: getColor(job.status) }}
+            />
+          )}
+        </div>
         <a
           href="#"
           onClick={() => setShowDetails(!showDetails)}

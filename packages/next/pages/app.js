@@ -56,8 +56,9 @@ const App = () => {
   const [exclusions, setExclusions] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [screen, setScreen] = useState('pools');
-  const [swaps, setSwaps] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [compounder, setCompounder] = useState(null);
+  const [compounderRunArgs, setCompounderRunArgs] = useState(null);
   const [driver, setDriver] = useState(null);
 
   const loadConfig = {
@@ -207,18 +208,31 @@ const App = () => {
       pools: poolsInfo
     });
 
-    const jobs = await compounder.constructAndExecuteJobs(
-      balances,
-      poolObjectsMapped,
-      exclusions,
-      true
-    );
+    const simulateArgs = {
+      balances: balances.result,
+      targetWeights: poolObjectsMapped,
+      exclusions
+    };
+
+    const jobs = await compounder.constructAndExecuteJobs(simulateArgs);
 
     console.log(jobs);
 
     // const jobs = await driver.getAllJobs(poolObjectsMapped);
     setScreen('preview');
     setJobs(jobs);
+    setCompounder(compounder);
+    setCompounderRunArgs({
+      ...simulateArgs,
+      simulate: false,
+      setJobStatusById: (id, newStatus) =>
+        setJobs(
+          jobs.map((j) => {
+            if (j.id === id) j.status = newStatus;
+            return j;
+          })
+        )
+    });
   }
 
   function handleSetExclusions(newExclusions) {
@@ -273,7 +287,12 @@ const App = () => {
               osmoChainConfig={osmoChainConfig}
             />
           ) : screen === 'preview' ? (
-            <CompounderStatus jobs={jobs} tokens={tokens} />
+            <CompounderStatus
+              jobs={jobs}
+              tokens={tokens}
+              compounder={compounder}
+              compounderRunArgs={compounderRunArgs}
+            />
           ) : (
             <>
               <div className="grid-item" style={{ textAlign: 'center' }}>
