@@ -6,7 +6,6 @@ import { messages } from '../messages/messages';
 import { signAndBroadcast } from '../messages/utils';
 
 const osmoChainConfig = chains.find((el) => el.chain_name === 'osmosis');
-// const restEndpoint = osmoChainConfig.apis.rest[0].address;
 const rpcEndpoint = osmoChainConfig.apis.rpc[0].address;
 
 export default async (argv) => {
