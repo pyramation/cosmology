@@ -576,6 +576,7 @@ export const getTradesRequiredToGetBalances = ({
   const desiredCoinsNeeded = desired.reduce((m, coin) => {
     const { denom } = coin;
     const current = currentCoins.find((c) => c.denom === denom);
+    coin.amount = Number(coin.amount) * 0.9998 + ''; // to avoid precision errors
     if (!current) {
       return [...m, coin];
     }

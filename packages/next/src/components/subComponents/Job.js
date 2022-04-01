@@ -155,7 +155,8 @@ const Jobs = ({ job, tokens }) => {
             style={{
               fontSize: 12,
               opacity: 0.5,
-              textTransform: 'uppercase'
+              textTransform: 'uppercase',
+              marginRight: job.status ? 8 : 0
             }}
           >
             {job.type}
@@ -163,7 +164,7 @@ const Jobs = ({ job, tokens }) => {
           {job.status && (
             <div
               className="job-status-indicator"
-              style={{ backgroundColor: getColor(job.status) }}
+              style={{ backgroundColor: getColor(job.status), marginRight: 0 }}
             />
           )}
         </div>
