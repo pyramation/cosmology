@@ -4,6 +4,11 @@ import { osmoRestClient } from '../utils';
 import { getSigningOsmosisClient } from '../messages/utils';
 import { messages } from '../messages/messages';
 import { signAndBroadcast } from '../messages/utils';
+import {
+  printSwap,
+  printSwapForPoolAllocation,
+  printOsmoTransactionResponse
+} from '../utils/print';
 
 const osmoChainConfig = chains.find((el) => el.chain_name === 'osmosis');
 const rpcEndpoint = osmoChainConfig.apis.rpc[0].address;
@@ -96,11 +101,5 @@ export default async (argv) => {
     memo: ''
   });
 
-  if (res.transactionHash) {
-    console.log(`tx hash ${res.transactionHash}`);
-  } else {
-    console.log('no tx found!');
-  }
-  console.log('\n\n\n\n\ntx');
-  console.log(res);
+  printOsmoTransactionResponse(res);
 };
