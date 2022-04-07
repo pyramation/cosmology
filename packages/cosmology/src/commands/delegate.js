@@ -4,14 +4,14 @@ import {
   displayUnitsToDenomUnits,
   getWalletFromMnemonic,
   baseUnitsToDisplayUnitsByDenom,
-  getCosmosAssetInfo
+  getCosmosAssetInfo,
+  printTransactionResponse,
+  gasEstimation
 } from '../utils';
 import { promptChain, promptMnemonic } from '../utils/prompt';
 import {
   SigningStargateClient,
-  calculateFee,
-  assertIsDeliverTxSuccess,
-  GasPrice
+  assertIsDeliverTxSuccess
 } from '@cosmjs/stargate';
 import { messages } from '../messages/native';
 import { noDecimals } from '../messages';
@@ -53,7 +53,6 @@ export default async (argv) => {
     (a) => a.symbol === argv.chainToken
   ).base;
   if (!denom) throw new Error('cannot find asset base unit');
-  const defaultGasPrice = '0.0025' + denom;
 
   const signer = await getWalletFromMnemonic({
     mnemonic: argv.mnemonic,
@@ -76,12 +75,6 @@ export default async (argv) => {
     rpcEndpoint,
     signer
   );
-
-  const getFee = (gas, gasPrice) => {
-    if (!gas) gas = 200_000;
-    if (!gasPrice) gasPrice = GasPrice.fromString(defaultGasPrice);
-    return calculateFee(gas, gasPrice);
-  };
 
   const [mainAccount] = await signer.getAccounts();
 
@@ -141,28 +134,6 @@ export default async (argv) => {
 
   console.log(validatorAddress);
 
-  const simulate = async (address, msgs, memo, modifier) => {
-    const estimate = await stargateClient.simulate(address, msgs, memo);
-    // console.log({ estimate });
-    return parseInt(estimate * (modifier || 1.5));
-  };
-
-  const getGasPrice = async (address, msgs, memo, modifier) => {
-    let fee;
-    let gas;
-    try {
-      gas = await simulate(address, msgs, memo);
-      fee = getFee(gas);
-      //   fee = getFee(gas, gasPrice)
-      // console.log(fee);
-      return fee;
-      //   const feeAmount = Number(fee.amount[0].amount);
-      //   return feeAmount;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const messagesToDelegate = [];
   const suggested = availBal.sub(new Dec(0.02));
   if (suggested.lte(new Dec(0.01))) {
@@ -194,24 +165,24 @@ export default async (argv) => {
     })
   );
 
-  const fee = await getGasPrice(address, messagesToDelegate);
-
-  if (denom === 'uhuahua') {
-    // literally wtf (needs a 10x + 1)
-    fee.amount[0].amount = `${fee.amount[0].amount}1`;
-  }
-  if (denom === 'ucmdx') {
-    // literally wtf (needs a 10x + 1)
-    fee.amount[0].amount = `${fee.amount[0].amount}1`;
-  }
+  const fee = await gasEstimation(
+    denom,
+    stargateClient,
+    address,
+    messagesToDelegate,
+    '',
+    1.3
+  );
 
   stargateClient.signAndBroadcast(address, messagesToDelegate, fee, '').then(
     (result) => {
       try {
         assertIsDeliverTxSuccess(result);
         stargateClient.disconnect();
-        console.log('⚛️');
-        console.log(`success in staking ${displayAmount} ${argv.chainToken}`);
+        console.log(
+          `⚛️  success in staking ${displayAmount} ${argv.chainToken}`
+        );
+        printTransactionResponse(result, chain);
       } catch (error) {
         console.log(error);
       }

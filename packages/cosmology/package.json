@@ -1,9 +1,9 @@
 {
   "name": "cosmology",
-  "version": "0.0.30",
+  "version": "0.1.7",
   "description": "cosmology",
   "author": "Dan Lynch <pyramation@gmail.com>",
-  "homepage": "https://github.com/pyramation/cosmology/tree/master/packages/cosmology#readme",
+  "homepage": "https://github.com/cosmology-finance/cosmology/tree/master/packages/cosmology#readme",
   "license": "SEE LICENSE IN LICENSE",
   "main": "main/index.js",
   "module": "module/index.js",
@@ -23,29 +23,28 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pyramation/cosmology"
+    "url": "https://github.com/cosmology-finance/cosmology"
   },
   "scripts": {
-    "build:main": "cross-env BABEL_ENV=production babel src --out-dir main --delete-dir-on-start",
-    "build:module": "cross-env MODULE=true babel src --out-dir module --delete-dir-on-start",
+    "build:main": "cross-env BABEL_ENV=production babel src --out-dir main --delete-dir-on-start --extensions \".tsx,.ts,.js\"",
+    "build:module": "cross-env MODULE=true babel src --out-dir module --delete-dir-on-start  --extensions \".tsx,.ts,.js\"",
+    "build:commands": "cross-env NODE_ENV=development node ./bin/build.js",
     "build": "npm run build:module && npm run build:main",
     "prepare": "npm run build",
     "lint": "eslint src --fix",
-    "dev": "cross-env NODE_ENV=development babel-node src/cosmology",
-    "mytest": "cross-env NODE_ENV=development babel-node src/my-test",
-    "watch": "cross-env NODE_ENV=development babel-watch src/cosmology",
-    "file": "cross-env NODE_ENV=development babel-watch src/file",
-    "make:commands": "cross-env NODE_ENV=development node ./bin/build.js",
+    "dev": "cross-env NODE_ENV=development babel-node src/cosmology --extensions \".tsx,.ts,.js\"",
+    "watch": "cross-env NODE_ENV=development babel-watch src/cosmology --extensions \".tsx,.ts,.js\"",
+    "file": "cross-env NODE_ENV=development babel-watch src/file --extensions \".tsx,.ts,.js\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
   "bugs": {
-    "url": "https://github.com/pyramation/cosmology/issues"
+    "url": "https://github.com/cosmology-finance/cosmology/issues"
   },
   "devDependencies": {
     "@babel/cli": "7.17.6",
-    "@babel/core": "7.17.5",
+    "@babel/core": "7.17.8",
     "@babel/eslint-parser": "^7.5.4",
     "@babel/node": "^7.10.5",
     "@babel/plugin-proposal-class-properties": "7.16.7",
@@ -53,32 +52,33 @@
     "@babel/plugin-proposal-object-rest-spread": "7.17.3",
     "@babel/plugin-transform-runtime": "7.17.0",
     "@babel/preset-env": "7.16.11",
+    "@babel/preset-typescript": "7.16.7",
     "@types/jest": "^27.4.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-plugin-inline-json-import": "0.3.2",
     "babel-watch": "^7.0.0",
     "case": "1.6.3",
     "cross-env": "^7.0.2",
-    "eslint": "^8.7.0",
+    "eslint": "^8.12.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "glob": "7.2.0",
-    "jest": "^25.1.0",
+    "jest": "^27.5.1",
     "jest-in-case": "^1.0.2",
-    "prettier": "^2.1.2",
+    "prettier": "^2.6.2",
     "regenerator-runtime": "^0.13.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.4.2",
+    "@babel/runtime": "^7.17.8",
     "@cosmjs/amino": "0.27.1",
     "@cosmjs/launchpad": "0.27.1",
     "@cosmjs/proto-signing": "0.27.1",
     "@cosmjs/stargate": "0.27.1",
-    "@cosmology/cosmos-registry": "^0.0.6",
-    "@keplr-wallet/types": "0.9.12",
-    "@keplr-wallet/unit": "0.9.12",
+    "@cosmology/cosmos-registry": "^0.0.9",
+    "@keplr-wallet/types": "0.10.0",
+    "@keplr-wallet/unit": "0.10.0",
     "ansi-colors": "^4.1.1",
-    "axios": "0.25.0",
+    "axios": "0.26.1",
     "class-autobind": "^0.1.4",
     "cosmjs-types": "0.4.1",
     "crypto-js": "4.1.1",
@@ -86,11 +86,10 @@
     "inquirerer": "0.1.3",
     "keychain": "1.3.0",
     "long": "5.2.0",
-    "minimist": "1.2.5",
+    "minimist": "1.2.6",
     "protobufjs": "6.11.2",
     "retry": "0.13.1",
     "secrets.js-grempe": "2.0.0",
-    "tiny-async-pool": "^1.2.0"
-  },
-  "gitHead": "8bb6eaf72e6ca2996663df72a830912d0ebbb0e7"
+    "typescript": "^4.6.2"
+  }
 }

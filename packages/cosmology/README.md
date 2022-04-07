@@ -29,7 +29,6 @@ Then once you learn the api, you can start supplying the parameters.
 ```
 cosmology <commandname>
 ```
-
 ## commands
 
 ### `rebalance`
@@ -126,6 +125,19 @@ cosmology delegate \
   --rpcEndpoint https://rpc.comdex.one \
   --validatorAddress comdexvaloper1mzxzxkzajancc63gtwt9x9zw2qfv9k9ar7ka34
 ```
+## env vars
+
+While everything can be done with parameters, you can also just supply env vars and cosmology won't prompt you for those values:
+
+| env var              | optional           | description                                               |
+| -------------------- | ------------------ | --------------------------------------------------------- |
+| `MNEMONIC`           | Yes                | cosmos mnemonic, either plain-text or encrypted           |
+| `ENCRYPTED_SALT`     | Yes                | used for encrypting/decrypting mnemonics                  |
+| `KEYCHAIN_ACCOUNT`   | Yes                | used for storing info in OSX keychain account             |
+| `CHAIN_ID`           | Yes                | used for getting chain info, e.g. osmosis-1               |
+| `REST_ENDPOINT`      | Yes                | used for setting LCD endpoint                             |
+| `RPC_ENDPOINT`       | Yes                | used for setting RCP endpoint                             |
+
 ## mnemonics
 
 There are a few methods to deal with mnemonics. 
@@ -136,7 +148,7 @@ There are a few methods to deal with mnemonics.
 
 ### METHOD 1 - plain text
 
-(Not recommended)
+(Not recommended) [video here](https://www.youtube.com/watch?v=K46jMo5pjvQ)
 
 ```sh
 export MNEMONIC="action brisk disagree just bunker design wasp hand night ghost runway fluid"
@@ -147,6 +159,9 @@ cosmology rebalance
 
 ### METHOD 2 - encrypted salt via env var `ENCRYPTED_SALT`
 
+[video here](https://www.youtube.com/watch?v=gHIpLZOpHaw)
+
+The encrypted salt is the recommended usage so that you don't store plain-text mnemonics.
 #### 1 First, generate a salt.
 
 ```sh
@@ -174,8 +189,9 @@ export ENCRYPTED_SALT=U2FsdGVkX183aSMtLlWua/uig/Qqd99TBILc63iW1AsJaKGykZGPvA/DXB
 # the mnemonic will be automatically decrypted by the system
 cosmology
 ```
-
 ### METHOD 3 - keychain
+
+[video here](https://www.youtube.com/watch?v=gHIpLZOpHaw)
 
 We can leverage the Mac OSX keychain. Don't worry though, we ONLY use encryption via the encrypted salt, even if some of you happen to trust storing mnemonics in OSX keychain. We only store encrypted values, period.
 ### 1 create an encryption key and encrypt it as described in the previous step
@@ -202,6 +218,56 @@ $ cosmology keychain-get \
  --name my-special-mnemonic-name-1
 ```
 
+## testing
+
+first start the tests
+
+```
+cd ./packages/cosmology
+yarn test:watch
+```
+
+hit "p" and then type a search string to scope to the name your test
+## developing the CLI
+
+if you need to edit the CLI
+
+```sh
+cd ./packages/cosmology
+export MNEMONIC="mammal wrestle hybrid cart choose flee transfer filter fly object swamp rookie"
+export CHAIN_ID=osmosis-testnet-0
+export RPC_ENDPOINT=http://143.244.147.126:26657
+
+yarn run dev
+```
+
+## Useful Links for Developers of Cosmology
+
+### RPC Docs
+
+https://v1.cosmos.network/rpc/v0.41.4
+
+### LCD Docs
+
+https://osmosis.stakesystems.io/static/openapi/
+
+### Validator Docs
+
+https://api-osmosis.imperator.co/swagger
+
+### Other
+
+https://github.com/osmosis-labs/awesome#publicly-available-endpoints
+
+https://www.notion.so/Stake-Systems-LCD-RPC-gRPC-Instances-04a99a9a9aa14247a42944931eec7024
+
+## known issues
+
+* defaults to NOT using pools with less than 100k in liquidity
+* smaller tokens with volatility may need higher slippage values
+
 ## Disclaimer
 
 AS DESCRIBED IN THE COSMOLOGY LICENSES, THE SOFTWARE IS PROVIDED “AS IS”, AT YOUR OWN RISK, AND WITHOUT WARRANTIES OF ANY KIND.
+
+No developer or entity involved in creating Cosmology will be liable for any claims or damages whatsoever associated with your use, inability to use, or your interaction with other users of the Cosmology app or Cosmology CLI, including any direct, indirect, incidental, special, exemplary, punitive or consequential damages, or loss of profits, cryptocurrencies, tokens, or anything else of value.

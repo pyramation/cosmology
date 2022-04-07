@@ -2,42 +2,46 @@ import { chains } from '@cosmology/cosmos-registry';
 import { coin } from '@cosmjs/amino';
 import { prompt } from '../utils';
 import { OsmosisApiClient } from '../clients/osmosis';
-import { OsmosisValidatorClient } from '../clients/validator';
 import { osmoRestClient } from '../utils';
 import {
   calculateShareOutAmount,
   calculateCoinsNeededInPoolForValue,
-  calculateMaxCoinsForPool
+  calculateMaxCoinsForPool,
+  makePoolsPretty,
+  makePoolsPrettyValues
 } from '../utils/osmo';
 import { getSigningOsmosisClient } from '../messages/utils';
 import { messages } from '../messages/messages';
 import { signAndBroadcast } from '../messages/utils';
-import { getPools } from '../utils/prompt';
 import { getPricesFromCoinGecko } from '../clients/coingecko';
+import { printOsmoTransactionResponse } from '../utils/print';
 
 const osmoChainConfig = chains.find((el) => el.chain_name === 'osmosis');
 const rpcEndpoint = osmoChainConfig.apis.rpc[0].address;
 
 export default async (argv) => {
-  const validator = new OsmosisValidatorClient();
   const api = new OsmosisApiClient();
+  const prices = await getPricesFromCoinGecko();
+  const lcdPools = await api.getPools();
+  const prettyPools = makePoolsPretty(prices, lcdPools.pools);
+  if (!argv['liquidity-limit']) argv['liquidity-limit'] = 100_000;
+  const poolListValues = makePoolsPrettyValues(
+    prettyPools,
+    argv['liquidity-limit']
+  );
+
   const { client, wallet: signer } = await osmoRestClient(argv);
   const [account] = await signer.getAccounts();
 
   const accountBalances = await client.getBalances(account.address);
   const balances = accountBalances.result;
-  // get pricing and pools info...
-  const prices = await getPricesFromCoinGecko();
-  //   const pools = await api.getPoolsPretty();
-
-  const poolList = await getPools(validator, argv);
   const { poolId } = await prompt(
     [
       {
         type: 'fuzzy:objects',
         name: 'poolId',
         message: 'choose pools to invest in',
-        choices: poolList
+        choices: poolListValues
       }
     ],
     argv
@@ -88,7 +92,9 @@ export default async (argv) => {
     })
   });
 
-  console.log(JSON.stringify(msg, null, 2));
+  if (argv.verbose) {
+    console.log(JSON.stringify(msg, null, 2));
+  }
 
   const accounts = await signer.getAccounts();
   const osmoAddress = accounts[0].address;
@@ -106,12 +112,5 @@ export default async (argv) => {
     memo: ''
   });
 
-  if (res.transactionHash) {
-    console.log(`tx hash ${res.transactionHash}`);
-  } else {
-    console.log('no tx found!');
-  }
-
-  console.log('\n\n\n\n\ntx');
-  console.log(res);
+  printOsmoTransactionResponse(res);
 };

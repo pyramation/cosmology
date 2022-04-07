@@ -1,8 +1,6 @@
-import { chains } from '@cosmology/cosmos-registry';
-import { assets } from '@cosmology/cosmos-registry';
-import { prompt } from '../utils';
+import { chains, assets } from '@cosmology/cosmos-registry';
+import { printOsmoTransactionResponse, prompt } from '../utils';
 import { OsmosisApiClient } from '../clients/osmosis';
-import { OsmosisValidatorClient } from '../clients/validator';
 import {
   baseUnitsToDisplayUnits,
   baseUnitsToDollarValue,
@@ -11,11 +9,13 @@ import {
 } from '../utils/chain';
 import { osmoRestClient } from '../utils';
 import { osmoDenomToSymbol, symbolToOsmoDenom } from '../utils/osmo';
-
 import {
   lookupRoutesForTrade,
-  calculateAmountWithSlippage
+  calculateAmountWithSlippage,
+  makePoolPairs,
+  makePoolsPretty
 } from '../utils/osmo/utils';
+import { prettyPool } from '../clients/osmosis';
 import { getSigningOsmosisClient, noDecimals } from '../messages/utils';
 import { messages } from '../messages/messages';
 import { signAndBroadcast } from '../messages/utils';
@@ -35,8 +35,11 @@ function onlyUnique(value, index, self) {
 const assetsList = assetList.filter(onlyUnique);
 
 export default async (argv) => {
-  const validator = new OsmosisValidatorClient();
   const api = new OsmosisApiClient();
+  const prices = await getPricesFromCoinGecko();
+  const lcdPools = await api.getPools();
+  const prettyPools = makePoolsPretty(prices, lcdPools.pools);
+  if (!argv['liquidity-limit']) argv['liquidity-limit'] = 100_000;
   const { client, wallet: signer } = await osmoRestClient(argv);
   const [account] = await signer.getAccounts();
 
@@ -89,10 +92,8 @@ export default async (argv) => {
   });
 
   // get pricing and pools info...
-  const pairs = await validator.getPairsSummary();
-  const prices = await getPricesFromCoinGecko();
-
-  const pools = await api.getPoolsPretty();
+  const pairs = makePoolPairs(prettyPools);
+  const pools = lcdPools.pools.map((pool) => prettyPool(pool));
 
   const usdValue = baseUnitsToDollarValue(prices, sell, tokenInBal.amount);
 
@@ -170,7 +171,7 @@ export default async (argv) => {
       },
       beliefValue: value
     },
-    pairs: pairs.data
+    pairs
   }).map((tradeRoute) => {
     const {
       poolId,
@@ -207,7 +208,7 @@ export default async (argv) => {
     tokenOutMinAmount: noDecimals(tokenOut.amount)
   });
 
-  console.log(msg);
+  console.log(JSON.stringify(msg, null, 2));
 
   const res = await signAndBroadcast({
     client: stargateClient,
@@ -218,6 +219,5 @@ export default async (argv) => {
     memo: ''
   });
 
-  console.log('\n\n\n\n\ntx');
-  console.log(res);
+  printOsmoTransactionResponse(res);
 };

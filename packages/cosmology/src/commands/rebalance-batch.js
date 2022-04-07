@@ -3,7 +3,6 @@ import { chains, assets } from '@cosmology/cosmos-registry';
 import { Dec, IntPretty } from '@keplr-wallet/unit';
 import { prompt } from '../utils';
 import { OsmosisApiClient } from '..';
-import { OsmosisValidatorClient } from '../clients/validator';
 import { baseUnitsToDisplayUnits, osmoRestClient } from '../utils';
 import { getSigningOsmosisClient, noDecimals } from '../messages/utils';
 import { messages } from '../messages/messages';
@@ -16,33 +15,32 @@ import {
   getSwaps,
   substractCoins,
   calculateAmountWithSlippage,
-  getSellableBalance
+  getSellableBalance,
+  makePoolPairs,
+  makePoolsPretty,
+  makePoolsPrettyValues
 } from '../utils/osmo';
-import c from 'ansi-colors';
 import { getPricesFromCoinGecko } from '../clients/coingecko';
+import { prettyPool } from '../clients/osmosis';
+import {
+  printSwap,
+  printSwapForPoolAllocation,
+  printOsmoTransactionResponse
+} from '../utils/print';
 
 const osmoChainConfig = chains.find((el) => el.chain_name === 'osmosis');
 const rpcEndpoint = osmoChainConfig.apis.rpc[0].address;
 
 export default async (argv) => {
-  const validator = new OsmosisValidatorClient();
   const api = new OsmosisApiClient();
-
-  const getPools = async (argv) => {
-    const pools = await validator.getPools();
-    return Object.keys(pools)
-      .map((poolId) => {
-        if (pools[poolId][0].liquidity > argv['liquidity-limit']) {
-          return {
-            name: pools[poolId].map((a) => a.symbol).join('/'),
-            value: poolId
-          };
-        }
-      })
-      .filter(Boolean);
-  };
-
+  const prices = await getPricesFromCoinGecko();
+  const lcdPools = await api.getPools();
+  const prettyPools = makePoolsPretty(prices, lcdPools.pools);
   if (!argv['liquidity-limit']) argv['liquidity-limit'] = 100_000;
+  const poolListValues = makePoolsPrettyValues(
+    prettyPools,
+    argv['liquidity-limit']
+  );
 
   const { client, wallet: signer } = await osmoRestClient(argv);
   const [account] = await signer.getAccounts();
@@ -57,6 +55,7 @@ export default async (argv) => {
         return;
       }
       const displayAmount = baseUnitsToDisplayUnits(symbol, amount);
+      if (new Dec(displayAmount).lte(new Dec(0.0001))) return;
       return {
         symbol,
         denom,
@@ -97,14 +96,13 @@ export default async (argv) => {
 
   // WHICH POOLS TO INVEST?
 
-  const poolList = await getPools(argv);
   let { poolId } = await prompt(
     [
       {
         type: 'checkbox',
         name: 'poolId',
         message: 'choose pools to invest in',
-        choices: poolList
+        choices: poolListValues
       }
     ],
     argv
@@ -117,11 +115,12 @@ export default async (argv) => {
 
   const poolWeightQuestions = poolId.map((p) => {
     const str = `gamm/pool/${p}`;
-    const name = poolList.find(({ value }) => value == p + '').name;
+    const name = poolListValues.find(({ value }) => value == p + '').name;
     return {
       type: 'number',
       name: `poolWeights[${str}][weight]`,
-      message: `enter weight for pool ${name} (${p})`
+      message: `enter weight for pool ${name} (${p})`,
+      default: 1
     };
   });
 
@@ -146,10 +145,8 @@ export default async (argv) => {
   const osmoAddress = accounts[0].address;
 
   // get pricing and pools info...
-
-  const pairs = await validator.getPairsSummary();
-  const prices = await getPricesFromCoinGecko();
-  const pools = await api.getPoolsPretty();
+  const pairs = makePoolPairs(prettyPools);
+  const pools = lcdPools.pools.map((pool) => prettyPool(pool));
 
   const result = convertWeightsIntoCoins({ weights, pools, prices, balances });
 
@@ -171,30 +168,19 @@ export default async (argv) => {
       prices,
       coins: coinsToSubstract
     });
-    const swaps = await getSwaps({ pools, trades, pairs: pairs.data });
+    const swaps = await getSwaps({ trades, pairs: pairs });
     balances = substractCoins(balances, coinsToSubstract);
 
-    console.log(`\nSWAPS for ${c.bold.magenta(result.pools[i].name)}`);
+    printSwapForPoolAllocation(result.pools[i]);
 
     for (let s = 0; s < swaps.length; s++) {
       const swap = swaps[s];
+      printSwap(swap);
+
       const {
         trade: { sell, buy, beliefValue },
         routes
       } = swap;
-
-      console.log(
-        `TRADE ${c.bold.yellow(
-          sell.displayAmount + ''
-        )} ($${beliefValue}) worth of ${c.bold.red(
-          sell.symbol
-        )} for ${c.bold.green(buy.symbol)}`
-      );
-      const r = routes
-        .map((r) => [r.tokenInSymbol, r.tokenOutSymbol].join('->'))
-        .join(', ')
-        .toLowerCase();
-      console.log(c.gray(`  routes: ${r}`));
 
       const slippage = 1;
       const tokenOutMinAmount = calculateAmountWithSlippage(
@@ -216,7 +202,9 @@ export default async (argv) => {
     }
   }
 
-  console.log(JSON.stringify(msgs, null, 2));
+  if (argv.verbose) {
+    console.log(JSON.stringify(msgs, null, 2));
+  }
 
   const memo = '';
   const gasEstimated = await stargateClient.simulate(address, msgs, memo);
@@ -236,5 +224,6 @@ export default async (argv) => {
     fee,
     memo: ''
   });
-  console.log(res);
+
+  printOsmoTransactionResponse(res);
 };
