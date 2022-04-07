@@ -1,10 +1,6 @@
-import {
-  SigningStargateClient,
-  calculateFee,
-  GasPrice
-} from '@cosmjs/stargate';
+import { SigningStargateClient, calculateFee, GasPrice } from '@cosmjs/stargate'
 
-import { CoinDenom } from '../types';
+import { CoinDenom } from '..'
 
 export const gasEstimation = async (
   denom: CoinDenom,
@@ -14,45 +10,45 @@ export const gasEstimation = async (
   memo: string,
   modifier: number
 ) => {
-  const defaultGasPrice = '0.0025' + denom;
+  const defaultGasPrice = '0.0025' + denom
   const getFee = (gas, gasPrice) => {
-    if (!gas) gas = 200_000;
-    if (!gasPrice) gasPrice = GasPrice.fromString(defaultGasPrice);
-    return calculateFee(gas, gasPrice);
-  };
+    if (!gas) gas = 200_000
+    if (!gasPrice) gasPrice = GasPrice.fromString(defaultGasPrice)
+    return calculateFee(gas, gasPrice)
+  }
 
   const simulate = async (address, msgs, memo, modifier = 1.5) => {
-    const estimate = await stargateClient.simulate(address, msgs, memo);
+    const estimate = await stargateClient.simulate(address, msgs, memo)
     // console.log({ estimate });
-    return parseInt(estimate * (modifier));
-  };
+    return parseInt(estimate * modifier)
+  }
 
   const getGasPrice = async (address, msgs, memo, modifier) => {
-    let fee;
-    let gas;
+    let fee
+    let gas
     try {
-      gas = await simulate(address, msgs, memo);
-      fee = getFee(gas);
+      gas = await simulate(address, msgs, memo)
+      fee = getFee(gas)
       //   fee = getFee(gas, gasPrice)
       // console.log(fee);
-      return fee;
+      return fee
       //   const feeAmount = Number(fee.amount[0].amount);
       //   return feeAmount;
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  const fee = await getGasPrice(address, msgs, memo, modifier);
+  const fee = await getGasPrice(address, msgs, memo, modifier)
 
   if (denom === 'uhuahua') {
     // literally wtf (needs a 10x + 1)
-    fee.amount[0].amount = `${fee.amount[0].amount}1`;
+    fee.amount[0].amount = `${fee.amount[0].amount}1`
   }
   if (denom === 'ucmdx') {
     // literally wtf (needs a 10x + 1)
-    fee.amount[0].amount = `${fee.amount[0].amount}1`;
+    fee.amount[0].amount = `${fee.amount[0].amount}1`
   }
 
-  return fee;
-};
+  return fee
+}

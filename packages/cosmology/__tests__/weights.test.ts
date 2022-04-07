@@ -1,7 +1,7 @@
 // @ts-nocheck
-import poolsFixture from '../__fixtures__/lcd/osmosis/gamm/v1beta1/pools/data.json';
-import geckoPricesFixtures from '../__fixtures__/coingecko/api/v3/simple/price/data.json';
-import cases from 'jest-in-case';
+import poolsFixture from '../__fixtures__/lcd/osmosis/gamm/v1beta1/pools/data.json'
+import geckoPricesFixtures from '../__fixtures__/coingecko/api/v3/simple/price/data.json'
+import cases from 'jest-in-case'
 import {
   symbolsAndDisplayValuesToCoinsArray,
   getTradesRequiredToGetBalances,
@@ -10,17 +10,17 @@ import {
   calculateCoinsTotalBalance,
   convertWeightsIntoCoins,
   makePoolPairs,
-  makePoolsPretty,
-} from '../src/utils/osmo';
-import { prettyPool } from '../src/clients/osmosis';
-import { LcdPool } from '../src/types';
-import { Dec } from '@keplr-wallet/unit';
+  makePoolsPretty
+} from '../src/utils/osmo'
+import { prettyPool } from '../src/clients/osmosis'
+import { LcdPool } from '..'
+import { Dec } from '@keplr-wallet/unit'
 
-const prices = convertGeckoPricesToDenomPriceHash(geckoPricesFixtures);
-const lcdPools: LcdPool[] = poolsFixture.pools;
-const prettyPools = makePoolsPretty(prices, lcdPools);
-const pairs = makePoolPairs(prettyPools);
-const pools = lcdPools.map((pool) => prettyPool(pool));
+const prices = convertGeckoPricesToDenomPriceHash(geckoPricesFixtures)
+const lcdPools: LcdPool[] = poolsFixture.pools
+const prettyPools = makePoolsPretty(prices, lcdPools)
+const pairs = makePoolPairs(prettyPools)
+const pools = lcdPools.map(pool => prettyPool(pool))
 
 const bank = {
   total: '9647.3',
@@ -41,42 +41,44 @@ const bank = {
       amount: 1000
     }
   ]
-};
+}
 
 cases(
   'weights',
-  async (opts) => {
-    const balances = symbolsAndDisplayValuesToCoinsArray(opts.balances);
+  async opts => {
+    const balances = symbolsAndDisplayValuesToCoinsArray(opts.balances)
 
     const balanceValue = calculateCoinsTotalBalance({
       prices,
       coins: balances
-    });
-    expect(new Dec(balanceValue).sub(new Dec(opts.total)).isZero());
+    })
+    expect(new Dec(balanceValue).sub(new Dec(opts.total)).isZero())
 
-    const weights = opts.weights;
+    const weights = opts.weights
     const weightCoins = convertWeightsIntoCoins({
       weights,
       pools,
       prices,
       balances
-    });
+    })
 
     const poolsValue = weightCoins.pools.reduce((m, v) => {
-      return m.add(new Dec(v.value));
-    }, new Dec(0));
+      return m.add(new Dec(v.value))
+    }, new Dec(0))
     const coinsValue = weightCoins.coins.reduce((m, v) => {
-      return m.add(new Dec(v.value));
-    }, new Dec(0));
+      return m.add(new Dec(v.value))
+    }, new Dec(0))
     const allocations = weightCoins.weights.reduce((m, v) => {
-      return m.add(new Dec(v.allocation));
-    }, new Dec(0));
-    expect(Math.round(allocations)).toBe(1);
+      return m.add(new Dec(v.allocation))
+    }, new Dec(0))
+    expect(Math.round(allocations)).toBe(1)
 
     // diff is zero or SUPER close to zero
-    const diff = coinsValue.add(poolsValue).sub(new Dec(opts.total));
-    expect(diff.isZero() || (diff.gt(new Dec(0)) && diff.lt(new Dec(0.0000001)))).toBe(true);
-    expect(weightCoins).toMatchSnapshot();
+    const diff = coinsValue.add(poolsValue).sub(new Dec(opts.total))
+    expect(
+      diff.isZero() || (diff.gt(new Dec(0)) && diff.lt(new Dec(0.0000001)))
+    ).toBe(true)
+    expect(weightCoins).toMatchSnapshot()
   },
   [
     {
@@ -156,4 +158,4 @@ cases(
       ]
     }
   ]
-);
+)

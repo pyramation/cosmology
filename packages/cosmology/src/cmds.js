@@ -1,4 +1,3 @@
-
 import _claim from './commands/claim';
 import _create_mnemonic_wallet from './commands/create-mnemonic-wallet';
 import _decrypt from './commands/decrypt';
@@ -61,6 +60,4 @@ Commands['swap'] = _swap;
 Commands['version'] = _version;
 Commands['vote'] = _vote;
 
-  export { Commands }; 
-
-  
+export { Commands };
