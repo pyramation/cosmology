@@ -18,6 +18,7 @@ export class OsmosisApiClient extends CosmosApiClient {
     autobind(this); // React ES6 doesn't bind this -> meaning we get 'unable to read property 'request' of undefined
   }
 
+  // TODO typing, this returns PoolsInfo object (defined in index.d.ts)
   async getPools() {
     const endpoint = `osmosis/gamm/v1beta1/pools?pagination.limit=750`;
     return await this.request(endpoint);

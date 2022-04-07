@@ -2,57 +2,52 @@ import { RestClient } from './rest';
 import autobind from 'class-autobind';
 
 /**
- * 
- * @typedef {(
- * string
- * )} CoinDenom
  *
- * @typedef {( 
- * string
- * )} CoinSymbol
- * 
+ *
  * @typedef {{
+ *  denom: string;
+ *  exponent: number;
+ *  name: string;
+ *  symbol: string;
  *  price: number;
- *  denom: CoinDenom;
- *  symbol: CoinSymbol;
+ *  price_24h_chainge: number;
  *  liquidity: number;
  *  liquidity_24h_change: number;
  *  volume_24h: number;
  *  volume_24h_change: number;
- *  name: string;
  * }} ValidatorToken
- * 
+ *
  * @typedef {{
  *  price: number;
  * }} ValidatorTokenPrice
- * 
+ *
  * @typedef {{
  * start_date: string;
- * denom: CoinDenom;
- * symbol: CoinSymbol;
+ * denom: string;
+ * symbol: string;
  * apr_1d: number;
  * apr_7d: number;
  * apr_14d: number;
  * }} ValidatorCoinApr
- * 
+ *
  * @typedef {{
  *  pool_id: number;
  *  apr_list: ValidatorCoinApr[]
  * }} ValidatorPoolApr
- * 
- * 
+ *
+ *
  * interestingly this one has "price" which I think is the
  * price of the LP token? TODO: verify...
- * 
+ *
  * @typedef {{
  *  pool_address: string;
  *  pool_id: string;
  *  base_name: string;
- *  base_symbol: CoinSymbol;
- *  base_address: CoinDenom;
+ *  base_symbol: string;
+ *  base_address: string;
  *  quote_name: string;
- *  quote_symbol: CoinSymbol;
- *  quote_address: CoinDenom;
+ *  quote_symbol: string;
+ *  quote_address: string;
  *  price: number;
  *  base_volume_24h: number;
  *  quote_volume_24h: number;
@@ -61,7 +56,7 @@ import autobind from 'class-autobind';
  *  liquidity: number;
  *  liquidity_atom: number;
  * }} ValidatorPair
- * 
+ *
  */
 //  https://api-osmosis.imperator.co/swagger/#/
 export class OsmosisValidatorClient extends RestClient {
@@ -85,16 +80,16 @@ export class OsmosisValidatorClient extends RestClient {
   }
 
   /**
-   * @param {CoinSymbol} symbol
+   * @param {string} symbol
    * @returns {Promise<ValidatorToken[]>}
    */
   async getToken(symbol) {
     const endpoint = `tokens/v2/${symbol}`;
     return await this.request(endpoint);
   }
-  
+
   /**
-   * @param {CoinSymbol} symbol
+   * @param {string} symbol
    * @returns {Promise<ValidatorTokenPrice[]>}
    */
   async getTokenPrice(symbol) {
@@ -111,20 +106,24 @@ export class OsmosisValidatorClient extends RestClient {
   }
 
   /**
-   * @param {CoinSymbol} symbol
+   * @param {string} symbol
    * @returns {Promise<ValidatorPoolApr[]>}
    */
-   async getPoolApr(symbol) {
+  async getPoolApr(symbol) {
     const endpoint = `apr/v1/${symbol}`;
     return await this.request(endpoint);
   }
 
   /**
+   * TODO: incorrect type (export in index.d.ts)
+   * {
+   * updated_at: number
+   * data:ValidatorPair[]
+   * }
    * @returns {Promise<ValidatorPair[]>}
    */
-   async getPairsSummary() {
+  async getPairsSummary() {
     const endpoint = `pairs/v1/summary`;
     return await this.request(endpoint);
   }
-
 }

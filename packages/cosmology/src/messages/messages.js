@@ -6,11 +6,6 @@ import { generateOsmoMessage as osmo } from './utils';
  * tokenOutDenom:string;
  * }} Route
  *
- * @typedef {{
- * amount:string;
- * denom:string;
- * }} Coin
- *
  */
 
 export const messages = {
@@ -22,7 +17,7 @@ export const messages = {
    * @param {string} param0.sender
    * @param {string} param0.poolId
    * @param {string} param0.shareOutAmount
-   * @param {Coin[]} param0.tokenInMaxs
+   * @param {import('../utils').Coin[]} param0.tokenInMaxs
    */
   joinPool: ({ sender, poolId, shareOutAmount, tokenInMaxs }) =>
     osmo('joinPool', {
@@ -35,7 +30,7 @@ export const messages = {
    * @param {object} param0
    * @param {string} param0.sender
    * @param {string} param0.poolId
-   * @param {Coin} param0.tokenIn
+   * @param {import('../utils').Coin} param0.tokenIn
    * @param {string} param0.shareOutMinAmount
    */
   joinSwapExternAmountIn: ({ sender, poolId, tokenIn, shareOutMinAmount }) =>
@@ -52,7 +47,7 @@ export const messages = {
    * @param {object} param0
    * @param {string} param0.sender
    * @param {Route[]} param0.routes
-   * @param {Coin} param0.tokenIn
+   * @param {import('../utils').Coin} param0.tokenIn
    * @param {string} param0.tokenOutMinAmount
    */
   swapExactAmountIn: ({ sender, routes, tokenIn, tokenOutMinAmount }) =>
@@ -69,7 +64,7 @@ export const messages = {
    * @param {object} param0
    * @param {string} param0.owner
    * @param {string} param0.duration
-   * @param {Coin[]} param0.coins
+   * @param {import('../utils').Coin[]} param0.coins
    */
   lockTokens: ({ owner, duration, coins }) =>
     osmo('lockTokens', { owner, duration, coins }),

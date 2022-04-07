@@ -8,6 +8,7 @@ import {
 } from '../chain';
 import { Dec, IntPretty } from '@keplr-wallet/unit';
 import { noDecimals } from '../../messages';
+import { CoinGeckoToken } from '../../clients';
 
 /**
  *
@@ -146,29 +147,6 @@ import { noDecimals } from '../../messages';
  * 'MED'
  * )} CoinSymbol
  *
- * @typedef {('cosmos'|
- * 'osmosis'|
- * 'ion'|
- * 'akash-network'|
- * 'sentinel'|
- * 'iris-network'|
- * 'crypto-com-chain'|
- * 'persistence'|
- * 'regen'|
- * 'starname'|
- * 'e-money'|
- * 'e-money-eur'|
- * 'juno-network'|
- * 'likecoin'|
- * 'terrausd'|
- * 'terra-luna'|
- * 'bitcanna'|
- * 'terra-krw'|
- * 'secret'|
- * 'medibloc'|
- * 'comdex'|
- * 'cheqd-network'|
- * 'vidulum')} CoinGeckoToken
  *
  * @typedef {Object.<CoinDenom, number>} PriceHash
  *
@@ -564,7 +542,6 @@ export const getFilteredPoolsWithValues = ({ prices, pools }) =>
  * @param {PriceHash} param0.prices
  * @param {Coin[]} param0.balances
  * @param {Coin[]} param0.desired
- * @param {Pool[]} param0.pools
  * @returns {Trade[]}
  */
 export const getTradesRequiredToGetBalances = ({
