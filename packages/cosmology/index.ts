@@ -310,3 +310,21 @@ export interface OsmosisAsset {
   }
   coingecko_id: string
 }
+
+export interface PairsSummary {
+  updated_at: number
+  data: Pair[]
+}
+
+export interface PoolsInfo {
+  pagination: {
+    next_key: string
+    total: string
+  }
+  pools: Pool[]
+}
+
+export interface Balances {
+  height: string
+  result: Coin[]
+}
