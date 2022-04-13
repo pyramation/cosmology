@@ -46,7 +46,6 @@ export default async (argv) => {
     api,
     validator,
     poolIds: poolId,
-    liquidityLimit: argv['liquidity-limit'],
     lockup: argv['lockup']
   });
 

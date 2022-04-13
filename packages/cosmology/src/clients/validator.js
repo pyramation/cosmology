@@ -61,7 +61,7 @@ export class OsmosisValidatorClient extends RestClient {
    * @returns {Promise<ValidatorPoolApr[]>}
    */
   async getPoolApr(symbol) {
-    const endpoint = `apr/v1/${symbol}`;
+    const endpoint = `apr/v2/${symbol}`;
     return await this.request(endpoint);
   }
 
