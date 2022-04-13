@@ -53,7 +53,6 @@ export const getPoolAprs = async ({
   const {
     lockable_durations: [d1, d7, d14]
   } = await api.getLockableDurations();
-  const result = await api.getIncentivizedPools();
   const { incentivized_pools } = await api.getIncentivizedPools();
   // const gauges = await api.getActiveGauges();
 
